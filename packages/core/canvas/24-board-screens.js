@@ -34,6 +34,7 @@
     var st = B.state, ss = st.screens[s.id];
     if (ss && (ss.remove || (ss.memo || "").trim())) return true;
     if (Object.keys(st.pins || {}).some(function (k) { var p = st.pins[k]; return p && p.slug === s.slug && (p.v === "change" || p.v === "remove"); })) return true;
+    if ((st.edits || []).some(function (e) { return e.slug === s.slug; })) return true;
     return s.regions.some(function (r) { var x = st.regions[r.id]; return x && x.v && x.v !== "like"; });
   }
   function roleName(role) { var l = HX.roleLabel(role).replace(/\(.*\)/, ""); return l === "부모" ? "부모님" : l; }
@@ -70,6 +71,7 @@
     if (hasConcepts) app.appendChild(B.buildConcepts());
 
     var order = screenOrder(), cur = null, frame = null, itemEls = {}, moRun = null;
+    var E = null;   // 화면에서 바로 고치기(26-board-edit.js) — 끝에서 만든다
 
     // 왼쪽 목록
     function buildList() {
@@ -166,7 +168,9 @@
       return r ? r.label : "";
     }
     // 위치 경로: 가장 가까운 data-region(@key)부터 태그:순번. 다음 초안에서 AI가 조각 파일에서 이 요소를 찾는 좌표
+    //   화면에서 자리를 옮겼으면(26-board-edit.js) 옮기기 전 경로 = 조각 파일의 경로를 쓴다
     function pathOf(el) {
+      var o = E && E.pathOf(el); if (o) return o;
       var segs = [], n = el, sec = frame.section;
       while (n && n !== sec) {
         if (n.hasAttribute && n.hasAttribute("data-region")) { segs.unshift("@" + n.getAttribute("data-region")); return segs.join(" > "); }
@@ -179,6 +183,7 @@
     }
     function resolve(path) {
       if (!frame || !path) return null;
+      var hit = E ? E.resolve(path) : undefined; if (hit !== undefined) return hit;
       var segs = path.split(" > "), n = frame.section;
       for (var i = 0; i < segs.length && n; i++) {
         var sg = segs[i];
@@ -204,13 +209,14 @@
       pinLayer.innerHTML = "";
       if (!frame || !cur || cur === ALL) return;
       if (cur !== MSGS) pinsOf(cur).forEach(function (p) {
-        var el = resolve(p.path); if (!el) return;
+        var el = resolve(p.path); if (!el || p.hide) return;   // ✕로 화면에서 뺀 곳은 번호 대신 '고친 것' 목록에
         var q = rectIn(el);
         var dot = HX.el("button", { type: "button", class: "hx-pin hx-pin-" + p.v + (picked && picked.pinId === p.id ? " hx-on" : ""), text: String(p.id), title: "의견 " + p.id + " · " + p.desc,
           style: "left:" + Math.max(0, q.x + q.w - 12) + "px;top:" + Math.max(0, q.y - 12) + "px", onclick: function (e) { e.stopPropagation(); pick(el, p.id); } });
         pinLayer.appendChild(dot);
       });
       place(selBox, picked && picked.el, 2);
+      if (E) E.paint();
     }
     function pinsOf(slug) {
       var st = B.state;
@@ -223,6 +229,17 @@
       picked = { el: el, path: path, desc: descOf(el), where: whereOf(el), pinId: pinId || null };
       renderEditor(); paintPins();
       editor.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+    // 고른 곳의 의견 핀 — 없으면 이어지는 번호로 만든다. 의견 창과 화면의 ✕(26-board-edit.js)가 같이 쓴다
+    function ensurePin(v) {
+      var st = B.state;
+      if (!picked.pinId) {
+        st.pinSeq = (st.pinSeq || 0) + 1;
+        var sl = picked.slug || cur;
+        var np = { id: st.pinSeq, sid: HX.bySlug[sl].id, slug: sl, path: picked.path, desc: picked.desc, where: picked.where, v: v, memo: "" };
+        st.pins[np.id] = np; picked.pinId = np.id;
+      }
+      var q = st.pins[picked.pinId]; if (q.v !== v && v) q.v = v; return q;
     }
     function renderEditor() {
       editor.innerHTML = "";
@@ -244,15 +261,7 @@
       var memo = HX.el("textarea", { class: "hx-ta hx-sd-memo", rows: "2", placeholder: "직접 적어도 돼요 (예: 날짜가 더 잘 보이게)", "aria-label": "의견 메모",
         oninput: function () { var v = memo.value.replace(/\s*\n+\s*/g, " "); if (v !== memo.value) memo.value = v; ensure("change").memo = v; paintChips(); B.changed(); } });
       memo.value = p ? p.memo || "" : "";
-      function ensure(v) {
-        if (!picked.pinId) {
-          st.pinSeq = (st.pinSeq || 0) + 1;
-          var sl = picked.slug || cur;
-          var np = { id: st.pinSeq, sid: HX.bySlug[sl].id, slug: sl, path: picked.path, desc: picked.desc, where: picked.where, v: v, memo: "" };
-          st.pins[np.id] = np; picked.pinId = np.id;
-        }
-        var q = st.pins[picked.pinId]; if (q.v !== v && v) q.v = v; return q;
-      }
+      var ensure = ensurePin;
       var choice = HX.el("div", { class: "hx-sd-choices", role: "group", "aria-label": "고른 곳에 대한 의견" });
       var CH = [["change", "바꿔주세요", "#i-pencil"], ["remove", "빼주세요", "#i-x"]];
       var cbtns = CH.map(function (c) {
@@ -311,7 +320,7 @@
     function renderPinList() {
       pinList.innerHTML = "";
       if (!cur || cur === ALL) return;
-      var ps = cur === MSGS ? Object.keys(B.state.pins || {}).map(function (k) { return B.state.pins[k]; }).filter(function (p) { return p && isMsgPin(p); }).sort(function (a, b) { return a.id - b.id; }) : pinsOf(cur);
+      var ps = cur === MSGS ? Object.keys(B.state.pins || {}).map(function (k) { return B.state.pins[k]; }).filter(function (p) { return p && isMsgPin(p); }).sort(function (a, b) { return a.id - b.id; }) : pinsOf(cur).filter(function (p) { return !p.hide; });
       pinList.appendChild(HX.el("div", { class: "hx-sd-h", text: (cur === MSGS ? "안내 문구에 남긴 의견 " : "이 화면에 남긴 의견 ") + ps.length + "개" }));
       if (!ps.length) pinList.appendChild(HX.el("div", { class: "hx-muted", text: "아직 없어요." }));
       ps.forEach(function (p) {
@@ -323,15 +332,16 @@
     function wirePicking() {
       var sec = frame.section;
       sec.addEventListener("mousemove", function (e) {
-        var t = targetOf(e.target); if (!t) { hov.style.display = hovLab.style.display = "none"; return; }
+        var t = !(E && E.busy()) && targetOf(e.target); if (!t) { hov.style.display = hovLab.style.display = "none"; return; }
         place(hov, t); var q = rectIn(t);
         var mt = e.target.closest && e.target.closest(".toast.mo-toast"); if (mt) { t = mt; place(hov, t); q = rectIn(t); }
         hovLab.textContent = mt ? "안내 문구 '" + cut(mt.querySelector(".toast-title").textContent) + "'" : descOf(t); hovLab.style.display = ""; hovLab.style.left = Math.max(0, q.x) + "px"; hovLab.style.top = Math.max(0, q.y - 24) + "px";
       });
       sec.addEventListener("mouseleave", function () { hov.style.display = hovLab.style.display = "none"; });
-      // 화면 속 버튼·링크·입력칸이 실제로 동작하지 않게 막고, 누른 요소를 고른다
-      sec.addEventListener("mousedown", function (e) { e.preventDefault(); }, true);
+      // 화면 속 버튼·링크·입력칸이 실제로 동작하지 않게 막고, 누른 요소를 고른다 (글자를 고쳐 쓰는 중이면 그 글자 안은 그대로)
+      sec.addEventListener("mousedown", function (e) { if (!(E && E.owns(e.target))) e.preventDefault(); }, true);
       sec.addEventListener("click", function (e) {
+        if (E && E.owns(e.target)) return;
         e.preventDefault(); e.stopPropagation();
         var m = msgAt(e.target); if (m) { pickMsg(m); return; }   // 화면에 뜬 안내 문구를 누르면 그 문구를 고른다
         var t = targetOf(e.target); if (t) pick(t);
@@ -419,6 +429,7 @@
 
     function show(slug, key) {
       if (moRun) { moRun.stop(); moRun = null; }   // 다른 화면으로 가면 움직임을 멈춘다
+      if (E) E.unmount();
       cur = slug; paintList();
       stage.innerHTML = ""; sideScreen.innerHTML = ""; frame = null; picked = null;
       view.classList.toggle("hx-sd-mode-all", slug === ALL);
@@ -452,7 +463,9 @@
       frame = HX.mountFrame(slug, box, { fit: "width", fullHeight: true, maxScale: 1, pad: 0, badges: false, onLayout: function () { paintPins(); } });
       box.appendChild(hov); box.appendChild(hovLab); box.appendChild(selBox); box.appendChild(pinLayer);
       hov.style.display = hovLab.style.display = selBox.style.display = "none";
-      picked = null; wirePicking(); applyIconPins();
+      picked = null; wirePicking();
+      if (E) E.mount(frame, box);   // 화면에서 바로 고친 것(자리 · 뺀 곳 · 글자 · 크기)을 다시 입힌다 — 아이콘보다 먼저(경로를 처음 화면에서 잰다)
+      applyIconPins();
       // 오른쪽: 이 화면 정보 + 고른 곳 + 남긴 의견
       var tags = [HX.el("span", { class: "hx-tag hx-role", text: roleName(s.role) })];
       if (s.state) tags.push(HX.el("span", { class: "hx-tag hx-state", text: HX.stateLabel(s.state) }));
@@ -470,7 +483,7 @@
       var msgs = HX.msgsOf(slug);
       if (msgs.length) sideScreen.appendChild(HX.el("div", { class: "hx-sd-msgs" }, [HX.el("span", { class: "hx-sd-k", text: "이 화면의 안내 문구 " + msgs.length + "개 · 누르면 화면에 띄워요" })].concat(msgs.map(function (m) { return msgRow(m, false); }))));
       sideScreen.appendChild(HX.btn("사용 흐름에서 보기", { cls: "hx-sd-inflow", icon: HX.icon("#i-workflow"), onclick: function () { B.showInFlow(slug); } }));
-      sideScreen.appendChild(editor); sideScreen.appendChild(pinList);
+      sideScreen.appendChild(editor); if (E) sideScreen.appendChild(E.list); sideScreen.appendChild(pinList);
       var ss = B.screenState(s.id);
       var rm = HX.el("input", { type: "checkbox", onchange: function () { ss.remove = rm.checked; B.changed(); } }); rm.checked = !!ss.remove;
       var smemo = HX.el("textarea", { class: "hx-ta hx-ta-sm", rows: "2", placeholder: "이 화면 전체에 대한 메모 (선택)", "aria-label": "화면 " + s.id + " 메모",
@@ -485,6 +498,13 @@
       side.scrollTop = 0; stage.scrollTop = 0;
       HX.relayout();
       if (key && /^pin:/.test(key)) setTimeout(function () { var p = B.state.pins[Number(key.slice(4))]; if (p) pick(resolve(p.path), p.id); }, 80);
+    }
+    // 지금 화면을 상태 그대로 다시 그린다(되돌리기 뒤) — 보던 자리(스크롤)는 그대로
+    function refresh() {
+      if (!cur || cur === ALL || cur === MSGS) return;
+      var y = stage.scrollTop, sy = side.scrollTop;
+      show(cur); stage.scrollTop = y; side.scrollTop = sy;
+      requestAnimationFrame(function () { requestAnimationFrame(function () { stage.scrollTop = y; side.scrollTop = sy; }); });
     }
     function step(d) {
       if (cur === ALL) { if (d > 0) show(order[0]); return; }
@@ -537,6 +557,11 @@
       if (d) { e.preventDefault(); e.stopImmediatePropagation(); step(d); }
       else if (e.key === "Escape") { e.stopImmediatePropagation(); }
     }, true);
+
+    // 고르기 도구를 내보낸다 — 화면에서 바로 고치기(26-board-edit.js)가 같은 경로 · 이름표 · 고르기 · 핀을 쓴다
+    HX.sd = { pathOf: pathOf, resolve: resolve, pick: pick, descOf: descOf, whereOf: whereOf, seen: seen, rectIn: rectIn, ensurePin: ensurePin, refresh: refresh,
+      picked: function () { return picked; }, frame: function () { return frame; }, cur: function () { return cur; } };
+    E = B.buildEdit ? B.buildEdit() : null;
 
     buildList();
     B.setTab(hasConcepts && !B.focus.length ? "concept" : "flow");

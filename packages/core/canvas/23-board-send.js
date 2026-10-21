@@ -56,6 +56,9 @@
       regs.push("'" + s.name + "' 화면의 " + p.desc + (p.where ? " ('" + p.where + "' 안)" : "") + (p.v === "change" && p.icon ? " — 아이콘을 " + p.icon.to + "(으)로 바꿔 주세요" + (one(p.memo) ? " · " + one(p.memo) : "") : p.v === "change" ? " — 바꿔 주세요" + (one(p.memo) ? ": " + one(p.memo) : "") : " — 빼 주세요"));
     });
     if (regs.length) groups.push({ title: "고쳐 달라고 한 곳", items: regs });
+    // 3-1) 화면에서 바로 고친 것(26-board-edit.js) — ✕로 뺀 곳은 위 '빼 주세요'에 이미 있다
+    var eds = (st.edits || []).filter(function (e) { return HX.bySlug[e.slug]; }).map(function (e) { return "'" + HX.bySlug[e.slug].name + "' 화면 — " + (B.editSay ? B.editSay(e) : B.editLine(e)); });
+    if (eds.length) groups.push({ title: "화면에서 바로 고친 것", items: eds });
     // 4) 화면 단위
     var scr = [];
     HX.data.screens.forEach(function (s) {

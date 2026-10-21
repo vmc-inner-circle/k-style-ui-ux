@@ -71,10 +71,14 @@
   B.focus = Array.isArray(board.focus) ? board.focus.filter(function (k) { return HX.bySlug[k]; }) : [];
 
   // ---------- 상태 ----------
-  // pins: 화면 디자인 탭에서 사용자가 화면 아무 곳이나 골라 단 의견 { id: {id, sid, slug, path, desc, where, v, memo} }
+  // pins: 화면 디자인 탭에서 사용자가 화면 아무 곳이나 골라 단 의견 { id: {id, sid, slug, path, desc, where, v, memo} } — 화면의 ✕로 뺀 곳은 hide: true
+  // edits: 화면 디자인 탭에서 화면을 바로 고친 것, 고친 순서대로 (26-board-edit.js) — 경로는 모두 조각 파일 기준
+  //   { kind: "order", slug, parent: 부모 경로, kids: [새 순서의 자식 경로 전부], region: 구역끼리인가, title: 구역 이름, names: [줄에 적을 이름] }
+  //   { kind: "text", slug, path, desc, from, to } · { kind: "size", slug, path, desc, n: 단계 수(+ 크게 · − 작게) }
   // 글꼴(폰트 창): 처음 값 = build가 <html data-font>에 넣은 board.dress.font, 없으면 "base"(초안은 테마 글꼴 · 시안 단계는 시안마다 꾸밈 글꼴). 잠금 키는 "font" — "dress" 잠금은 글꼴을 잠그지 않는다
   REC.font = root.getAttribute("data-font") || "base";
-  var state = { concept: REC.concept, cmemo: {}, custom: recCustom, theme: REC.theme, type: REC.type, accent: REC.accent, font: REC.font, ask: {}, regions: {}, screens: {}, pins: {}, pinSeq: 0, add: "", memo: "", toast: toastOk(REC.toast) };
+  var EDIT_KINDS = ["order", "text", "size"];
+  var state = { concept: REC.concept, cmemo: {}, custom: recCustom, theme: REC.theme, type: REC.type, accent: REC.accent, font: REC.font, ask: {}, regions: {}, screens: {}, pins: {}, pinSeq: 0, edits: [], add: "", memo: "", toast: toastOk(REC.toast) };
   (function restore() {
     var saved = HX.storage.get(storeKey); if (!saved || typeof saved !== "object") return;
     ["concept", "theme", "type", "accent", "font", "add", "memo"].forEach(function (k) { if (typeof saved[k] === "string") state[k] = saved[k]; });
@@ -82,6 +86,7 @@
     if (isLocked("concept") || !B.concept(state.concept) || (CONCEPTS.length && B.concept(state.concept).id !== state.concept)) state.concept = REC.concept;
     // regions(미리 정한 번호로 남긴 의견)는 지금 보드에서 보이지도 지울 수도 없으므로 불러오지 않는다
     ["ask", "screens", "pins", "cmemo", "cup", "dress"].forEach(function (k) { if (saved[k] && typeof saved[k] === "object") state[k] = saved[k]; });
+    if (Array.isArray(saved.edits)) state.edits = saved.edits.filter(function (e) { return e && HX.bySlug[e.slug] && EDIT_KINDS.indexOf(e.kind) >= 0; });
     // 직접 고른 색: 저장해 둔 색으로 분위기 "custom"을 다시 만든다(확정된 색이 있으면 그대로)
     if (!isLocked("theme") && saved.custom && typeof saved.custom === "object" && B.putCustom(saved.custom)) state.custom = saved.custom;
     if (typeof saved.pinSeq === "number") state.pinSeq = saved.pinSeq;
@@ -96,7 +101,7 @@
   B.state = state;
   TOAST_KEYS.forEach(function (k) { root.setAttribute("data-toast-" + k, state.toast[k]); });   // 저장해 둔 안내 문구 모양을 처음부터
   B.resetAll = function () {
-    state.ask = {}; state.regions = {}; state.screens = {}; state.pins = {}; state.add = ""; state.memo = "";
+    state.ask = {}; state.regions = {}; state.screens = {}; state.pins = {}; state.edits = []; state.add = ""; state.memo = "";
     if (!isLocked("concept")) { state.concept = REC.concept; state.cmemo = {}; state.picked = false; }
     if (!isLocked("theme")) { state.custom = recCustom; if (recCustom) B.putCustom(recCustom); }
     state.cup = null; state.dress = null;
@@ -217,10 +222,22 @@
       if (p.v === "change" && p.icon) lines.push(head + " 바꿔: 아이콘 " + p.icon.from + " → " + p.icon.to + (one(p.memo) ? ", " + one(p.memo) : "") + " [" + p.path + "]");
       else lines.push(p.v === "change" ? head + " 바꿔" + (one(p.memo) ? ": " + one(p.memo) : "") + " [" + p.path + "]" : head + " 빼기 [" + p.path + "]");
     });
+    // 화면에서 바로 고친 것: 화면 번호 순, 한 화면 안은 고친 순서대로 (✕로 뺀 곳은 위 핀 줄 '빼기' 그대로)
+    state.edits.map(function (e, i) { return { e: e, s: HX.bySlug[e.slug], i: i }; }).filter(function (x) { return x.s; })
+      .sort(function (a, b) { return a.s.id - b.s.id || a.i - b.i; }).forEach(function (x) { lines.push(B.editLine(x.e)); });
     if (one(state.add)) lines.push("추가: " + one(state.add));
     if (one(state.memo)) lines.push("메모: " + one(state.memo));
     lines.push("(나머지는 추천대로)");
     return lines.join("\n");
+  };
+  // 바로 고친 것 한 줄 (E1이 쓰고 E2가 읽는 줄 문법 — answer-parsing §1-1 경로)
+  //   화면 <S> · 구역 순서: <key>, … / 화면 <S> · 구역 '<제목>' 안 순서: '<글자 앞 12자>', … [<부모 경로>]
+  //   화면 <S> · <이름표> 고쳐 쓰기: '<전>' → '<후>' [<경로>] / 화면 <S> · <이름표> 크기 <+n|-n>단계 [<경로>]
+  B.editLine = function (e) {
+    var head = "화면 " + HX.bySlug[e.slug].id + " · ";
+    if (e.kind === "order") return head + (e.region ? "구역 순서: " + e.names.join(", ") : "구역 '" + e.title + "' 안 순서: " + e.names.join(", ") + " [" + e.parent + "]");
+    if (e.kind === "text") return head + e.desc + " 고쳐 쓰기: '" + B.one(e.from) + "' → '" + B.one(e.to) + "' [" + e.path + "]";
+    return head + e.desc + " 크기 " + (e.n > 0 ? "+" : "") + e.n + "단계 [" + e.path + "]";
   };
   /* 추천과 다르게 표시한 항목 수 (복사 버튼 숫자) */
   B.diffCount = function () {
@@ -261,6 +278,9 @@
       Object.keys(state.pins).map(Number).sort(function (a, b) { return a - b; }).forEach(function (id) {
         var p = state.pins[id]; if (!p || p.slug !== s.slug || (p.v !== "change" && p.v !== "remove")) return;
         out.push({ slug: s.slug, key: "pin:" + id, kind: p.v, id: "의견 " + id, text: s.name + " · " + p.desc + (p.v === "change" ? " — 바꿔" + (B.one(p.memo) ? ": " + B.one(p.memo) : "") : " — 빼기") });
+      });
+      state.edits.forEach(function (e) {
+        if (e.slug === s.slug) out.push({ slug: s.slug, kind: "change", id: "바로 고침", text: s.name + " · " + (B.editSay ? B.editSay(e) : B.editLine(e)), edit: e });
       });
     });
     return out;

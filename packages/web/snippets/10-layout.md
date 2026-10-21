@@ -345,7 +345,7 @@
 |---|---|
 | 간격 | `.gap-1 .gap-2 .gap-3 .gap-4 .gap-6` · `.mt-2 .mt-4 .mt-6` · `.mb-2 .mb-4 .mb-6` |
 | 글자색 | `.text-muted .text-2 .text-primary .text-success .text-warning .text-danger` |
-| 글자 크기 | `.text-xs .text-sm .text-lg .text-xl` · 굵기 `.fw-medium .fw-semibold .fw-bold` · `.mono` |
+| 글자 크기 | `.text-xs .text-sm .text-md .text-lg .text-xl .text-2xl .text-3xl` · 굵기 `.fw-medium .fw-semibold .fw-bold` · `.mono` |
 | 정렬 | `.text-center .text-right` · `.row.align-start` |
 | 폭 | `.w-full .flex-1 .shrink-0 .truncate` |
 

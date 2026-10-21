@@ -66,7 +66,8 @@
           HX.el("span", { class: "hx-bd-mark-id", text: m.id }), HX.el("span", { text: m.text })]),
           del(function () {
             var s = HX.bySlug[m.slug];
-            if (m.key && /^pin:/.test(m.key)) delete st.pins[Number(m.key.slice(4))];
+            if (m.edit) { var ei = st.edits.indexOf(m.edit); if (ei >= 0) st.edits.splice(ei, 1); }   // 화면에서 바로 고친 것(26-board-edit.js)
+            else if (m.key && /^pin:/.test(m.key)) delete st.pins[Number(m.key.slice(4))];
             else if (m.key) delete st.regions[(s.regions.filter(function (r) { return r.key === m.key; })[0] || {}).id];
             else { var ss = st.screens[s.id]; if (ss) { if (m.kind === "remove") ss.remove = false; else ss.memo = ""; } }
           })]));
