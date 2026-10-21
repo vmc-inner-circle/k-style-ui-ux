@@ -12,6 +12,9 @@
  *   화면 <S> · <이름표> 크기 <+n|-n>단계 [<경로>]                            덩어리면 그 안의 글자 모두
  *   화면 <S> · 아이콘 '<A>' 바꿔: 아이콘 <A> → <B> [<경로>]
  *
+ * 시안 보드 글(2턴)도 같다 — 고른 시안 조각을 screens/<slug>.html로 복사한 뒤 부른다. 1턴 expand.js가 시안 조각에도 셸을 붙여 두어
+ * 보드 경로가 복사본 경로와 같다. 시안 · 꾸밈 · 테마 · `시안 <id> 메모` 줄은 모르는 줄이라 남긴다.
+ * 블록 데이터(answer · rest · regions)가 아직 없는 화면이면 조각만 고친다(칸을 새로 만들지 않는다).
  * 반영한 줄은 screens/<slug>.html 조각과 screens.json(블록 rest · items · label, board.changes)을 함께 고친다.
  * 경로가 조각과 안 맞으면 이름표 따옴표 안 글자로 찾는다. 그 밖의 줄 · 반영 못 한 줄은 _check/edits-left.txt에 그대로 남긴다(AI 몫).
  * 줄마다 고친 뒤 스키마(scripts/schema.js)에 새 FAIL이 생기면 그 줄만 남기고, 다 고친 뒤 사본에 lint(scripts/lint.js)를 돌려
@@ -362,6 +365,9 @@ function lintFails(dir) {
   const r = spawnSync(process.execPath, [path.join(__dirname, "lint.js"), dir], { encoding: "utf8", timeout: 120000 });
   return ((r.stdout || "") + (r.stderr || "")).split("\n").filter((l) => l.startsWith("[FAIL]"));
 }
+
+// 시험(53-concept-copy-edits.js)이 보드 경로를 같은 나무로 재 본다
+module.exports = { parse, resolve };
 
 // ---------- 실행 ----------
 if (require.main === module) {

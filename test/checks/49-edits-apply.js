@@ -5,24 +5,10 @@
 // ③ schema · lint 통과, 조각 diff가 고친 줄만 ④ build --mode board 성공 ⑤ 고친 뒤 lint가 FAIL이면 아무것도 쓰지 않음
 const fs = require("fs");
 const path = require("path");
-const { ROOT, run, workCopy, suite } = require("../lib.js");
+const { ROOT, run, workCopy, suite, fragmentOf: fragment } = require("../lib.js");
 
 const t = suite("49 고친 줄 바로 반영");
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-// 조각 — 블록마다 구역 하나(제목 + 줄마다 한 줄), 주 버튼은 action 구역. 흐름이 누르는 버튼은 data-trigger, 나머지는 data-stay
-function fragment(s, trig) {
-  const head = (b, icon) => `<h2 class="section-title"><svg class="icon" aria-hidden="true"><use href="#i-${icon}"/></svg>${esc(b.label)}</h2>`;
-  const out = [`<main class="content">`, `  <div class="page-header"><div><h1 class="page-title">${esc(s.name)}</h1></div></div>`];
-  out.push(`  <section class="section" data-region="${s.answer.key}">${head(s.answer, "clock")}`, ...s.answer.items.map((it) => `    <p>${esc(it)}</p>`), `  </section>`);
-  for (const b of s.rest) {
-    out.push(`  <section class="section" data-region="${b.key}">${head(b, "bell")}`, `    <ul class="list">`);
-    b.items.forEach((it) => out.push(`      <li class="list-item"><div class="list-main"><span class="list-title">${esc(it)}</span></div></li>`));
-    out.push(`    </ul>`, ...(trig[b.key] ? [`    <button class="btn btn-secondary" data-trigger="${trig[b.key]}">더 보기</button>`] : []), `  </section>`);
-  }
-  if (s.action) out.push(`  <div data-region="action"><button class="btn btn-primary" data-stay="알렸어요">${esc(s.action.label)}</button></div>`);
-  return out.concat(`</main>`, "").join("\n");
-}
 
 /** 시험 실행물 하나: 사본 + lint가 보는 칸(구역 · 단계 · 규칙 · 완료 화면) + ids + 흐름 + 조각 + expand. 돌려주는 것 { w, file, S, home } */
 function makeRun() {

@@ -1,4 +1,4 @@
-// 처음부터 끝까지 — 예시 하나가 ids → pack → expand → build(board) → lint(FAIL 0)까지 이어서 돌아간다.
+// 처음부터 끝까지 — 예시 하나가 ids → pack → expand → build(board) → build(final, 2턴 완성본) → lint(FAIL 0)까지 이어서 돌아간다.
 const fs = require("fs");
 const path = require("path");
 const { run, workCopy, suite } = require("../lib.js");
@@ -19,6 +19,11 @@ try {
   const board = path.join(w.run, "out", "board.html");
   if (fs.existsSync(board) && fs.statSync(board).size > 10000) t.ok("board.html 생김");
   else t.fail("out/board.html 이 없거나 너무 작음");
+  // 2턴은 시안 보드에서 바로 완성본(사람 결정 2026-10-21) — 입구와 화면별 페이지
+  step("build --mode final", "build.js", "--mode", "final");
+  const index = path.join(w.run, "out", "index.html"), pages = path.join(w.run, "out", "screens");
+  if (fs.existsSync(index) && fs.statSync(index).size > 10000 && fs.existsSync(pages) && fs.readdirSync(pages).some((f) => f.endsWith(".html"))) t.ok("완성본 index.html · screens/ 생김");
+  else t.fail("out/index.html 이나 out/screens/*.html 이 없음");
   const pack = path.join(w.run, "packs", "home.md");
   if (!fs.existsSync(pack)) t.fail("packs/home.md 없음");
 

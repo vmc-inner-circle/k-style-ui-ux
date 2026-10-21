@@ -181,4 +181,21 @@ const fakeDom = () => {
   return { Node, text, doc, html, head, body };
 };
 
-module.exports = { ROOT, UPDATE, run, workCopy, suite, walk, stageOn, CHROME, chromeDom, measureCut, withClicks, clicked, fakeDom };
+const escHtml = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+// 시험용 조각(49 · 52) — 블록마다 구역 하나(제목 + 줄마다 한 줄), 주 버튼은 action 구역. 흐름이 누르는 버튼은 data-trigger, 나머지는 data-stay
+function fragmentOf(s, trig) {
+  trig = trig || {};
+  const head = (b, icon) => `<h2 class="section-title"><svg class="icon" aria-hidden="true"><use href="#i-${icon}"/></svg>${escHtml(b.label)}</h2>`;
+  const out = [`<main class="content">`, `  <div class="page-header"><div><h1 class="page-title">${escHtml(s.name)}</h1></div></div>`];
+  out.push(`  <section class="section" data-region="${s.answer.key}">${head(s.answer, "clock")}`, ...s.answer.items.map((it) => `    <p>${escHtml(it)}</p>`), `  </section>`);
+  for (const b of s.rest) {
+    out.push(`  <section class="section" data-region="${b.key}">${head(b, "bell")}`, `    <ul class="list">`);
+    b.items.forEach((it) => out.push(`      <li class="list-item"><div class="list-main"><span class="list-title">${escHtml(it)}</span></div></li>`));
+    out.push(`    </ul>`, ...(trig[b.key] ? [`    <button class="btn btn-secondary" data-trigger="${trig[b.key]}">더 보기</button>`] : []), `  </section>`);
+  }
+  if (s.action) out.push(`  <div data-region="action"><button class="btn btn-primary" data-stay="알렸어요">${escHtml(s.action.label)}</button></div>`);
+  return out.concat(`</main>`, "").join("\n");
+}
+
+
+module.exports = { fragmentOf, ROOT, UPDATE, run, workCopy, suite, walk, stageOn, CHROME, chromeDom, measureCut, withClicks, clicked, fakeDom };

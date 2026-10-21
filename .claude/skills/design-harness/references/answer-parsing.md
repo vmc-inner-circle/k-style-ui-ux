@@ -6,7 +6,7 @@
 
 ## 1. 줄 문법
 
-**보내기 글을 받으면 먼저 `node scripts/edits.js runs/<p> <글 파일>`** — 화면 디자인에서 사람이 직접 고친 줄(구역 순서 · 구역 안 순서 · 빼기 · 고쳐 쓰기 · 크기 · 아이콘)은 AI 없이 조각 · `screens.json`에 바로 쓰고 `board.changes`에 남긴다. 반영된 줄은 끝이다. 그 밖의 줄(첫 줄 테마 · 시안 · 메모 · `바꿔:` 의견 · 끝 표시)과 반영하지 못한 줄은 `runs/<p>/_check/edits-left.txt`에 원래 모양 그대로 남는다 — **AI는 이 파일의 줄만** 아래 표대로 해석한다. 마지막 줄 `edits: 반영 n · 남김 m`. exit 0 = 썼음(남긴 줄이 있어도) · 1 = 고친 뒤 스키마 · lint에 새 FAIL이 생겨 아무것도 안 씀(원인을 보고 글을 고치거나 줄을 손으로 반영) · 2 = 쓰는 법 오류.
+**보내기 글을 받으면 먼저 `node scripts/edits.js runs/<p> <글 파일>`** — 사람이 직접 고친 줄(구역 순서 · 구역 안 순서 · 빼기 · 고쳐 쓰기 · 크기 · 아이콘 — 시안 보드 '자세히 보기'의 고른 시안 화면, 완성본 '화면 디자인' · '자세히 보기')은 AI 없이 조각 · `screens.json`에 바로 쓰고 `board.changes`에 남긴다. 시안 보드 글이면 2턴에서 고른 시안의 메인 화면을 `screens/`로 복사한 **뒤** 돌린다(SKILL 2턴 3 · 4). 반영된 줄은 끝이다. 그 밖의 줄(첫 줄 테마 · 시안 · 메모 · `바꿔:` 의견 · 끝 표시)과 반영하지 못한 줄은 `runs/<p>/_check/edits-left.txt`에 원래 모양 그대로 남는다 — **AI는 이 파일의 줄만** 아래 표대로 해석한다. 마지막 줄 `edits: 반영 n · 남김 m`. exit 0 = 썼음(남긴 줄이 있어도) · 1 = 고친 뒤 스키마 · lint에 새 FAIL이 생겨 아무것도 안 씀(원인을 보고 글을 고치거나 줄을 손으로 반영) · 2 = 쓰는 법 오류.
 
 남긴 이유별로 하는 일:
 
@@ -24,11 +24,11 @@
 
 | 줄 | 뜻 | 반영 |
 |---|---|---|
-| `시안 f(숫자 칸과 소식을 섞어 보기)` | 1턴 시안 보드의 첫 줄: 고른 시안(과감함 단계 하나) | SKILL 2턴대로 그 시안으로 전체 화면을 만든다(`board.concept`, `board.stage` 삭제, `board.dress` = 그 시안의 dress, `board.locked = ["concept", "dress"]`). 뒤에 `테마 …` · `꾸밈 …` 줄이 오면 시안 보드 상단 테마 · 컬러 · 폰트에서 고른 것 — 아래 줄 규칙대로 같은 board에 옮겨 1차안의 처음 값으로(예: §1-2) |
-| `꾸밈 bg=band cards=float head=huge radius=sharp space=airy font=suit icons=fluent tone=bold` · `꾸밈 font=suit(수트)` | 꾸밈 칸을 바꾼 것 — 시안 보드의 꾸밈 다듬기(칸 전부) 또는 시안 보드 · 초안 · 최종본 '폰트' 창에서 고른 **글꼴**(칸 하나, 괄호 안은 사람용 이름) | **적힌 칸만** `board.dress`에 덮어쓴다(칸 전부가 적혀 오면 시안의 dress 대신 이 값들 · 시안 줄과 함께 온 `꾸밈 font=…`면 그 시안의 dress를 옮긴 뒤 글꼴만). `font=base`면 `board.dress.font`를 지운다(= 분위기 · 스타일 글꼴). `scripts/dress.js` 값 이름 그대로 |
+| `시안 f(숫자 칸과 소식을 섞어 보기)` | 1턴 시안 보드의 첫 줄: 고른 시안(과감함 단계 하나) | SKILL 2턴대로 그 시안으로 전체 화면을 만든다(`board.concept`, `board.stage` 삭제, `board.dress` = 그 시안의 dress, `board.locked = ["concept", "dress"]`). 뒤에 `테마 …` · `꾸밈 …` 줄이 오면 시안 보드 상단 테마 · 컬러 · 폰트에서 고른 것 — 아래 줄 규칙대로 같은 board에 옮겨 완성본의 처음 값으로(예: §1-2). 그 뒤의 직접 고치기 줄(`화면 <S> · …`)은 고른 시안 화면에서 고친 것 — 복사 뒤 edits.js가 반영 |
+| `꾸밈 bg=band cards=float head=huge radius=sharp space=airy font=suit icons=fluent tone=bold` · `꾸밈 font=suit(수트)` | 꾸밈 칸을 바꾼 것 — 시안 보드의 꾸밈 다듬기(칸 전부) 또는 시안 보드 · 완성본 '폰트' 창에서 고른 **글꼴**(칸 하나, 괄호 안은 사람용 이름) | **적힌 칸만** `board.dress`에 덮어쓴다(칸 전부가 적혀 오면 시안의 dress 대신 이 값들 · 시안 줄과 함께 온 `꾸밈 font=…`면 그 시안의 dress를 옮긴 뒤 글꼴만). `font=base`면 `board.dress.font`를 지운다(= 분위기 · 스타일 글꼴). `scripts/dress.js` 값 이름 그대로 |
 | `테마 custom(#C8553D 테라코타 · 바탕 warm) · 글자 크게` | '컬러' 창에서 직접 고른 색 + 바탕(창에 보이는 바탕 12가지 id: white·gray·warm·sand·sky·mint·pink·lilac·tint·dark·navy·ink, 또는 `#RRGGBB` = 어울리는 배색의 바탕 · 그 밖의 바탕 모두 그대로 읽는다) | `board.custom = { "hex": "#C8553D", "name": "테라코타", "base": "warm" }`(바탕이 #RRGGBB면 `"bgHex": "#…"`, `스타일 toss`가 있으면 `"from": "toss"` — 그 스타일의 바탕·모양·글꼴 위에 버튼 색만 바꾼 것. 예: `테마 custom(#C8553D 테라코타 · 스타일 toss · 바탕 mint)`), `board.theme = "custom"`, `board.toggles.swatch = "custom"`, board.toggles.type. 표면·테두리·눌림색은 looks.js `customLook`이 계산. `스타일` 뒤의 id가 레퍼런스 프리셋이면 build가 꾸밈의 판 모양 · 모서리를 프리셋 값으로 덮는다(`scripts/screens.js` 한 곳) — `board.dress`는 고치지 않는다. |
 | `시안 c 메모: 달력은 이 안처럼` | 시안마다 적은 말 | 고른 시안의 메모 = 고칠 점. **다른 시안의 메모 = 그 안에서 가져올 요소** — 어느 화면의 무엇인지 해석해 screen-writer의 "시안 메모"에 명령형으로 넣는다(예: "홈의 할 일 목록 자리에 시안 C의 모임 카드 모음(grid-3)"). 해석은 답변 로그에 |
-| `테마 toss(토스 느낌) · 글자 크게 · 버튼색 blue(파랑)` | '테마' · '컬러' · '폰트' 창에서 고른 테마 · 버튼 색 · 글자 크기 — 시안 보드 · 초안 모두 (괄호 안은 사람용 이름, id만 쓴다. 줄 모양은 버튼 이름이 바뀌기 전 그대로) | `board.theme` = 테마 id, `board.toggles.type` = 보통→normal·크게→large, `board.toggles.swatch` = 버튼색 id. 뒤에 `(확정)`이면 이미 잠긴 것. 그 테마 id가 레퍼런스 프리셋이면 build가 꾸밈의 판 모양 · 모서리를 프리셋 값으로 덮는다(`scripts/screens.js` 한 곳) — `board.dress`는 고치지 않는다. 줄 끝의 `· 판 모양 · 모서리: 프리셋 따라감`(custom 줄에도 붙는다)은 보드가 알려 주는 말이라 따로 반영할 것이 없다 |
+| `테마 toss(토스 느낌) · 글자 크게 · 버튼색 blue(파랑)` | '테마' · '컬러' · '폰트' 창에서 고른 테마 · 버튼 색 · 글자 크기 — 시안 보드 · 완성본 모두 (괄호 안은 사람용 이름, id만 쓴다. 줄 모양은 버튼 이름이 바뀌기 전 그대로) | `board.theme` = 테마 id, `board.toggles.type` = 보통→normal·크게→large, `board.toggles.swatch` = 버튼색 id. 뒤에 `(확정)`이면 이미 잠긴 것. 그 테마 id가 레퍼런스 프리셋이면 build가 꾸밈의 판 모양 · 모서리를 프리셋 값으로 덮는다(`scripts/screens.js` 한 곳) — `board.dress`는 고치지 않는다. 줄 끝의 `· 판 모양 · 모서리: 프리셋 따라감`(custom 줄에도 붙는다)은 보드가 알려 주는 말이라 따로 반영할 것이 없다 |
 | (예전 형식) `테마 B · 글자 크게 · 강조 차분` | 분위기·글자 크기·버튼 색 선택(화면에는 '버튼 색 차분하게/눈에 띄게'로 보이지만 글은 '강조 차분/선명'). `(확정)`이 붙으면 이미 잠긴 것 | `board.theme` · `board.toggles`. B→"b", 크게→large, 보통→normal, 선명→vivid, 차분→calm |
 | `안내 문구: 위치 화면 아래 · 아이콘 없음 · 색 어두운 바탕 · 글자 크게` | 화면 디자인 '안내 문구 모음'에서 고른 안내 문구 모양(추천과 다를 때만 온다) | `board.toggles.toast` = `{ at: 화면 위→top·화면 아래→bottom, icon: 있음→on·없음→off, tone: 흰 바탕→light·어두운 바탕→dark·상태 색 바탕→color, size: 보통→normal·크게→large }`. 조각은 고치지 않는다(부품 CSS가 `<html data-toast-*>`로 모든 화면에 적용). 확정하면 `board.locked`에 `toast` |
 | `화면 <S> · 안내 문구 '<문구>' 바꿔: <메모> [toast:<문구 전체>]` | 화면에 잠깐 뜨는 안내 문구 하나를 고쳐 달라 | 그 화면에서 문구 전체가 같은 곳을 찾아 고친다 — 버튼의 `data-stay="…"`(조각)이면 조각을, `screens.json` 그 화면의 `cases[].show`면 데이터를. '창(팝업)으로'·'입력칸 아래 글자로'는 문구를 그 화면의 확인 창·`.field-error`로 옮기는 재작성. `빼기`면 그 `data-stay`/`cases` 항목을 지운다 |
@@ -46,6 +46,8 @@
 | `화면 <N> 메모: …` | 화면 전체에 대한 말 | 그 화면 재작성 대상 + 메모 전달 |
 | `추가: …` | 새 화면/기능 | 화면이면 새 항목 생성 — 걸음 L 칸(slug · name · role · story · pattern, prd-to-screens §3) + 걸음 S 칸(goal · problem · answer 하나 · rest 1~5 · later, §4) + flow 연결. 기능이면 가장 가까운 화면의 `rest`에 블록 하나 추가 |
 | `메모: …` | 전역 | 전역 규칙이면 모든 재작성 대상에 힌트. 화면 지정이 없고 규칙도 아니면 가정 로그 |
+| `시안 <id> 메모: <slug> 화면 — <고친 것 사람 말>` | 시안 보드에서 **고르지 않은** 시안의 '자세히 보기'에서 직접 고친 것(사람 결정 2026-10-21 — 고친 줄은 고른 시안 것만 나가고 나머지는 이 모양) | 위 `시안 c 메모` 줄과 같이 — 그 안에서 가져올 요소. 어느 화면의 무엇을 어떻게 바꿨는지 읽어 screen-writer의 "시안 메모"에 명령형으로 |
+| `완성본 n차 의견` | 완성본 입구 '의견 보내기' 글의 첫 줄(n = `board.round`) | 반영할 것 없음 — 이 글이 SKILL 3턴(완성본 고치기)임을 알려 준다. 뒤의 줄은 이 표대로(직접 고치기 줄은 edits.js 먼저) |
 | `(나머지는 추천대로)` | 종료 표시 | 무시 |
 | 그 외 | 사람이 쓴 자유문 | 번호가 들어 있으면 그 번호의 `바꿔`로, 없으면 `메모`로 |
 
@@ -55,7 +57,7 @@
 
 `[@start-club > div > button]` = 조각에서 `data-region="start-club"` 요소 → 그 안의 첫 `div` 자식 → 그 안의 `button` 자식. `태그:n`은 같은 태그 형제 중 n번째(1부터), 순번이 없으면 하나뿐이다. `@`가 없으면 `.app` 루트부터. 경로가 조각과 안 맞으면(이미 고쳐진 화면 등) 이름표 글자로 찾고 가정 로그에 남긴다.
 
-## 1-2. 예: 시안 보드에서 고른 테마 · 컬러 · 폰트 → 1차안
+## 1-2. 예: 시안 보드에서 고른 테마 · 컬러 · 폰트 → 완성본
 
 시안 보드에서 테마 '당근 느낌' → 컬러 '남색' → 폰트 '수트' · 글자 '크게'를 고르고 시안 a를 고른 글:
 
@@ -73,7 +75,7 @@
   "theme": "custom", "custom": { "hex": "#23317A", "name": "남색", "from": "daangn" }, "toggles": { "type": "large", "swatch": "custom" } }
 ```
 
-1차안 보드는 `<html data-theme="custom" data-font="suit" data-type="large">`로 칠해지고, 상단 테마 · 컬러 · 폰트도 이 값에서 시작한다 — 시안 보드에서 본 그대로. `board.recommend`(1턴 추천)는 지우지 않는다 — board에 고른 값(theme · toggles)이 있으면 보드가 추천 대신 그 값으로 연다(`packages/core/canvas/20-board.js`). (`test/checks/47-concept-to-draft.js`가 이 두 덩어리를 그대로 읽어 시험한다 — 고치면 시험도 같이 본다.)
+완성본(입구 · 화면별 페이지)은 `<html data-theme="custom" data-font="suit" data-type="large">`로 칠해지고, 상단 테마 · 컬러 · 폰트도 이 값에서 시작한다 — 시안 보드에서 본 그대로. `board.recommend`(1턴 추천)는 지우지 않는다 — board에 고른 값(theme · toggles)이 있으면 추천 대신 그 값으로 연다(`packages/core/canvas/20-board.js`). (`test/checks/47-concept-to-draft.js`가 이 두 덩어리를 그대로 읽어 시험한다 — 고치면 시험도 같이 본다.)
 
 ## 2. 메모 해석 — 의견 사전에서 찾는다
 

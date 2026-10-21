@@ -73,7 +73,7 @@
           })]));
       });
       var n = B.diffCount();
-      if (!n) summary.appendChild(HX.el("li", { class: "hx-muted", text: "아직 없어요. 지금 보내면 모두 추천대로 가요." }));
+      if (!n) summary.appendChild(HX.el("li", { class: "hx-muted", text: B.isFinal ? "아직 없어요. 완성본을 그대로 쓰면 보내지 않아도 돼요." : "아직 없어요. 지금 보내면 모두 추천대로 가요." }));
       else {
         var armed = false, resetBtn = HX.btn("모두 지우기", { cls: "hx-bd-reset", icon: HX.icon("#i-trash"), onclick: function () {
           if (!armed) { armed = true; resetBtn.lastChild.textContent = "한 번 더 누르면 모두 지워져요"; resetBtn.classList.add("hx-armed"); return; }
@@ -93,7 +93,7 @@
         HX.el("div", { class: "hx-bd-screen-title" }, [HX.badge(s.id), HX.el("h3", { text: s.name })]),
         HX.el("div", { class: "hx-bd-screen-tags" }, tags),
         s.purpose ? HX.el("p", { class: "hx-bd-purpose", text: s.purpose }) : null,
-        HX.btn("크게 보기", { cls: "hx-bd-open", icon: HX.icon("#i-maximize-2"), title: "실제 크기로 열기 (더블클릭)", onclick: function () { HX.openScreen(s.slug); } })]));
+        HX.btn("자세히 보기", { cls: "hx-bd-open", icon: HX.icon("#i-maximize-2"), title: "실제 크기로 열기 (더블클릭)", onclick: function () { HX.openScreen(s.slug); } })]));
       // 지금 보는 복사본의 맥락: 어느 시나리오의 몇 번째 단계인지
       if (info) {
         var ctx = HX.el("div", { class: "hx-bd-ctx" });
@@ -119,7 +119,7 @@
           var b = HX.el("button", { type: "button", class: "hx-v-" + o[0], text: o[1], onclick: function () { st.v = o[0]; paint(); B.changed(); if (o[0] === "change") memo.focus(); } });
           seg.appendChild(b); return b;
         });
-        var row = HX.el("div", { class: "hx-row", dataset: { key: r.key }, title: "눌러서 이 번호만 크게 보기" }, [
+        var row = HX.el("div", { class: "hx-row", dataset: { key: r.key }, title: "눌러서 이 번호만 자세히 보기" }, [
           HX.el("div", { class: "hx-row-top" }, [HX.badge(r.id), HX.el("span", { class: "hx-row-label", text: r.label, title: r.why || "" }), HX.icon("#i-chevron-right", "icon icon-sm hx-row-go")]),
           r.why ? HX.el("div", { class: "hx-why hx-row-why", text: r.why }) : null, seg, memo]);
         function paint() {

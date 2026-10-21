@@ -14,7 +14,7 @@
  *   <head> … <style>base + toggles + 분위기(looks.js) + components + canvas.css</style>
  *   <body>
  *     <svg id="hx-sprite" hidden><defs><symbol id="i-…">…</symbol>…</defs></svg>   ← 사용된 아이콘만 (보드는 허용 아이콘 전부)
- *     <script type="application/json" id="hx-icons">[{name,key}]</script>          ← 보드만: 아이콘 바꾸기 목록
+ *     <script type="application/json" id="hx-icons">[{name,key}]</script>          ← 보드 · 완성본 입구: 화면 디자인 탭의 아이콘 바꾸기 목록
  *     <script type="application/json" id="hx-data">{ meta, screens, flows, board }</script>
  *     <template id="hx-screens">
  *       <section class="hx-screen" data-screen="<slug>" data-role="<role>"> …조각… </section>
@@ -253,7 +253,8 @@ const data = {
       layout: L ? { id: L.id, name: L.name, used: L.used } : null, mix: M ? { id: M.id, name: M.name, used: M.used } : null,
       dress: DRESS.full(c.dress), dressAttrs: da, dressWords: DRESS.words(c.dress), traits: c.traits || [], screens: c.screens || [] };
   }) : [],
-  board: mode === "board" ? (S.board || {}) : null,
+  // 보드 · 완성본 입구 둘 다 — 화면 디자인 탭(질문 ask · 잠금 · 지난 의견 반영)이 읽는다(10-final.js · 24-board-screens.js)
+  board: S.board || {},
   // 꾸밈 카테고리(시안 보드의 꾸밈 다듬기가 값을 바꿔 본다) — scripts/dress.js
   dressCats: mode === "board" ? { cats: DRESS.CATS, base: DRESS.BASE } : null,
   pages: mode === "final" ? Object.fromEntries(Object.entries(pageFiles(S, F)).map(([k, v]) => [k, "screens/" + v])) : null,
@@ -306,8 +307,8 @@ const sprite = read(path.join(coreDir, "icons/lucide-sprite.svg"));
 const symbols = new Map();
 for (const m of sprite.matchAll(/<symbol id="([^"]+)"([^>]*)>([\s\S]*?)<\/symbol>/g)) symbols.set(m[1], { attrs: m[2], body: m[3] });
 const used = new Set([...html.matchAll(/#i-([a-z0-9-]+)/g)].map((m) => m[1]));
-// 보드: 화면 디자인에서 아이콘을 바꿀 수 있게 허용 아이콘(core allowlist + 프로젝트 icons.json) 전부를 싣고 목록을 넘긴다
-if (mode === "board") {
+// 보드 · 완성본 입구: 화면 디자인에서 아이콘을 바꿀 수 있게 허용 아이콘(core allowlist + 프로젝트 icons.json) 전부를 싣고 목록을 넘긴다
+{
   const allow = readJSON(path.join(coreDir, "icons/allowlist.json"));
   const projPath = path.join(runDir, "icons.json");
   const proj = exists(projPath) ? readJSON(projPath) : {};
@@ -322,12 +323,12 @@ if (mode === "board") {
 const missing = [...used].filter((n) => !symbols.has(n));
 if (missing.length) { console.error(`[build] FAIL 스프라이트에 없는 아이콘: ${missing.join(", ")}`); process.exit(1); }
 const defs = [...used].sort().map((n) => `<symbol id="i-${n}"${symbols.get(n).attrs}>${symbols.get(n).body.trim()}</symbol>`).join("\n");
-// Fluent 심볼: 화면이 쓴 #f-… + 움직임의 안내 상자 아이콘(보드는 아이콘 바꾸기 목록 전부)
+// Fluent 심볼: 화면이 쓴 #f-… + 움직임의 안내 상자 아이콘(보드 · 완성본 입구는 아이콘 바꾸기 목록 전부)
 const flSymbols = new Map([...FL_SPRITE.matchAll(/<symbol id="f-([^"]+)"([^>]*)>([\s\S]*?)<\/symbol>/g)].map((m) => [m[1], { attrs: m[2], body: m[3] }]));
 const TOAST_ICONS = ["circle-check", "circle-alert", "triangle-alert", "info"];
 const flUsed = new Set([...html.matchAll(/#f-([a-z0-9-]+)/g)].map((m) => m[1]));
 if (iconSet === "fluent") TOAST_ICONS.forEach((n) => flUsed.add(n));
-if (mode === "board" && anyFluent) used.forEach((n) => flSymbols.has(n) && flUsed.add(n));
+if (anyFluent) used.forEach((n) => flSymbols.has(n) && flUsed.add(n));
 const flDefs = [...flUsed].filter((n) => flSymbols.has(n)).sort().map((n) => `<symbol id="f-${n}"${flSymbols.get(n).attrs}>${flSymbols.get(n).body.trim()}</symbol>`).join("\n");
 html = html.replace("__SPRITE__", `<svg id="hx-sprite" xmlns="http://www.w3.org/2000/svg" hidden><defs>\n${defs}\n${flDefs}\n</defs></svg>`);
 

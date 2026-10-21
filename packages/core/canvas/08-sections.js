@@ -3,8 +3,8 @@
    같은 단계의 상태 화면(빈칸·오류·완료, variantOf)은 원래 화면 옆에 붙는다. 화살표는 모든 화면을 잇지 않고
    조건이 갈리는 곳(flow.json step·branch의 when)에만 + 조건 이름표. 화면 아래에는 정책 메모(screen.policy) 검은 상자.
    화면을 눌러도 다른 곳으로 넘어가지 않는다(끌면 캔버스 이동만). 화면 위 번호·이름 줄 옆의 작은 아이콘 버튼이
-   보드에서는 '의견 남기기'(화면 디자인 탭), 최종본에서는 '크게 보기'(그 화면으로 다가가기).
-   HX.buildSections({ onPick(slug), pickTitle, pickIcon }) → { el, onShow, focus(slug), focusSection(key), zoomBy, fit, onKey, onZoom, mark(slug, tags) }
+   보드에서는 '의견 남기기'(화면 디자인 탭) + '자세히 보기'(창으로 열어 바로 고치기), 최종본에서는 '자세히 보기'(그 화면으로 다가가기).
+   HX.buildSections({ onPick(slug), pickTitle, pickIcon, onOpen(slug), onMount(frame, slug) }) → { el, onShow, focus(slug), focusSection(key), zoomBy, fit, onKey, onZoom, mark(slug, tags), remount(slug) }
    보드(22-board-canvas)와 최종본(10-final)이 함께 쓴다. */
 (function () {
   "use strict";
@@ -136,14 +136,15 @@
           var label = HX.el("div", { class: "hx-sx-label" }, [HX.el("span", { class: "hx-sx-n", text: String(s.id).padStart(2, "0") }), HX.el("b", { text: s.name }),
             s.state ? HX.el("span", { class: "hx-sx-state hx-st-" + s.state, text: HX.stateLabel(s.state) }) : null,
             HX.el("span", { class: "hx-sx-marks" })]);
-          var pick = HX.el("button", { type: "button", class: "hx-sx-pick", title: (opts.pickTitle || "크게 보기") + " — " + s.name, "aria-label": (opts.pickTitle || "크게 보기") + " — " + s.name },
-            [opts.pickIcon === "comment" ? HX.icon("#i-message-circle") : HX.icon("#i-maximize-2"), HX.el("span", { text: opts.pickTitle || "크게 보기" })]);
+          var pick = HX.el("button", { type: "button", class: "hx-sx-pick", title: (opts.pickTitle || "자세히 보기") + " — " + s.name, "aria-label": (opts.pickTitle || "자세히 보기") + " — " + s.name },
+            [opts.pickIcon === "comment" ? HX.icon("#i-message-circle") : HX.icon("#i-maximize-2"), HX.el("span", { text: opts.pickTitle || "자세히 보기" })]);
           label.insertBefore(pick, label.querySelector(".hx-sx-marks"));
           var blocks = HX.policyBlocks(s), info = null;
           if (blocks.length || HX.incoming(s.slug).length || HX.changesOf(s.slug).length) {   // ⓘ — 마우스를 올리면 이 화면의 규칙·오는 길·반영한 의견이 카드로 뜬다
             info = HX.el("button", { type: "button", class: "hx-sx-info", "aria-label": "이 화면의 규칙 — " + s.name }, HX.icon("#i-info"));
             label.insertBefore(info, pick);
           }
+          var open = openBtn(s); if (open) label.insertBefore(open, pick);
           pick.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
           var box = HX.el("div", { class: "hx-cv-board hx-sx-board", dataset: { screen: s.slug }, style: "width:" + W + "px" });
           var note = blocks.length ? HX.el("div", { class: "hx-sx-note", style: "width:" + W + "px" }, blocks.map(function (p) {
@@ -276,14 +277,23 @@
       r.setAttribute("rx", 8 * K); r.setAttribute("class", "hx-sx-trig" + (open ? " hx-sx-trig-open" : "")); return r;
     }
 
+    // 보드: '의견 남기기' 옆 '자세히 보기' — 실제 크기 한 장을 창으로 열어 그 안에서 바로 고친다(opts.onOpen = HX.openScreen, 26-board-edit.js)
+    function openBtn(s) {
+      if (!opts.onOpen) return null;
+      var b = HX.el("button", { type: "button", class: "hx-sx-pick hx-sx-zoom", title: "자세히 보기 — " + s.name, "aria-label": "자세히 보기 — " + s.name }, [HX.icon("#i-maximize-2"), HX.el("span", { text: "자세히 보기" })]);
+      b.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+      b.addEventListener("click", function (e) { e.stopPropagation(); opts.onOpen(s.slug); });
+      return b;
+    }
+
     // ---- 상태 화면 한 장: 원래 화면 조각에 안내 상자·'앱 밖' 카드를 얹는다 ----
     function derivedBoard(d, S) {
       var label = HX.el("div", { class: "hx-sx-label hx-sx-derived" }, [HX.el("span", { class: "hx-sx-n", text: String(d.id).padStart(2, "0") + "-" + d.n }),
         HX.el("span", { class: "hx-sx-state hx-st-d-" + d.kind, text: d.tag }), HX.el("b", { text: d.name })]);
-      var pick = HX.el("button", { type: "button", class: "hx-sx-pick", title: (opts.pickTitle || "크게 보기") + " — " + d.base.name, "aria-label": (opts.pickTitle || "크게 보기") + " — " + d.base.name },
-        [opts.pickIcon === "comment" ? HX.icon("#i-message-circle") : HX.icon("#i-maximize-2"), HX.el("span", { text: opts.pickTitle || "크게 보기" })]);
+      var pick = HX.el("button", { type: "button", class: "hx-sx-pick", title: (opts.pickTitle || "자세히 보기") + " — " + d.base.name, "aria-label": (opts.pickTitle || "자세히 보기") + " — " + d.base.name },
+        [opts.pickIcon === "comment" ? HX.icon("#i-message-circle") : HX.icon("#i-maximize-2"), HX.el("span", { text: opts.pickTitle || "자세히 보기" })]);
       var dinfo = HX.el("button", { type: "button", class: "hx-sx-info", "aria-label": "언제 나오는지 — " + d.name }, HX.icon("#i-info"));
-      label.appendChild(dinfo); label.appendChild(pick);
+      label.appendChild(dinfo); var open = openBtn(d.base); if (open) label.appendChild(open); label.appendChild(pick);
       pick.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
       var box = HX.el("div", { class: "hx-cv-board hx-sx-board hx-sx-dbox", dataset: { screen: d.slug }, style: "width:" + W + "px" });
       label.style.width = W + "px";
@@ -420,6 +430,13 @@
     vp.appendChild(HX.el("div", { class: "hx-sx-legend" }, [HX.el("span", { class: "hx-sx-lg-arrow" }), "초록 = 조건이 갈리는 곳 · 회색 점선 = 버튼을 누르면 뜨는 창 · ⓘ = 그 화면의 규칙과 오는 길 · ⌘/Ctrl+휠 확대"]));
 
     HX.on("layout", function () { if (mounted && vp.clientWidth) layout(); });
+    // 화면 한 장을 붙인다(화면 전체 길이, 보기만) — opts.onMount: 보드가 바로 고친 것을 입힌다(상태 화면의 안내 상자보다 먼저, 처음 조각에)
+    function mountBoard(b) {
+      if (b.frame) b.frame.el.remove();
+      b.frame = HX.mountFrame(b.mountSlug || b.slug, b.box, { scale: 1, fullHeight: true, badges: false });
+      if (opts.onMount) opts.onMount(b.frame, b.mountSlug || b.slug);
+      if (b.apply) b.apply();
+    }
     var pending = null;
     var api = {
       el: vp,
@@ -445,13 +462,18 @@
         });
         b.box.classList.toggle("hx-sx-removed", (tags || []).some(function (t) { return t.kind === "removed"; }));
       },
+      /* 보드: 그 화면을 새로 붙인다 — 자세히 보기 창에서 바로 고친 것을 작은 화면에도(opts.onMount) */
+      remount: function (slug) {
+        if (!mounted) return;
+        var bs = boards.filter(function (b) { return (b.mountSlug || b.slug) === slug; });
+        bs.forEach(mountBoard);
+        setTimeout(function () { if (window.HXMarkSwipe) bs.forEach(function (b) { window.HXMarkSwipe(b.frame.section); }); }, 400);
+        HX.relayout();
+      },
       onShow: function () {
         if (!mounted) {
           mounted = true;
-          boards.forEach(function (b) {
-            b.frame = HX.mountFrame(b.mountSlug || b.slug, b.box, { scale: 1, fullHeight: true, badges: false });
-            if (b.apply) b.apply();
-          });
+          boards.forEach(mountBoard);
           setTimeout(function () { if (window.HXMarkSwipe) boards.forEach(function (b) { if (b.frame) window.HXMarkSwipe(b.frame.section); }); }, 400);   // 옆으로 넘치는 줄 끝을 흐리게
           requestAnimationFrame(function () { HX.relayout(); requestAnimationFrame(function () {
             layout();

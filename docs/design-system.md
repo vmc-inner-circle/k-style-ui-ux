@@ -3,7 +3,7 @@
 > **이 문서가 기준이다.** 레퍼런스 8개는 이 그릇에 값만 채운다. 코드(base.css · looks.js · dress.css · 부품 CSS)는 DS2~DS5에서 이 문서대로 바꾼다.
 > 배경: [preset-review.md](preset-review.md)(레퍼런스 대조 · 구조 검토).
 > 형식(기계 검사용): [`packages/core/tokens/preset.schema.json`](../packages/core/tokens/preset.schema.json).
-> 화면에서 보기: 완성본 입구의 **'디자인 시스템' 탭**(초안 보드에는 없음)([`12-design-system.js`](../packages/core/canvas/12-design-system.js))이 §1 파운데이션(간격 · 모서리 · 그림자 · 글자 단계) · §2 색 역할과 대비(바닥선 그대로) · §3 부품 견본 · §4 고른 레퍼런스의 `source`(없으면 참고용)를 지금 칠해진 값으로 보여 준다.
+> 화면에서 보기: 완성본 입구의 **'디자인 시스템' 탭**(시안 보드에는 없음)([`12-design-system.js`](../packages/core/canvas/12-design-system.js))이 §1 파운데이션(간격 · 모서리 · 그림자 · 글자 단계) · §2 색 역할과 대비(바닥선 그대로) · §3 부품 견본 · §4 고른 레퍼런스의 `source`(없으면 참고용)를 지금 칠해진 값으로 보여 준다.
 
 ## 0. 원칙
 

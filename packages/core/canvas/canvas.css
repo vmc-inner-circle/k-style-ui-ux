@@ -144,6 +144,9 @@ html[data-mode] body { background: var(--hxc-bg); color: var(--hxc-text); }
 .hx-modal-head .hx-purpose { color: var(--hxc-muted); font-size: 13px; margin-left: 4px; }
 .hx-modal-body { display: flex; flex: 1; min-height: 0; }
 .hx-modal-frame { flex: 1; min-width: 0; overflow: auto; background: var(--hxc-bg); padding: 20px; }
+.hx-modal-screen { width: max-content; }   /* 화면 폭만큼 — 고치기 단추(26-board-edit.js)가 화면 기준으로 놓인다 */
+.hx-modal-screen.hx-sd-frame { margin-left: 12px; }   /* 왼쪽 밖에 붙는 ⠿ 손잡이 자리 */
+.hx-frame-nobadge .hx-bbox.hx-on { visibility: visible; }   /* 번호를 끈 자세히 보기 창: 오른쪽 번호 목록에 마우스를 올린 구역만 */
 .hx-modal-side { width: 320px; flex: 0 0 320px; overflow: auto; border-left: 1px solid var(--hxc-border); padding: 14px 16px; display: flex; flex-direction: column; gap: 16px; }
 .hx-side-h { font-size: 12px; font-weight: 700; color: var(--hxc-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
 .hx-region-li { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-radius: 8px; }
@@ -747,7 +750,6 @@ html[data-platform="mobile"] .hx-cc-shot-frame { border-radius: 20px; }
 .hx-cc-shot-name:hover { color: var(--hxc-primary); }
 .hx-cc-shot-frame { width: 100%; border-radius: 8px; overflow: hidden; }
 .hx-cc-shot-frame .content { scrollbar-width: thin; }
-.hx-cc-zoom { display: block; overflow: auto; padding: 16px; }
 
 .hx-cc-right { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .hx-cc-shots-h { font-size: 12px; font-weight: 700; color: var(--hxc-muted); }
@@ -810,7 +812,7 @@ html[data-platform="mobile"] .hx-sx-board, html[data-platform="mobile"] .hx-sx-b
 
 /* 펼친 정책 상자: ⓘ 카드와 같은 밝은 카드 · 묶음 제목은 종류별 색 */
 .hx-sx-pol.hx-k-stay b { color: #2563EB; } .hx-sx-pol.hx-k-limit b { color: #7C3AED; } .hx-sx-pol.hx-k-case b { color: #B91C1C; } .hx-sx-pol.hx-k-motion b { color: #0F766E; }
-/* 화면 위 이름 줄 옆 버튼: 보드 '의견 남기기' · 최종본 '크게 보기' (화면 자체를 눌러서는 넘어가지 않는다) */
+/* 화면 위 이름 줄 옆 버튼: 보드 '의견 남기기' · 최종본 '자세히 보기' (화면 자체를 눌러서는 넘어가지 않는다) */
 .hx-sx-pick { display: inline-flex; align-items: center; gap: calc(4px * var(--k)); height: calc(26px * var(--k)); padding: 0 calc(10px * var(--k)); border-radius: 999px;
   background: var(--hxc-primary-soft); color: var(--hxc-primary); font-size: calc(12px * var(--k)); font-weight: 700; cursor: pointer; white-space: nowrap; }
 .hx-sx-pick .icon { width: calc(14px * var(--k)); height: calc(14px * var(--k)); }
@@ -861,6 +863,7 @@ html[data-platform="mobile"] .hx-sx-board, html[data-platform="mobile"] .hx-sx-b
 .hx-sx-label .hx-sx-mo > span { display: none; }
 .hx-sx-label .hx-sx-mo { width: calc(26px * var(--k)); padding: 0; justify-content: center; }
 .hx-sx-label .hx-sx-pick { margin-left: auto; }   /* '의견 남기기'는 글자와 함께, 이름표 오른쪽 끝에 */
+.hx-sx-label .hx-sx-pick + .hx-sx-pick { margin-left: 0; }   /* 보드: '자세히 보기' 바로 옆에 */
 /* 화면 → 상태 화면 빗살 선 */
 .hx-sx-comb { fill: none; stroke: #9CA3AF; stroke-width: calc(2.5px * var(--k)); stroke-linejoin: round; }
 .hx-sx-comb-dot { fill: #9CA3AF; }

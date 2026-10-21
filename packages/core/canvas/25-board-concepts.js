@@ -5,7 +5,7 @@
      "그 초안처럼 캔버스에 다 보여주는 형태로" — 사용 흐름(08-sections.js)과 같은 캔버스 한 장:
      시안마다 한 줄 = 시안 띠(시안 X · 단계 · 이름 · 이유 · 화면 구성 · 꾸밈 · '이 안으로 할게요') → 화면 이름표 → 메인 화면 5~6장 나란히(화면 전체 길이, 보기만).
      화면 안 스크롤·밀기는 넣지 않는다 — 사용자: "스크롤이나 이런 거 그냥 없애자, 화면만 봐도 될 듯". 끌기·휠은 언제나 캔버스 이동, ↑↓ = 이전·다음 시안 줄.
-     끌어서 이동 · ⌘/Ctrl+휠 확대 · 위쪽 도구 = 시안 바로가기(시안마다 하나 — A~D) · 축소/확대 · 전체 보기. 화면 이름 옆 '크게 보기'.
+     끌어서 이동 · ⌘/Ctrl+휠 확대 · 위쪽 도구 = 시안 바로가기(시안마다 하나 — A~D) · 축소/확대 · 전체 보기. 화면 이름 옆 '자세히 보기'.
    맨 위 고정 상단바 = 제목 · 테마 · 컬러 · 폰트(packages/core/color/picker.js — 고르면 모든 시안이 그 색 · 글꼴 · 글자 크기로) · 보내기.
    고른 뒤 흐름: 그 안 + 색 → 2턴 전체 화면 1차안 → 3턴 의견 반영 최종.
    다른 시안의 화면은 build.js가 "<시안 id>~<slug>" 섹션으로 싣고, 꾸밈은 화면 상자의 data-*(dress.css)로 입힌다.
@@ -18,7 +18,9 @@
   var DC = HX.data.dressCats || { cats: {}, base: {} };
   var KEYS = Object.keys(DC.cats);
 
-  function frameKey(c, slug) { return B.stage !== "concept" && c.id === B.mainConcept ? slug : c.id + "~" + slug; }
+  // 시안 화면이면 그 시안 id — 초안 단계의 고른 시안은 지금 화면 그대로(null)
+  function conceptOf(c) { return B.stage !== "concept" && c.id === B.mainConcept ? null : c.id; }
+  function frameKey(c, slug) { return conceptOf(c) ? c.id + "~" + slug : slug; }
   function full(d) { var o = {}; KEYS.forEach(function (k) { o[k] = (d && d[k]) || DC.base[k]; }); return o; }
   /* 상단에서 고른 것을 시안 꾸밈 위에 덮는다(나머지 칸은 시안 그대로) — 1차안도 같은 값으로 칠해진다(answer-parsing §1)
      · 레퍼런스 프리셋이면 판 모양 · 모서리 두 칸만 프리셋 값으로. 판 모양이 잠근 모서리(dress.js NOTE.cards[].radius)와 부딪혀도 프리셋이 이긴다 — 사람이 고른 것
@@ -41,19 +43,10 @@
   function levelText(c) { return c.level ? c.level + "단계" + (c.level <= 2 ? " · 무난" : c.level >= 9 ? " · 과감" : "") : ""; }
   function layoutText(c) { return [c.layout && c.layout.name, c.mix && c.mix.name].filter(Boolean).join(" + "); }
 
-  function zoomModal(c, slug, title) {
-    var close = HX.btn("", { cls: "hx-icon-btn", aria: "닫기", title: "닫기 (Esc)", icon: HX.icon("#i-x"), onclick: function () { done(); } });
-    var box = HX.el("div", { class: "hx-cc-zoom-frame" });
-    var m = HX.el("div", { class: "hx-modal hx-app" }, [HX.el("div", { class: "hx-modal-backdrop", onclick: function () { done(); } }),
-      HX.el("div", { class: "hx-modal-panel", role: "dialog", "aria-modal": "true", "aria-label": title }, [
-        HX.el("div", { class: "hx-modal-head" }, [HX.el("span", { class: "hx-cc-id", text: "시안 " + c.id.toUpperCase() }), HX.el("span", { class: "hx-cc-lv", text: levelText(c) }), HX.el("h2", { text: title }), HX.el("span", { class: "hx-bar-spacer" }), close]),
-        HX.el("div", { class: "hx-modal-body hx-cc-zoom" }, box)])]);
-    function key(e) { if (e.key === "Escape") { e.preventDefault(); done(); } }
-    function done() { m.remove(); doc.removeEventListener("keydown", key); doc.body.style.overflow = ""; }
-    doc.body.appendChild(m); doc.addEventListener("keydown", key); doc.body.style.overflow = "hidden";
-    HX.mountFrame(frameKey(c, slug), box, { scale: 1, fullHeight: true, badges: false });
-    dressBox(box, withPicks(full(c.dress)));
-    close.focus();
+  // 자세히 보기 = 사용 흐름 · 화면 디자인과 같은 창(00-core HX.openScreen) — 그 안에서 바로 고치기(26-board-edit.js), 고친 것은 이 시안 id를 기억한다
+  function zoomModal(c, slug) {
+    HX.openScreen(frameKey(c, slug), { head: [HX.el("span", { class: "hx-cc-id", text: "시안 " + c.id.toUpperCase() }), HX.el("span", { class: "hx-cc-lv", text: levelText(c) })],
+      onMount: function (f, box) { dressBox(box, withPicks(full(c.dress))); } });
   }
 
   B.buildConcepts = function () {
@@ -83,9 +76,9 @@
       var R = { c: c, band: band, boards: [] };
       (c.screens || []).forEach(function (slug) {
         var s = HX.bySlug[slug], title = s ? s.name : slug;
-        var open = HX.el("button", { type: "button", class: "hx-sx-pick", title: "크게 보기 — " + title }, [HX.icon("#i-maximize-2"), HX.el("span", { text: "크게 보기" })]);
+        var open = HX.el("button", { type: "button", class: "hx-sx-pick", title: "자세히 보기 — " + title }, [HX.icon("#i-maximize-2"), HX.el("span", { text: "자세히 보기" })]);
         open.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
-        open.addEventListener("click", function (e) { e.stopPropagation(); zoomModal(c, slug, title); });
+        open.addEventListener("click", function (e) { e.stopPropagation(); zoomModal(c, slug); });
         var label = HX.el("div", { class: "hx-sx-label", style: "width:" + W + "px" }, [HX.el("b", { text: title }), open]);
         var box = HX.el("div", { class: "hx-cv-board hx-sx-board hx-ccv-board", style: "width:" + W + "px" });
         world.appendChild(label); world.appendChild(box);
@@ -175,7 +168,7 @@
       HX.btn("전체 보기", { icon: HX.icon("#i-maximize-2"), title: "한 줄이 꽉 차게 (0)", onclick: function () { fit(true); } })]);
     tools.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
     vp.appendChild(tools);
-    vp.appendChild(HX.el("div", { class: "hx-sx-legend" }, ["끌거나 휠 = 캔버스 이동 · ↑↓ 다음 안 · ⌘/Ctrl+휠 확대 · 화면 이름 옆 '크게 보기'"]));
+    vp.appendChild(HX.el("div", { class: "hx-sx-legend" }, ["끌거나 휠 = 캔버스 이동 · ↑↓ 다음 안 · ⌘/Ctrl+휠 확대 · 화면 이름 옆 '자세히 보기'"]));
 
     function paint() {
       C.forEach(function (c) {
@@ -193,12 +186,23 @@
     //   글꼴 · 글자 크기가 바뀌면 화면 길이도 달라진다 → 늘린 높이를 되돌리고 다음 relayout에서 다시 늘린다
     B.redress = function () { rows.forEach(function (R) { R.boards.forEach(function (b) { if (b.frame) { b.frame.resetHeight(); dressBox(b.box, withPicks(b.d)); } }); }); HX.relayout(); };
     HX.on("layout", function () { if (mounted && vp.clientWidth) layout(); });
+    // 화면 한 장을 붙인다(화면 전체 길이 — 보기만). '자세히 보기' 창에서 바로 고친 것(26-board-edit.js)도 입힌다
+    function mountBoard(R, b) {
+      if (b.frame) b.frame.el.remove();
+      b.frame = HX.mountFrame(frameKey(R.c, b.slug), b.box, { scale: 1, fullHeight: true, badges: false });
+      if (B.dressEdits) { B.dressEdits(b.frame.section, b.slug, conceptOf(R.c)); b.sig = B.editSig(b.slug, conceptOf(R.c)); }
+      dressBox(b.box, withPicks(b.d));
+    }
+    // 고친 것이 바뀐 화면만 새로 붙인다
+    HX.on("board-change", function () {
+      if (!mounted || !B.editSig) return;
+      var n = 0;
+      rows.forEach(function (R) { R.boards.forEach(function (b) { if (b.frame && B.editSig(b.slug, conceptOf(R.c)) !== b.sig) { mountBoard(R, b); n++; } }); });
+      if (n) HX.relayout();
+    });
     // 붙인 뒤에 화면을 싣고 배치 (화면 전체 길이를 재야 줄 높이가 정해진다)
     requestAnimationFrame(function () {
-      rows.forEach(function (R) { R.boards.forEach(function (b) {
-        b.frame = HX.mountFrame(frameKey(R.c, b.slug), b.box, { scale: 1, fullHeight: true, badges: false });   // 화면 전체 길이 — 보기만
-        dressBox(b.box, withPicks(b.d));
-      }); });
+      rows.forEach(function (R) { R.boards.forEach(function (b) { mountBoard(R, b); }); });
       mounted = true;
       requestAnimationFrame(function () { HX.relayout(); requestAnimationFrame(function () { layout(); fit(false); }); });
     });

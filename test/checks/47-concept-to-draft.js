@@ -1,7 +1,9 @@
-// C2 — 시안 보드에서 고른 테마 · 컬러 · 폰트가 1차안(초안)에 그대로 (사람 의견 2026-10-21 "1차안에도 테마 · 컬러 · 폰트가 반영될 수 있도록").
+// C2 — 시안 보드에서 고른 테마 · 컬러 · 폰트가 2턴 완성본에 그대로 (사람 의견 2026-10-21 "1차안에도 테마 · 컬러 · 폰트가 반영될 수 있도록" ·
+//      사람 결정 같은 날 "시안 보드 -> 완성본으로" — 초안 보드 단계 없음).
 // ① 시안 단계 보드를 build해 그 html의 데이터로 가짜 window를 띄우고(test/lib.js fakeDom) 상단 버튼으로 테마 당근 → 컬러 남색 → 폰트 수트 · 글자 크게를 누른다
 // ② 보내기 글(B.answer) = answer-parsing §1-2 예의 글. 그 예의 board 칸을 SKILL 2턴 2대로 screens.json에 옮긴다(손으로 옮긴 것 = 그 예, 반영 스크립트는 따로 없다)
-// ③ build --mode board 결과 html의 data-theme · data-font · data-type이 고른 값, 판 모양 · 모서리는 당근 프리셋, 1차안 폰트 창도 그 값에서 시작
+// ③ build --mode final 결과 index.html의 data-theme · data-font · data-type이 고른 값, 판 모양 · 모서리는 당근 프리셋.
+//    완성본 입구의 보드 상태(20-board.js final — 화면 디자인 탭 · 의견 보내기)와 상단 테마 · 컬러 · 폰트 창도 그 값에서 시작
 // ④ Chrome이 있으면 진짜 시안 보드에서 같은 단추를 눌러 본다 — 시안 상자 글꼴이 수트로 덮이고 복사 글이 같다 · 휴대폰 폭 390에서 열린 폰트 창 잘림 0(measureCut)
 //    (390의 시안 보드 상단바 자체 — 보내기 단추가 화면 밖 — 는 이 일 전부터라 여기서 재지 않는다)
 const fs = require("fs");
@@ -9,7 +11,7 @@ const path = require("path");
 const { ROOT, run, workCopy, suite, fakeDom, CHROME, chromeDom, measureCut, withClicks, clicked } = require("../lib.js");
 const LK = require(path.join(ROOT, "scripts/looks.js"));
 
-const t = suite("47 시안 → 1차안 테마 · 컬러 · 폰트");
+const t = suite("47 시안 → 완성본 테마 · 컬러 · 폰트");
 const src = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
 const read = (f) => JSON.parse(src(f));
 const attrsOf = (tag) => Object.fromEntries([...tag.matchAll(/([a-z-]+)="([^"]*)"/g)].map((m) => [m[1], m[2]]));
@@ -24,7 +26,7 @@ const EX_TEXT = (blocks.find((b) => !b[1]) || [])[2], EX_BOARD = blocks.find((b)
 if (!EX_TEXT || !EX_BOARD) { t.fail("answer-parsing §1-2에 보내기 글 예 · board json 덩어리가 없음"); t.end(); }
 
 // 새 형식 예시(family-trip) + 실행 상태의 시안 4개, 시안 단계로 되돌린다. 1턴 추천(board.recommend)은 토스 · 글자 보통 —
-// 2턴에도 추천이 남아 있으니(SKILL은 지우지 않는다) 1차안이 추천이 아니라 고른 값으로 열리는지까지 본다
+// 2턴에도 추천이 남아 있으니(SKILL은 지우지 않는다) 2턴 결과가 추천이 아니라 고른 값으로 열리는지까지 본다
 const { $comment, looks, board: RUN_BOARD, ...RUN } = read("test/fixtures/board/family-trip.json");
 const w = workCopy("project/family-trip");
 try {
@@ -38,7 +40,7 @@ try {
   S0.screens.forEach((s) => fs.writeFileSync(path.join(w.run, "screens", s.slug + ".html"), frag(s)));
   S0.concepts.forEach((c) => { fs.mkdirSync(path.join(w.run, "concepts", c.id), { recursive: true }); c.screens.forEach((slug) => fs.writeFileSync(path.join(w.run, "concepts", c.id, slug + ".html"), frag(S0.screens.find((s) => s.slug === slug)))); });
   const out = path.join(w.run, "out", "board.html");
-  const build = (what) => { const r = run("build.js", w.run, "--mode", "board"); if (r.code !== 0) { t.fail(`${what} build 실패\n${r.out}`); t.end(); } return fs.readFileSync(out, "utf8"); };
+  const build = (what, mode = "board") => { const r = run("build.js", w.run, "--mode", mode); if (r.code !== 0) { t.fail(`${what} build 실패\n${r.out}`); t.end(); } return fs.readFileSync(mode === "final" ? path.join(w.run, "out", "index.html") : out, "utf8"); };
 
   /* build한 보드 html로 가짜 window를 띄운다: picker.js · 20-board.js · 22 · 23. 돌려주는 것 { B, html, body } */
   function boardOf(page) {
@@ -46,7 +48,7 @@ try {
     Object.entries(attrsOf(/<html\b[^>]*>/.exec(page)[0])).forEach(([k, v]) => html.setAttribute(k, v));
     const data = JSON.parse(/<script type="application\/json" id="hx-data">([\s\S]*?)<\/script>/.exec(page)[1]);
     const store = {}, handlers = {}, noop = () => {};
-    const HX = { data, meta: data.meta, bySlug: Object.fromEntries(data.screens.map((s) => [s.slug, s])), relayout: noop,
+    const HX = { data, meta: data.meta, mode: attrsOf(/<html\b[^>]*>/.exec(page)[0])["data-mode"], bySlug: Object.fromEntries(data.screens.map((s) => [s.slug, s])), relayout: noop,
       storage: { get: (k) => (store[k] ? JSON.parse(store[k]) : null), set: (k, v) => { store[k] = JSON.stringify(v); } },
       el: (tag, a) => { const n = doc.createElement(tag); Object.entries(a || {}).forEach(([k, v]) => (k === "text" ? (n.textContent = v) : n.setAttribute(k, v))); return n; },
       on: (n, f) => (handlers[n] = handlers[n] || []).push(f), emit: (n, x) => (handlers[n] || []).forEach((f) => f(x)) };
@@ -85,22 +87,22 @@ try {
   groups.includes("고른 테마 · 컬러 · 글자 크기") && groups.includes("고른 폰트") && groups.length === B.diffCount()
     ? t.ok(`확인 창 묶음 ${groups.length}개 = 보낼 줄 ${B.diffCount()}개 (${groups.join(" · ")})`) : t.fail(`확인 창 묶음: ${groups.join(" · ")} (보낼 줄 ${B.diffCount()})`);
 
-  // ---------- ③ SKILL 2턴 2: 예의 칸을 board에 → 1차안 build ----------
+  // ---------- ③ SKILL 2턴 2: 예의 칸을 board에 → 완성본 build ----------
   const S1 = JSON.parse(fs.readFileSync(file, "utf8"));
   const C = S1.concepts.find((c) => c.id === EX_BOARD.concept), { dress, ...rest } = EX_BOARD;
   S1.board = Object.assign({}, S1.board, rest, { dress: Object.assign({}, C.dress, dress) });
   delete S1.board.stage;
   fs.writeFileSync(file, JSON.stringify(S1, null, 2));
-  const page2 = build("1차안");
+  const page2 = build("완성본", "final");
   const A = attrsOf(/<html\b[^>]*>/.exec(page2)[0]), want = concept.pd.daangn;
-  A["data-theme"] === "custom" && A["data-swatch"] === "custom" ? t.ok("1차안 <html data-theme custom · data-swatch custom>") : t.fail(`1차안 data-theme ${A["data-theme"]} · data-swatch ${A["data-swatch"]}`);
-  A["data-font"] === "suit" ? t.ok("1차안 <html data-font suit> (시안 a 꾸밈 글꼴 대신)") : t.fail(`1차안 data-font ${A["data-font"]} (시안 a 꾸밈 글꼴 ${C.dress.font})`);
-  A["data-type"] === "large" ? t.ok("1차안 <html data-type large>") : t.fail(`1차안 data-type ${A["data-type"]}`);
+  A["data-theme"] === "custom" && A["data-swatch"] === "custom" ? t.ok("완성본 <html data-theme custom · data-swatch custom>") : t.fail(`완성본 data-theme ${A["data-theme"]} · data-swatch ${A["data-swatch"]}`);
+  A["data-font"] === "suit" ? t.ok("완성본 <html data-font suit> (시안 a 꾸밈 글꼴 대신)") : t.fail(`완성본 data-font ${A["data-font"]} (시안 a 꾸밈 글꼴 ${C.dress.font})`);
+  A["data-type"] === "large" ? t.ok("완성본 <html data-type large>") : t.fail(`완성본 data-type ${A["data-type"]}`);
   const same = (k) => (want[k] && want[k] !== "base" ? A["data-" + k] === want[k] : A["data-" + k] === undefined);
-  same("cards") && same("radius") ? t.ok(`1차안 판 모양 · 모서리 = 당근 프리셋 (${want.cards} · ${want.radius})`) : t.fail(`1차안 판 모양 ${A["data-cards"]} · 모서리 ${A["data-radius"]} (당근 ${JSON.stringify(want)})`);
+  same("cards") && same("radius") ? t.ok(`완성본 판 모양 · 모서리 = 당근 프리셋 (${want.cards} · ${want.radius})`) : t.fail(`완성본 판 모양 ${A["data-cards"]} · 모서리 ${A["data-radius"]} (당근 ${JSON.stringify(want)})`);
   const draft = boardOf(page2), ds = draft.B.state;
-  draft.B.stage === "draft" && ds.theme === "custom" && ds.custom.hex === "#23317A" && ds.custom.from === "daangn" && ds.font === "suit" && ds.type === "large" && !draft.B.fontPicked() && !draft.B.lookPicked()
-    ? t.ok("1차안 보드의 테마 · 컬러 · 폰트 창도 고른 값에서 시작 — 남아 있는 1턴 추천(토스 · 보통)이 덮지 않는다 (다시 보낼 것 없음)") : t.fail(`1차안 보드 처음 값: ${JSON.stringify({ stage: draft.B.stage, theme: ds.theme, custom: ds.custom, font: ds.font, type: ds.type })}`);
+  draft.B.isFinal && ds.theme === "custom" && ds.custom.hex === "#23317A" && ds.custom.from === "daangn" && ds.font === "suit" && ds.type === "large" && !draft.B.fontPicked() && !draft.B.lookPicked()
+    ? t.ok("완성본 상단 테마 · 컬러 · 폰트 창도 고른 값에서 시작 — 남아 있는 1턴 추천(토스 · 보통)이 덮지 않는다 (다시 보낼 것 없음)") : t.fail(`완성본 상단 창 처음 값: ${JSON.stringify({ final: draft.B.isFinal, stage: draft.B.stage, theme: ds.theme, custom: ds.custom, font: ds.font, type: ds.type })}`);
 
   // ---------- ④ 진짜 브라우저: 시안 상자 글꼴 · 복사 글 · 휴대폰 폭 ----------
   if (!CHROME) t.skip("Chrome이 없어 진짜 브라우저 시험은 건너뜀 (CHROME=<경로>)");

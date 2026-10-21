@@ -262,26 +262,37 @@
   window.addEventListener("load", HX.relayout);
   if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { HX.relayout(); setTimeout(HX.relayout, 300); });
 
-  // ---------- 모달: 화면 100% + 영역 목록 + 나가는 step ----------
-  var modal = null, modalKey = null;
+  // ---------- 모달(자세히 보기): 화면 100% + 영역 목록 + 나가는 step ----------
+  var modal = null, modalKey = null, modalTools = null;
   HX.closeModal = function () {
     if (!modal) return;
+    if (modalTools) { modalTools.destroy(); modalTools = null; }
     modal.remove(); modal = null; doc.body.style.overflow = "";
     if (modalKey) { doc.removeEventListener("keydown", modalKey); modalKey = null; }
     HX.emit("modal", null);
   };
-  HX.openScreen = function (slug) {
-    var s = HX.bySlug[slug]; if (!s) return;
+  /* key = 화면 slug, 시안 화면이면 "<시안 id>~<slug>"(build.js가 data-concept을 단 조각)
+     opt = { head: 머리 맨 앞에 더할 것, onMount(frame, box): 화면을 붙일 때마다(시안 꾸밈 입히기) }
+     보드면 화면에서 바로 고치기(HX.zoomEdit, 26-board-edit.js)를 붙인다 — 번호 상자는 끄고(눌러서 고르게), '고친 것' 목록은 오른쪽 맨 위 */
+  HX.openScreen = function (key, opt) {
+    opt = opt || {};
+    var tpl = doc.getElementById("hx-screens");
+    var src = tpl && tpl.content ? tpl.content.querySelector('section[data-screen="' + key + '"]') : null;
+    var concept = src && src.getAttribute("data-concept") || null;
+    var slug = concept ? key.slice(concept.length + 1) : key, s = HX.bySlug[slug]; if (!s) return;
     HX.closeModal();
-    var frameBox = HX.el("div", { class: "hx-modal-frame" });
-    var lis = {};
+    var edit = !!HX.zoomEdit;
+    var frameBox = HX.el("div", { class: "hx-modal-frame" }), holder = HX.el("div", { class: "hx-modal-screen" + (edit ? " hx-sd-frame" : "") });
+    frameBox.appendChild(holder);
+    var lis = {}, fr = null;
     var regionUl = HX.el("ul", {}, s.regions.map(function (r) {
       var li = HX.el("li", { class: "hx-region-li" }, [HX.badge(r.id), HX.el("div", {}, [HX.el("b", { text: r.label }), r.why ? HX.el("div", { class: "hx-why", text: r.why }) : null])]);
       li.addEventListener("mouseenter", function () { fr.highlight(r.key, true); });
       li.addEventListener("mouseleave", function () { fr.highlight(r.key, false); });
       lis[r.key] = li; return li;
     }));
-    var outs = HX.outgoing(slug);
+    // 시안 화면은 나가는 곳을 싣지 않는다 — 누르면 시안이 아닌 화면이 열린다
+    var outs = concept ? [] : HX.outgoing(slug);
     var stepUl = HX.el("ul", {}, outs.length ? outs.map(function (o) {
       var reg = s.regions.filter(function (r) { return r.key === o.step.region; })[0];
       var to = HX.bySlug[o.step.to];
@@ -292,19 +303,28 @@
       ]));
     }) : HX.el("li", { class: "hx-muted", text: "이 화면에서 나가는 단계가 없어요." }));
     var closeBtn = HX.btn("", { cls: "hx-icon-btn", aria: "닫기", title: "닫기 (Esc)", icon: HX.icon("#i-x"), onclick: HX.closeModal });
+    var side = HX.el("aside", { class: "hx-modal-side" }, [
+      HX.el("section", {}, [HX.el("div", { class: "hx-side-h", text: "이 화면의 번호 " + s.regions.length + "개" }), regionUl]),
+      concept ? null : HX.el("section", {}, [HX.el("div", { class: "hx-side-h", text: "여기서 가는 곳" }), stepUl])]);
     var panel = HX.el("div", { class: "hx-modal-panel", role: "dialog", "aria-modal": "true", "aria-label": s.name }, [
-      HX.el("div", { class: "hx-modal-head" }, [HX.badge(s.id), HX.el("h2", { text: s.name }), HX.el("span", { class: "hx-tag hx-role", text: HX.roleLabel(s.role) }),
-        HX.el("span", { class: "hx-purpose", text: s.purpose }), HX.el("span", { class: "hx-bar-spacer" }), closeBtn]),
-      HX.el("div", { class: "hx-modal-body" }, [frameBox, HX.el("aside", { class: "hx-modal-side" }, [
-        HX.el("section", {}, [HX.el("div", { class: "hx-side-h", text: "이 화면의 번호 " + s.regions.length + "개" }), regionUl]),
-        HX.el("section", {}, [HX.el("div", { class: "hx-side-h", text: "여기서 가는 곳" }), stepUl])])])
+      HX.el("div", { class: "hx-modal-head" }, (opt.head || []).concat([HX.badge(s.id), HX.el("h2", { text: s.name }), HX.el("span", { class: "hx-tag hx-role", text: HX.roleLabel(s.role) }),
+        HX.el("span", { class: "hx-purpose", text: s.purpose }), HX.el("span", { class: "hx-bar-spacer" }), closeBtn])),
+      HX.el("div", { class: "hx-modal-body" }, [frameBox, side])
     ]);
     modal = HX.el("div", { class: "hx-modal hx-app" }, [HX.el("div", { class: "hx-modal-backdrop", onclick: HX.closeModal }), panel]);
     doc.body.appendChild(modal); doc.body.style.overflow = "hidden";
-    var fr = HX.mountFrame(slug, frameBox, { scale: 1, fullHeight: true, onRegionHover: function (r, on) { if (lis[r.key]) lis[r.key].classList.toggle("hx-on", on); } });
+    function mount() {
+      if (fr) fr.el.remove();
+      // 실제 크기, 창이 좁으면 폭에 맞춰 줄인다(가로로 밀지 않게) — pad: 창 안쪽 여백 + 손잡이 자리(canvas.css .hx-modal-screen)
+      fr = HX.mountFrame(key, holder, { fit: "width", maxScale: 1, fitTo: frameBox, pad: 26, fullHeight: true, badges: !edit, onRegionHover: function (r, on) { if (lis[r.key]) lis[r.key].classList.toggle("hx-on", on); } });
+      if (opt.onMount) opt.onMount(fr, holder);
+      return fr;
+    }
+    mount();
+    if (edit) { modalTools = HX.zoomEdit({ slug: slug, concept: concept, frame: fr, box: holder, remount: mount }); side.insertBefore(HX.el("section", {}, modalTools.list), side.firstChild); }
     modalKey = function (e) { if (e.key === "Escape") { e.preventDefault(); HX.closeModal(); } };
     doc.addEventListener("keydown", modalKey);
     closeBtn.focus();
-    HX.emit("modal", slug);
+    HX.emit("modal", key);
   };
 })();

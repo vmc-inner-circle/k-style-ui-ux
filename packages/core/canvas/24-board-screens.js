@@ -2,7 +2,8 @@
    [사용 흐름]  흐름을 이해하는 곳 (05~07 캔버스). 빨간 번호·의견 창은 숨긴다. 화면을 누르면 화면 디자인 탭의 그 화면으로.
    [화면 디자인] 화면마다 한 번씩, 크게 보고 의견을 남기는 곳: 왼쪽 화면 목록 · 가운데 화면 한 장 · 오른쪽 그 화면의 번호 전부.
    목록 맨 위 "전체"는 질문·더 있었으면 하는 것·지금까지 남긴 의견(21-board-panel의 home)을 그대로 보여준다.
-   상태 저장·복사 형식은 20-board.js 그대로 — 이 파일은 보여주는 방식만 바꾼다. */
+   상태 저장·복사 형식은 20-board.js 그대로 — 이 파일은 보여주는 방식만 바꾼다.
+   완성본 입구(10-final.js)도 화면 디자인 탭을 그대로 쓴다: ctx.host를 넘기면 탭은 입구가 갖고, 여기선 화면 디자인 뷰 { el, onShow, onHide }만 돌려준다. */
 (function () {
   "use strict";
   var HX = window.HX, B = HX.board, doc = document;
@@ -33,14 +34,110 @@
   function hasMark(s) {
     var st = B.state, ss = st.screens[s.id];
     if (ss && (ss.remove || (ss.memo || "").trim())) return true;
-    if (Object.keys(st.pins || {}).some(function (k) { var p = st.pins[k]; return p && p.slug === s.slug && (p.v === "change" || p.v === "remove"); })) return true;
-    if ((st.edits || []).some(function (e) { return e.slug === s.slug; })) return true;
+    if (Object.keys(st.pins || {}).some(function (k) { var p = st.pins[k]; return p && p.slug === s.slug && !p.concept && (p.v === "change" || p.v === "remove"); })) return true;
+    if ((st.edits || []).some(function (e) { return e.slug === s.slug && !e.concept; })) return true;
     return s.regions.some(function (r) { var x = st.regions[r.id]; return x && x.v && x.v !== "like"; });
   }
   function roleName(role) { var l = HX.roleLabel(role).replace(/\(.*\)/, ""); return l === "부모" ? "부모님" : l; }
 
+  // ---------- 고르기 재료: 화면 디자인 탭과 자세히 보기 창(26-board-edit.js HX.zoomEdit)이 같이 쓴다 ----------
+  function kindOf(el) {
+    var t = el.tagName.toLowerCase(), c = el.classList;
+    if (t === "svg") return "아이콘";
+    if (c.contains("app")) return "화면 전체";
+    if (t === "button" || c.contains("btn")) return "버튼";
+    if (t === "input" || t === "textarea" || t === "select" || c.contains("input") || c.contains("select") || c.contains("textarea") || c.contains("search")) return "입력칸";
+    if (t === "label" || c.contains("checkbox") || c.contains("radio") || c.contains("switch")) return "선택 항목";
+    if (c.contains("nav-item")) return "메뉴";
+    if (t === "a") return "링크";
+    if (t === "img") return "이미지";
+    if (/^h[1-6]$/.test(t) || c.contains("page-title") || c.contains("card-title") || c.contains("section-title")) return "제목";
+    if (c.contains("badge") || c.contains("chip")) return "표시";
+    if (c.contains("avatar") || c.contains("avatar-group")) return "사람 표시";
+    if (c.contains("sidebar") || t === "nav") return "메뉴 묶음";
+    if (c.contains("topnav")) return "맨 위 줄";
+    if (t === "li" || t === "tr" || c.contains("list-item") || c.contains("timeline-item")) return "목록 한 줄";
+    if (!el.querySelector("div,section,ul,ol,table,form,header,footer,aside,nav,li") && (el.textContent || "").trim()) return "글자";
+    return "부분";
+  }
+  // 화면에 보이는 글자로(줄·칸 사이를 띄어서) — textContent는 "지현김지현2/3"처럼 글자가 붙어 버린다
+  function seen(el) { return (el.innerText || el.textContent || "").split(/\n+/).map(function (x) { return x.replace(/\s+/g, " ").trim(); }).filter(Boolean); }
+  function textOf(el) {
+    if (el.tagName.toLowerCase() === "svg") return "";
+    var attr = el.getAttribute("aria-label") || el.getAttribute("placeholder") || (el.tagName === "INPUT" ? el.getAttribute("value") : "");
+    var tx = attr;
+    if (!tx) {
+      // 묶음(부분·목록 한 줄·메뉴 묶음)은 제목이 있으면 제목, 없으면 첫 줄만
+      var head = kindOf(el) !== "글자" && el.querySelector && el.querySelector("h1,h2,h3,h4,.card-title,.page-title,.section-title,.fw-semibold");
+      var lines = head ? seen(head) : seen(el);
+      tx = lines.length > 1 && !head ? lines[0] + " · " + lines[1] : (lines[0] || "");
+    }
+    tx = String(tx).replace(/\s+/g, " ").trim();
+    return tx.length > 24 ? tx.slice(0, 24) + "…" : tx;
+  }
+  function iconNameOf(svg) { var u = svg && svg.querySelector("use"); var h = u && (u.getAttribute("href") || u.getAttribute("xlink:href")) || ""; return h.replace(/^#[if]-/, "").replace(/-(filled|color)$/, ""); }
+  function descOf(el) { var k = kindOf(el), t = k === "아이콘" ? iconNameOf(el) : textOf(el); return k + (t && k !== "화면 전체" ? " '" + t + "'" : ""); }
+  function whereIn(el, slug) {
+    var host = el.closest("[data-region]"); if (!host) return "";
+    var r = HX.bySlug[slug].regions.filter(function (x) { return x.key === host.getAttribute("data-region"); })[0];
+    return r ? r.label : "";
+  }
+  // 위치 경로: 가장 가까운 data-region(@key)부터 태그:순번. 다음 초안에서 AI가 조각 파일에서 이 요소를 찾는 좌표
+  function pathIn(el, sec) {
+    var segs = [], n = el;
+    while (n && n !== sec) {
+      if (n.hasAttribute && n.hasAttribute("data-region")) { segs.unshift("@" + n.getAttribute("data-region")); return segs.join(" > "); }
+      var par = n.parentElement; if (!par) break;
+      var same = [].filter.call(par.children, function (c) { return c.tagName === n.tagName; });
+      segs.unshift(n.tagName.toLowerCase() + (same.length > 1 ? ":" + (same.indexOf(n) + 1) : ""));
+      n = par;
+    }
+    return segs.join(" > ");
+  }
+  // 누른 곳에서 고를 요소 — 아이콘 속 선 · 점은 아이콘 하나로
+  function targetIn(el, sec) {
+    if (!el || !sec.contains(el) || el === sec) return null;
+    var svg = el.closest && el.closest("svg"); if (svg && sec.contains(svg)) el = svg;
+    return el.nodeType === 1 ? el : el.parentElement;
+  }
+  function rectInBox(el, box) { var r = el.getBoundingClientRect(), b = box.getBoundingClientRect(); return { x: r.left - b.left, y: r.top - b.top, w: r.width, h: r.height }; }
+  function placeIn(div, el, box, pad) {
+    if (!el) { div.style.display = "none"; return; }
+    var q = rectInBox(el, box), p = pad || 0;
+    div.style.display = ""; div.style.left = (q.x - p) + "px"; div.style.top = (q.y - p) + "px"; div.style.width = (q.w + p * 2) + "px"; div.style.height = (q.h + p * 2) + "px";
+  }
+  // 고른 곳 pk { path, desc, where, pinId }의 의견 핀 — 없으면 같은 자리 핀을 찾고, 그래도 없으면 이어지는 번호로 만든다.
+  //   시안 화면(자세히 보기)이면 concept(시안 id)를 기억한다
+  function pinFor(pk, slug, v, concept) {
+    var st = B.state;
+    if (!pk.pinId) {
+      var ex = Object.keys(st.pins).map(function (k) { return st.pins[k]; }).filter(function (p) { return p && p.slug === slug && (p.concept || null) === (concept || null) && p.path === pk.path; })[0];
+      if (ex) pk.pinId = ex.id;
+      else {
+        st.pinSeq = (st.pinSeq || 0) + 1;
+        var np = { id: st.pinSeq, sid: HX.bySlug[slug].id, slug: slug, path: pk.path, desc: pk.desc, where: pk.where, v: v, memo: "" };
+        if (concept) np.concept = concept;
+        st.pins[np.id] = np; pk.pinId = np.id;
+      }
+    }
+    var q = st.pins[pk.pinId]; if (q.v !== v && v) q.v = v; return q;
+  }
+  // 화면 조각에 고르기를 붙인다: 마우스를 올린 곳 테두리 + 이름표 · 누르면 o.pick(e). 화면 속 버튼 · 링크 · 입력칸은 실제로 동작하지 않는다
+  //   o = { box, hov, lab, busy(): 끄는 중인가, owns(t): 고쳐 쓰는 글자 안인가, show(e): 마우스 아래 { el, say } 또는 null, pick(e) }
+  function wirePick(sec, o) {
+    sec.addEventListener("mousemove", function (e) {
+      var h = !o.busy() && o.show(e); if (!h) { o.hov.style.display = o.lab.style.display = "none"; return; }
+      placeIn(o.hov, h.el, o.box); var q = rectInBox(h.el, o.box);
+      o.lab.textContent = h.say; o.lab.style.display = ""; o.lab.style.left = Math.max(0, q.x) + "px"; o.lab.style.top = Math.max(0, q.y - 24) + "px";
+    });
+    sec.addEventListener("mouseleave", function () { o.hov.style.display = o.lab.style.display = "none"; });
+    sec.addEventListener("mousedown", function (e) { if (!o.owns(e.target)) e.preventDefault(); }, true);
+    sec.addEventListener("click", function (e) { if (o.owns(e.target)) return; e.preventDefault(); e.stopPropagation(); o.pick(e); }, true);
+  }
+  B.pickKit = { descOf: descOf, seen: seen, whereIn: whereIn, pathIn: pathIn, targetIn: targetIn, rectIn: rectInBox, place: placeIn, pinFor: pinFor, wire: wirePick };
+
   B.buildDesign = function (ctx) {
-    var app = ctx.app, bar = ctx.bar;
+    var app = ctx.app, bar = ctx.bar, host = ctx.host || null;   // host = { select(탭), flow: 사용 흐름 뷰 } — 완성본 입구
     // ---------- 탭 ----------
     var tabBtns = {};
     function tab(key, label, icon) {
@@ -48,16 +145,19 @@
       tabBtns[key] = b; return b;
     }
     // 시안이 있고 아직 고르지 않았으면 맨 앞에 '시안 비교' (25-board-concepts.js)
-    var hasConcepts = !!(B.buildConcepts && B.concepts && B.concepts.length > 1 && !B.isLocked("concept"));
+    var hasConcepts = !host && !!(B.buildConcepts && B.concepts && B.concepts.length > 1 && !B.isLocked("concept"));
     var dsOn = false;   // 디자인 시스템 탭은 완성본 입구에만 — 보드에서는 껐다(켜려면 true, 2026-10-21 결정)
-    var tabs = HX.el("div", { class: "hx-bd-tabs", role: "tablist", "aria-label": "보기" }, [
-      hasConcepts ? tab("concept", "시안 비교", "#i-columns-3") : null, tab("flow", "사용 흐름", "#i-workflow"), HX.buildPlayer ? tab("play", "흐름 재생", "#i-play") : null, tab("design", "화면 디자인", "#i-layout-grid"),
-      dsOn ? tab("ds", "디자인 시스템", "#i-palette") : null]);
-    var player = HX.buildPlayer ? HX.buildPlayer() : null;   // 흐름 재생 탭 (09-player.js)
-    if (player) app.appendChild(player.el);
-    var ds = dsOn && HX.buildDesignSystem ? HX.buildDesignSystem() : null;   // 디자인 시스템 탭 (12-design-system.js)
-    if (ds) app.appendChild(ds.el);
-    bar.insertBefore(tabs, bar.children[1] || null);
+    var player = null, ds = null;
+    if (!host) {
+      var tabs = HX.el("div", { class: "hx-bd-tabs", role: "tablist", "aria-label": "보기" }, [
+        hasConcepts ? tab("concept", "시안 비교", "#i-columns-3") : null, tab("flow", "사용 흐름", "#i-workflow"), HX.buildPlayer ? tab("play", "흐름 재생", "#i-play") : null, tab("design", "화면 디자인", "#i-layout-grid"),
+        dsOn ? tab("ds", "디자인 시스템", "#i-palette") : null]);
+      player = HX.buildPlayer ? HX.buildPlayer() : null;   // 흐름 재생 탭 (09-player.js)
+      if (player) app.appendChild(player.el);
+      ds = dsOn && HX.buildDesignSystem ? HX.buildDesignSystem() : null;   // 디자인 시스템 탭 (12-design-system.js)
+      if (ds) app.appendChild(ds.el);
+      bar.insertBefore(tabs, bar.children[1] || null);
+    }
 
     // ---------- 화면 디자인 뷰 ----------
     var list = HX.el("nav", { class: "hx-sd-list", "aria-label": "화면 목록" });
@@ -67,7 +167,7 @@
     var sideScreen = HX.el("div", { class: "hx-sd-screen" });
     side.appendChild(sideAll); side.appendChild(sideScreen);
     var view = HX.el("div", { class: "hx-sd" }, [list, stage, side]);
-    app.appendChild(view);
+    if (!host) app.appendChild(view);
     if (hasConcepts) app.appendChild(B.buildConcepts());
 
     var order = screenOrder(), cur = null, frame = null, itemEls = {}, moRun = null;
@@ -127,60 +227,9 @@
     var box = null, picked = null;   // picked = { el, path, desc, where, pinId }
     var editor = HX.el("div", { class: "hx-sd-editor" }), pinList = HX.el("div", { class: "hx-sd-pins" });
 
-    function kindOf(el) {
-      var t = el.tagName.toLowerCase(), c = el.classList;
-      if (t === "svg") return "아이콘";
-      if (c.contains("app")) return "화면 전체";
-      if (t === "button" || c.contains("btn")) return "버튼";
-      if (t === "input" || t === "textarea" || t === "select" || c.contains("input") || c.contains("select") || c.contains("textarea") || c.contains("search")) return "입력칸";
-      if (t === "label" || c.contains("checkbox") || c.contains("radio") || c.contains("switch")) return "선택 항목";
-      if (c.contains("nav-item")) return "메뉴";
-      if (t === "a") return "링크";
-      if (t === "img") return "이미지";
-      if (/^h[1-6]$/.test(t) || c.contains("page-title") || c.contains("card-title") || c.contains("section-title")) return "제목";
-      if (c.contains("badge") || c.contains("chip")) return "표시";
-      if (c.contains("avatar") || c.contains("avatar-group")) return "사람 표시";
-      if (c.contains("sidebar") || t === "nav") return "메뉴 묶음";
-      if (c.contains("topnav")) return "맨 위 줄";
-      if (t === "li" || t === "tr" || c.contains("list-item") || c.contains("timeline-item")) return "목록 한 줄";
-      if (!el.querySelector("div,section,ul,ol,table,form,header,footer,aside,nav,li") && (el.textContent || "").trim()) return "글자";
-      return "부분";
-    }
-    // 화면에 보이는 글자로(줄·칸 사이를 띄어서) — textContent는 "지현김지현2/3"처럼 글자가 붙어 버린다
-    function seen(el) { return (el.innerText || el.textContent || "").split(/\n+/).map(function (x) { return x.replace(/\s+/g, " ").trim(); }).filter(Boolean); }
-    function textOf(el) {
-      if (el.tagName.toLowerCase() === "svg") return "";
-      var attr = el.getAttribute("aria-label") || el.getAttribute("placeholder") || (el.tagName === "INPUT" ? el.getAttribute("value") : "");
-      var tx = attr;
-      if (!tx) {
-        // 묶음(부분·목록 한 줄·메뉴 묶음)은 제목이 있으면 제목, 없으면 첫 줄만
-        var head = kindOf(el) !== "글자" && el.querySelector && el.querySelector("h1,h2,h3,h4,.card-title,.page-title,.section-title,.fw-semibold");
-        var lines = head ? seen(head) : seen(el);
-        tx = lines.length > 1 && !head ? lines[0] + " · " + lines[1] : (lines[0] || "");
-      }
-      tx = String(tx).replace(/\s+/g, " ").trim();
-      return tx.length > 24 ? tx.slice(0, 24) + "…" : tx;
-    }
-    function descOf(el) { var k = kindOf(el), t = k === "아이콘" ? iconNameOf(el) : textOf(el); return k + (t && k !== "화면 전체" ? " '" + t + "'" : ""); }
-    function whereOf(el) {
-      var host = el.closest("[data-region]"); if (!host) return "";
-      var r = HX.bySlug[cur].regions.filter(function (x) { return x.key === host.getAttribute("data-region"); })[0];
-      return r ? r.label : "";
-    }
-    // 위치 경로: 가장 가까운 data-region(@key)부터 태그:순번. 다음 초안에서 AI가 조각 파일에서 이 요소를 찾는 좌표
-    //   화면에서 자리를 옮겼으면(26-board-edit.js) 옮기기 전 경로 = 조각 파일의 경로를 쓴다
-    function pathOf(el) {
-      var o = E && E.pathOf(el); if (o) return o;
-      var segs = [], n = el, sec = frame.section;
-      while (n && n !== sec) {
-        if (n.hasAttribute && n.hasAttribute("data-region")) { segs.unshift("@" + n.getAttribute("data-region")); return segs.join(" > "); }
-        var par = n.parentElement; if (!par) break;
-        var same = [].filter.call(par.children, function (c) { return c.tagName === n.tagName; });
-        segs.unshift(n.tagName.toLowerCase() + (same.length > 1 ? ":" + (same.indexOf(n) + 1) : ""));
-        n = par;
-      }
-      return segs.join(" > ");
-    }
+    function whereOf(el) { return whereIn(el, cur); }
+    // 화면에서 자리를 옮겼으면(26-board-edit.js) 옮기기 전 경로 = 조각 파일의 경로를 쓴다
+    function pathOf(el) { return E && E.pathOf(el) || pathIn(el, frame.section); }
     function resolve(path) {
       if (!frame || !path) return null;
       var hit = E ? E.resolve(path) : undefined; if (hit !== undefined) return hit;
@@ -194,17 +243,9 @@
       }
       return n;
     }
-    function targetOf(el) {
-      if (!frame || !el || !frame.section.contains(el) || el === frame.section) return null;
-      var svg = el.closest && el.closest("svg"); if (svg && frame.section.contains(svg)) el = svg;
-      return el.nodeType === 1 ? el : el.parentElement;
-    }
-    function rectIn(el) { var r = el.getBoundingClientRect(), b = box.getBoundingClientRect(); return { x: r.left - b.left, y: r.top - b.top, w: r.width, h: r.height }; }
-    function place(div, el, pad) {
-      if (!el) { div.style.display = "none"; return; }
-      var q = rectIn(el), p = pad || 0;
-      div.style.display = ""; div.style.left = (q.x - p) + "px"; div.style.top = (q.y - p) + "px"; div.style.width = (q.w + p * 2) + "px"; div.style.height = (q.h + p * 2) + "px";
-    }
+    function targetOf(el) { return frame ? targetIn(el, frame.section) : null; }
+    function rectIn(el) { return rectInBox(el, box); }
+    function place(div, el, pad) { placeIn(div, el, box, pad); }
     function paintPins() {
       pinLayer.innerHTML = "";
       if (!frame || !cur || cur === ALL) return;
@@ -220,7 +261,7 @@
     }
     function pinsOf(slug) {
       var st = B.state;
-      return Object.keys(st.pins || {}).map(function (k) { return st.pins[k]; }).filter(function (p) { return p && p.slug === slug; }).sort(function (a, b) { return a.id - b.id; });
+      return Object.keys(st.pins || {}).map(function (k) { return st.pins[k]; }).filter(function (p) { return p && p.slug === slug && !p.concept; }).sort(function (a, b) { return a.id - b.id; });
     }
     function pick(el, pinId) {
       if (!el) { picked = null; renderEditor(); paintPins(); return; }
@@ -230,17 +271,8 @@
       renderEditor(); paintPins();
       editor.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
-    // 고른 곳의 의견 핀 — 없으면 이어지는 번호로 만든다. 의견 창과 화면의 ✕(26-board-edit.js)가 같이 쓴다
-    function ensurePin(v) {
-      var st = B.state;
-      if (!picked.pinId) {
-        st.pinSeq = (st.pinSeq || 0) + 1;
-        var sl = picked.slug || cur;
-        var np = { id: st.pinSeq, sid: HX.bySlug[sl].id, slug: sl, path: picked.path, desc: picked.desc, where: picked.where, v: v, memo: "" };
-        st.pins[np.id] = np; picked.pinId = np.id;
-      }
-      var q = st.pins[picked.pinId]; if (q.v !== v && v) q.v = v; return q;
-    }
+    // 고른 곳의 의견 핀 — 의견 창과 화면의 ✕(26-board-edit.js)가 같이 쓴다
+    function ensurePin(v) { return pinFor(picked, picked.slug || cur, v); }
     function renderEditor() {
       editor.innerHTML = "";
       if (!picked) {
@@ -288,7 +320,6 @@
     }
     // ---------- 아이콘 바꾸기: 허용된 Lucide 아이콘 중에서 고르면 화면에 바로 반영 ----------
     var ICONS = (function () { try { return JSON.parse((doc.getElementById("hx-icons") || {}).textContent || "[]"); } catch (e) { return []; } })();
-    function iconNameOf(svg) { var u = svg && svg.querySelector("use"); var h = u && (u.getAttribute("href") || u.getAttribute("xlink:href")) || ""; return h.replace(/^#[if]-/, "").replace(/-(filled|color)$/, ""); }
     function setIcon(svg, name) { var u = svg && svg.querySelector("use"); if (u) { u.setAttribute("href", (doc.documentElement.getAttribute("data-icons") === "fluent" && doc.getElementById("f-" + name) ? "#f-" : "#i-") + name); } }
     function applyIconPins() {   // 저장된 아이콘 교체를 화면에 다시 입힌다
       pinsOf(cur).forEach(function (p) { if (p.icon) { var el = resolve(p.path); if (el) setIcon(el, p.icon.to); } });
@@ -329,23 +360,19 @@
           HX.el("span", { class: "hx-sd-pinrow-t" }, [HX.el("b", { text: p.desc }), HX.el("span", { text: p.icon ? "아이콘 " + p.icon.from + " → " + p.icon.to + (B.one(p.memo) ? " · " + B.one(p.memo) : "") : p.v === "change" ? "바꿔 주세요" + (B.one(p.memo) ? ": " + B.one(p.memo) : "") : "빼 주세요" })])]));
       });
     }
+    // 화면 속을 누르면 그 요소를 고른다 (글자를 고쳐 쓰는 중이면 그 글자 안은 그대로)
     function wirePicking() {
-      var sec = frame.section;
-      sec.addEventListener("mousemove", function (e) {
-        var t = !(E && E.busy()) && targetOf(e.target); if (!t) { hov.style.display = hovLab.style.display = "none"; return; }
-        place(hov, t); var q = rectIn(t);
-        var mt = e.target.closest && e.target.closest(".toast.mo-toast"); if (mt) { t = mt; place(hov, t); q = rectIn(t); }
-        hovLab.textContent = mt ? "안내 문구 '" + cut(mt.querySelector(".toast-title").textContent) + "'" : descOf(t); hovLab.style.display = ""; hovLab.style.left = Math.max(0, q.x) + "px"; hovLab.style.top = Math.max(0, q.y - 24) + "px";
-      });
-      sec.addEventListener("mouseleave", function () { hov.style.display = hovLab.style.display = "none"; });
-      // 화면 속 버튼·링크·입력칸이 실제로 동작하지 않게 막고, 누른 요소를 고른다 (글자를 고쳐 쓰는 중이면 그 글자 안은 그대로)
-      sec.addEventListener("mousedown", function (e) { if (!(E && E.owns(e.target))) e.preventDefault(); }, true);
-      sec.addEventListener("click", function (e) {
-        if (E && E.owns(e.target)) return;
-        e.preventDefault(); e.stopPropagation();
-        var m = msgAt(e.target); if (m) { pickMsg(m); return; }   // 화면에 뜬 안내 문구를 누르면 그 문구를 고른다
-        var t = targetOf(e.target); if (t) pick(t);
-      }, true);
+      wirePick(frame.section, { box: box, hov: hov, lab: hovLab,
+        busy: function () { return !!(E && E.busy()); }, owns: function (t) { return !!(E && E.owns(t)); },
+        show: function (e) {
+          var t = targetOf(e.target); if (!t) return null;
+          var mt = e.target.closest && e.target.closest(".toast.mo-toast");
+          return mt ? { el: mt, say: "안내 문구 '" + cut(mt.querySelector(".toast-title").textContent) + "'" } : { el: t, say: descOf(t) };
+        },
+        pick: function (e) {
+          var m = msgAt(e.target); if (m) { pickMsg(m); return; }   // 화면에 뜬 안내 문구를 누르면 그 문구를 고른다
+          var t = targetOf(e.target); if (t) pick(t);
+        } });
     }
     // ---------- 안내 문구 고르기: 화면 위에 그 문구를 띄워 두고 고른다 (경로 "toast:<문구>") ----------
     function cut(t) { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > 24 ? t.slice(0, 24) + "…" : t; }
@@ -458,7 +485,7 @@
       }
       function paintMo() { if (!moBtn) return; moBtn.classList.toggle("hx-on", !!moRun); moBtn.lastChild.textContent = moRun ? "멈추기" : "움직임 보기"; }
       stage.appendChild(HX.el("div", { class: "hx-sd-stage-head" }, [HX.badge(s.id), HX.el("h2", { text: s.name }), moBtn,
-        HX.btn("크게 보기", { icon: HX.icon("#i-maximize-2"), title: "실제 크기로 열기", onclick: function () { HX.openScreen(slug); } })]));
+        HX.btn("자세히 보기", { icon: HX.icon("#i-maximize-2"), title: "실제 크기로 열기", onclick: function () { HX.openScreen(slug); } })]));
       stage.appendChild(box);
       frame = HX.mountFrame(slug, box, { fit: "width", fullHeight: true, maxScale: 1, pad: 0, badges: false, onLayout: function () { paintPins(); } });
       box.appendChild(hov); box.appendChild(hovLab); box.appendChild(selBox); box.appendChild(pinLayer);
@@ -513,9 +540,11 @@
     }
 
     // ---------- 탭 전환 ----------
-    var tabNow = "flow";
+    var tabNow = host ? null : "flow", toSlug = false;
     B.tab = function () { return tabNow; };
-    B.setTab = function (t, o) {
+    // 완성본 입구: 탭 단추는 10-final.js에 있다 — 화면 디자인 말고는 모두 사용 흐름으로 (onShow · onHide가 tabNow를 맞춘다)
+    if (host) B.setTab = function (t, o) { toSlug = !!(o && o.slug); host.select(t === "design" ? "design" : "map"); toSlug = false; };
+    else B.setTab = function (t, o) {
       var was = tabNow;
       tabNow = t === "design" || (t === "play" && player) || (t === "concept" && hasConcepts) || (t === "ds" && ds) ? t : "flow";
       app.classList.toggle("hx-tab-design", tabNow === "design");
@@ -532,7 +561,7 @@
     B.showDesign = function (slug, key) { B.setTab("design", { slug: slug }); show(slug || ALL, key); };
     B.showInFlow = function (slug, flowIndex) {
       B.setTab("flow");
-      B.view.focus(slug);
+      (host ? host.flow : B.view).focus(slug);
     };
     // 화면 디자인 탭에서 다른 곳(지금까지 남긴 의견 등)이 화면을 고르면 → 이 탭 안에서 보여준다
     B.selectFlow = B.select;
@@ -559,11 +588,20 @@
     }, true);
 
     // 고르기 도구를 내보낸다 — 화면에서 바로 고치기(26-board-edit.js)가 같은 경로 · 이름표 · 고르기 · 핀을 쓴다
+    //   live: 키보드(Delete)를 받을 때인가 — 이 탭이 보이고 자세히 보기 창이 닫혀 있을 때
     HX.sd = { pathOf: pathOf, resolve: resolve, pick: pick, descOf: descOf, whereOf: whereOf, seen: seen, rectIn: rectIn, ensurePin: ensurePin, refresh: refresh,
-      picked: function () { return picked; }, frame: function () { return frame; }, cur: function () { return cur; } };
-    E = B.buildEdit ? B.buildEdit() : null;
+      picked: function () { return picked; }, frame: function () { return frame; }, cur: function () { return cur; },
+      live: function () { return tabNow === "design" && !doc.querySelector(".hx-modal"); } };
+    E = B.buildEdit ? B.buildEdit(HX.sd) : null;
+    // 자세히 보기 창에서 이 화면을 고쳤으면 닫을 때 다시 그린다(창과 이 탭이 같은 state.edits를 쓴다)
+    HX.on("modal", function (k) { if (k === null && E && E.stale()) refresh(); });
 
     buildList();
+    if (host) return {
+      el: view,
+      onShow: function () { tabNow = "design"; if (!cur && !toSlug) show(order[0] || ALL); HX.relayout(); },
+      onHide: function () { tabNow = null; }
+    };
     B.setTab(hasConcepts && !B.focus.length ? "concept" : "flow");
   };
 })();

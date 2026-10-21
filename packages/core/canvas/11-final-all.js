@@ -17,6 +17,14 @@
     var ord = Object.keys(pages);
     HX.data.screens.forEach(function (s) { if (ord.indexOf(s.slug) < 0) ord.push(s.slug); });
     var W = HX.frame.w;
+    var B = HX.board, EDIT = !!(B && B.isFinal && B.dressEdits && HX.data.board), sig = {};
+    // 대지 한 장을 붙인다 — 고친 것이 있으면 입힌다(26-board-edit.js), 고친 것이 바뀐 대지만 다시 붙인다
+    function mountBoard(b) {
+      b.box.innerHTML = "";
+      b.frame = HX.mountFrame(b.slug, b.box, { scale: 1, fullHeight: true, badges: false });
+      if (EDIT && b.frame) { B.dressEdits(b.frame.section, b.slug); sig[b.slug] = B.editSig(b.slug); }
+    }
+    if (EDIT) HX.on("board-change", function () { boards.forEach(function (b) { if (b.frame && B.editSig(b.slug) !== sig[b.slug]) mountBoard(b); }); });
 
     var vp = HX.el("div", { class: "hx-cv", tabindex: "0", "aria-label": "화면 전체 캔버스" });
     var world = HX.el("div", { class: "hx-cv-world" });
@@ -45,6 +53,12 @@
         var label = HX.el("div", { class: "hx-cv-label" }, [HX.el("span", { class: "hx-cv-n", text: String(n).padStart(2, "0") }), HX.el("b", { text: s.name }),
           s.state && HX.stateLabel ? HX.el("span", { class: "hx-tag hx-state", text: HX.stateLabel(s.state) }) : null]);
         var box = HX.el("div", { class: "hx-cv-board", dataset: { screen: slug }, style: "width:" + W + "px" });
+        if (EDIT) {   // 의견을 남길 수 있는 완성본: 이름 옆 '자세히 보기' — 창으로 열어 바로 고치기(사용 흐름과 같은 창)
+          var open = HX.el("button", { type: "button", class: "hx-sx-pick hx-cv-open", title: "자세히 보기 — " + s.name, "aria-label": "자세히 보기 — " + s.name }, [HX.icon("#i-maximize-2"), HX.el("span", { text: "자세히 보기" })]);
+          open.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+          open.addEventListener("click", function (e) { e.stopPropagation(); HX.openScreen(slug); });
+          label.appendChild(open);
+        }
         world.appendChild(label); world.appendChild(box);
         var b = { slug: slug, label: label, box: box, frame: null };
         box.addEventListener("click", function () { if (!dragged) focusBoard(b); });
@@ -122,7 +136,7 @@
       onShow: function () {
         if (!mounted) {
           mounted = true;
-          boards.forEach(function (b) { b.frame = HX.mountFrame(b.slug, b.box, { scale: 1, fullHeight: true, badges: false }); });
+          boards.forEach(mountBoard);
           requestAnimationFrame(function () { HX.relayout(); requestAnimationFrame(function () {
             layout(); fit(false);
             if (pending) { var p = boards.filter(function (x) { return x.slug === pending; })[0]; pending = null; if (p) focusBoard(p); }

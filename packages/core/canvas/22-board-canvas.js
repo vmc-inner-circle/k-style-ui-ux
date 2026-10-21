@@ -47,8 +47,7 @@
   // ---------- 진입 ----------
   B.start = function (app) {
     app.classList.add("hx-app"); app.classList.add("hx-bd");
-    var copyBtn = HX.btn("", { cls: "hx-primary hx-bd-copy", icon: HX.icon("#i-send"), title: "무엇이 전달되는지 확인하고 복사해요 (⌘/Ctrl+Shift+C)", onclick: function () { B.openSend(); } });
-    var copyLabel = HX.el("span"); copyBtn.appendChild(copyLabel);
+    var copyBtn = B.sendButton();   // 의견 보내기 (23-board-send.js — 완성본 입구와 같은 단추)
     var colorAnchor = HX.el("span", { class: "hx-bd-color" });
     var bar = HX.el("div", { class: "hx-bar hx-bd-bar" }, [
       HX.el("div", { class: "hx-bar-title", title: HX.meta.title || "" }, [HX.meta.title || HX.meta.project || "", HX.el("small", { text: "초안 " + (HX.meta.round || 1) })]),
@@ -62,8 +61,12 @@
     app.appendChild(bar); app.appendChild(main);
     B.mountColor(colorAnchor);
 
-    B.view = HX.buildSections({ pickTitle: "의견 남기기", pickIcon: "comment", onPick: function (slug) { if (B.showDesign) B.showDesign(slug); } });
+    // '자세히 보기' 창에서 바로 고칠 수 있고(26-board-edit.js), 고친 것은 캔버스의 작은 화면에도 입힌다 — 고친 것이 바뀐 화면만 새로 붙인다
+    var shownSig = {};
+    B.view = HX.buildSections({ pickTitle: "의견 남기기", pickIcon: "comment", onPick: function (slug) { if (B.showDesign) B.showDesign(slug); }, onOpen: function (slug) { HX.openScreen(slug); },
+      onMount: function (f, slug) { if (B.dressEdits) { B.dressEdits(f.section, slug); shownSig[slug] = B.editSig(slug); } } });
     canvas.appendChild(B.view.el);
+    HX.on("board-change", function () { Object.keys(shownSig).forEach(function (slug) { if (B.editSig(slug) !== shownSig[slug]) B.view.remount(slug); }); });
 
     // 코치 팁 (처음 한 번)
     if (!HX.storage.get("hx:board:coach2")) {
@@ -71,23 +74,17 @@
         HX.el("div", {}, [HX.el("b", { text: "이렇게 보세요" }),
           HX.el("ul", {}, [HX.el("li", { text: "구역(가입·홈 …)마다 화면이 사용하는 순서대로 왼쪽부터 놓여 있어요" }),
             HX.el("li", { text: "초록 화살표는 조건에 따라 길이 갈리는 곳이에요 · 화면 이름 옆 ⓘ에 마우스를 올리면 그 화면의 규칙이 보여요" }),
-            HX.el("li", { text: "화면 위 이름 옆 '의견 남기기'를 누르면 '화면 디자인'에서 고치고 싶은 곳에 의견을 남길 수 있어요" })])]),
+            HX.el("li", { text: "화면 위 이름 옆 '의견 남기기'를 누르면 '화면 디자인'에서 고치고 싶은 곳에 의견을 남길 수 있어요" }),
+            HX.el("li", { text: "'자세히 보기'를 누르면 실제 크기로 열려요 — 그 안에서 자리 · 글자를 바로 고칠 수 있어요" })])]),
         HX.btn("", { cls: "hx-icon-btn", aria: "닫기", title: "닫기", icon: HX.icon("#i-x"), onclick: function () { B.closeCoach(); } })]);
       canvas.appendChild(coach);
       B.closeCoach = function () { if (coach.isConnected) coach.remove(); HX.storage.set("hx:board:coach2", 1); };
     } else B.closeCoach = function () {};
 
-    function paintCopy() {
-      var n = B.diffCount();
-      copyLabel.textContent = "의견 보내기" + (n ? " · " + n + "개" : "");
-      copyBtn.title = n ? "지금까지 남긴 의견 " + n + "개 (추천과 다르게 고른 것 포함) — 눌러서 무엇이 전달되는지 확인해요"
-        : "아직 남긴 의견이 없어요 — 이대로 보내면 모두 추천대로 진행해요";
-    }
-    HX.on("board-change", function () { B.paintMarks(); paintCopy(); });
+    HX.on("board-change", function () { B.paintMarks(); });
     B.applyTheme();
 
     doc.addEventListener("keydown", function (e) {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "c") { e.preventDefault(); B.openSend(); return; }
       var t = e.target, typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable);
       if (typing || doc.querySelector(".hx-modal") || e.metaKey || e.ctrlKey || e.altKey) return;
       if (!B.tab || B.tab() !== "flow") return;

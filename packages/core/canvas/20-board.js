@@ -6,6 +6,8 @@
   var HX = window.HX, doc = document, root = doc.documentElement;
   var B = HX.board = {};
   var board = HX.data.board || {};
+  // 완성본 입구(10-final.js)도 같은 상태 · 보내기를 쓴다 — 화면 디자인 탭에서 남긴 의견을 '완성본 n차 의견'으로 보낸다
+  var FINAL = B.isFinal = HX.mode === "final";
   var rec = board.recommend || {};
   var locked = Array.isArray(board.locked) ? board.locked : [];
   // "toggles"는 글자 크기(type)와 버튼 색(swatch)을 함께 잠근다 (예전 형식)
@@ -36,11 +38,12 @@
   function fixSwatch(lookId, v) { var L = B.look(lookId); return L.swatches.some(function (s) { return s.id === v; }) ? v : (v === "vivid" && L.swatches[1] ? L.swatches[1].id : (L.swatches[0] || {}).id); }
   // 확정(잠금)된 값이나 이미 고른 값(board.theme · board.toggles — 시안 보드에서 고른 것을 2턴에 옮긴 것)이 있으면 1턴 추천(board.recommend)이 아니라 그 값을 쓴다
   //   — 추천이 덮으면 1차안 보드가 시안 보드에서 고른 테마 · 글자 크기 대신 추천으로 열린다. 예전 실행물은 board.theme 없이 최상위에 두므로 그대로 추천
+  //   완성본은 빌드가 칠한 값이 처음 값 — 완성본에서 바꾼 것만 줄로 나간다
   var validLook = function (id) { return LOOKS.some(function (l) { return l.id === id; }); };
   var bt = board.toggles || {};
-  var recTheme = (isLocked("theme") || board.theme) && validLook(HX.meta.theme) ? HX.meta.theme : (validLook(rec.theme) ? rec.theme : HX.meta.theme);
-  var recType = (isLocked("type") || bt.type) && toggles.type ? toggles.type : (rec.type || toggles.type || "normal");
-  var recSwatch = (isLocked("swatch") || bt.swatch) && toggles.swatch ? toggles.swatch : (rec.swatch || rec.accent || toggles.swatch);
+  var recTheme = (FINAL || isLocked("theme") || board.theme) && validLook(HX.meta.theme) ? HX.meta.theme : (validLook(rec.theme) ? rec.theme : HX.meta.theme);
+  var recType = (FINAL || isLocked("type") || bt.type) && toggles.type ? toggles.type : (rec.type || toggles.type || "normal");
+  var recSwatch = (FINAL || isLocked("swatch") || bt.swatch) && toggles.swatch ? toggles.swatch : (rec.swatch || rec.accent || toggles.swatch);
   var REC = B.REC = { theme: recTheme, type: recType, accent: fixSwatch(recTheme, recSwatch) };
   // 추천 분위기가 직접 고른 색(프리셋 → custom, scripts/screens.js)이면 그 색이 처음 고른 값
   var recCustom = REC.theme === "custom" ? HX.meta.custom || null : null;
@@ -53,7 +56,7 @@
   };
   var TOAST_KEYS = B.TOAST_KEYS = ["at", "icon", "tone", "size"];
   function toastOk(o) { var r = {}; TOAST_KEYS.forEach(function (k) { var v = o && o[k]; r[k] = TOAST[k].opts.some(function (x) { return x[0] === v; }) ? v : TOAST[k].opts[0][0]; }); return r; }
-  REC.toast = toastOk(isLocked("toast") ? toggles.toast : (rec.toast || toggles.toast));
+  REC.toast = toastOk(FINAL || isLocked("toast") ? toggles.toast : (rec.toast || toggles.toast));
   B.toastLabel = function (k, v) { var o = TOAST[k].opts.filter(function (x) { return x[0] === v; })[0]; return o ? o[1] : v; };
   B.toastDiff = function () { return TOAST_KEYS.filter(function (k) { return state.toast[k] !== REC.toast[k]; }); };
   // 단계: "concept"(1턴 — 시안만 보여주고 고르게) / "draft"(2턴부터 — 고른 시안으로 만든 전체 화면)
@@ -65,7 +68,8 @@
   B.recWhy = { theme: rec.themeWhy || "", type: rec.typeWhy || "", accent: rec.swatchWhy || rec.accentWhy || "" };
   B.fixSwatch = fixSwatch;
   var TYPE_LABEL = B.TYPE_LABEL = { normal: "보통", large: "크게" }, ACCENT_LABEL = B.ACCENT_LABEL = { calm: "차분", vivid: "선명" };
-  var storeKey = "hx:" + (HX.meta.project || "project") + ":" + (HX.meta.stage === "concept" ? "concept" : HX.meta.round || 1);
+  // 저장 열쇠: 시안 보드 · n차 보드 · 완성본 n차가 서로 섞이지 않게
+  var storeKey = "hx:" + (HX.meta.project || "project") + ":" + (FINAL ? "final:" + (HX.meta.round || 1) : HX.meta.stage === "concept" ? "concept" : HX.meta.round || 1);
   B.data = board;
   B.asks = Array.isArray(board.ask) ? board.ask.filter(function (q) { return q && q.id && Array.isArray(q.options); }) : [];
   B.focus = Array.isArray(board.focus) ? board.focus.filter(function (k) { return HX.bySlug[k]; }) : [];
@@ -75,9 +79,15 @@
   // edits: 화면 디자인 탭에서 화면을 바로 고친 것, 고친 순서대로 (26-board-edit.js) — 경로는 모두 조각 파일 기준
   //   { kind: "order", slug, parent: 부모 경로, kids: [새 순서의 자식 경로 전부], region: 구역끼리인가, title: 구역 이름, names: [줄에 적을 이름] }
   //   { kind: "text", slug, path, desc, from, to } · { kind: "size", slug, path, desc, n: 단계 수(+ 크게 · − 작게) }
+  //   시안 화면(자세히 보기)에서 고친 것 · 뺀 곳 핀은 concept: 시안 id를 더 갖는다 — 초안 보내기 줄 · 목록에는 넣지 않는다(시안 줄은 따로)
   // 글꼴(폰트 창): 처음 값 = build가 <html data-font>에 넣은 board.dress.font, 없으면 "base"(초안은 테마 글꼴 · 시안 단계는 시안마다 꾸밈 글꼴). 잠금 키는 "font" — "dress" 잠금은 글꼴을 잠그지 않는다
   REC.font = root.getAttribute("data-font") || "base";
   var EDIT_KINDS = ["order", "text", "size"];
+  // 고친 것 · 핀이 어느 화면 · 어느 시안 것인가 — 시안 보드 화면은 slug가 "<시안>~<slug>"이거나 concept 칸을 갖는다(자세히 보기에서 고친 것)
+  B.placeOf = function (x) {
+    var sl = String((x && x.slug) || ""), i = sl.indexOf("~"), slug = i > 0 ? sl.slice(i + 1) : sl;
+    return { slug: slug, concept: (x && x.concept) || (i > 0 ? sl.slice(0, i) : null), s: HX.bySlug[slug] };
+  };
   var state = { concept: REC.concept, cmemo: {}, custom: recCustom, theme: REC.theme, type: REC.type, accent: REC.accent, font: REC.font, ask: {}, regions: {}, screens: {}, pins: {}, pinSeq: 0, edits: [], add: "", memo: "", toast: toastOk(REC.toast) };
   (function restore() {
     var saved = HX.storage.get(storeKey); if (!saved || typeof saved !== "object") return;
@@ -86,7 +96,7 @@
     if (isLocked("concept") || !B.concept(state.concept) || (CONCEPTS.length && B.concept(state.concept).id !== state.concept)) state.concept = REC.concept;
     // regions(미리 정한 번호로 남긴 의견)는 지금 보드에서 보이지도 지울 수도 없으므로 불러오지 않는다
     ["ask", "screens", "pins", "cmemo", "cup", "dress"].forEach(function (k) { if (saved[k] && typeof saved[k] === "object") state[k] = saved[k]; });
-    if (Array.isArray(saved.edits)) state.edits = saved.edits.filter(function (e) { return e && HX.bySlug[e.slug] && EDIT_KINDS.indexOf(e.kind) >= 0; });
+    if (Array.isArray(saved.edits)) state.edits = saved.edits.filter(function (e) { return e && B.placeOf(e).s && EDIT_KINDS.indexOf(e.kind) >= 0; });
     // 직접 고른 색: 저장해 둔 색으로 분위기 "custom"을 다시 만든다(확정된 색이 있으면 그대로)
     if (!isLocked("theme") && saved.custom && typeof saved.custom === "object" && B.putCustom(saved.custom)) state.custom = saved.custom;
     if (typeof saved.pinSeq === "number") state.pinSeq = saved.pinSeq;
@@ -110,6 +120,7 @@
     if (!isLocked("swatch")) state.accent = fixSwatch(state.theme, REC.accent);
     if (!isLocked("toast")) state.toast = toastOk(REC.toast);
     if (!isLocked("font")) state.font = REC.font;
+    if (B.resetColor) B.resetColor();   // 완성본: 테마 · 컬러 · 폰트 버튼(기억해 둔 색)도 처음 값으로 (10-final.js)
     if (B.applyTheme) B.applyTheme();
     B.changed();
   };
@@ -187,13 +198,19 @@
       if (B.lookPicked()) cl.push(B.themeLine());
       if (!dressed && B.fontPicked()) cl.push(B.fontLine());
       B.conceptMemos().forEach(function (m) { cl.push("시안 " + m.c.id + " 메모: " + m.text); });
+      // 화면에서 바로 고친 것(자세히 보기): 고른 시안 것은 고친 줄 그대로 — 2턴에 시안 화면을 screens/로 복사한 뒤 edits.js가 반영.
+      //   고르지 않은 시안 것은 하나에 한 줄 '시안 <id> 메모: <slug> 화면 — <사람 말>'(그 안에서 가져올 요소 — AI 몫)
+      var ce = B.conceptEdits();
+      ce.other.forEach(function (x) { cl.push("시안 " + x.concept + " 메모: " + x.slug + " 화면 — " + x.say); });
+      ce.picked.forEach(function (x) { cl.push(x.line); });
       if (B.one(state.add)) cl.push("추가: " + B.one(state.add));
       if (B.one(state.memo)) cl.push("메모: " + B.one(state.memo));
       cl.push("(나머지는 추천대로)");
       return cl.join("\n");
     }
     var locked = Array.isArray(board.locked) ? board.locked : [];
-    var lines = [B.themeLine() + (isLocked("theme") && isLocked("type") && isLocked("swatch") ? " (확정)" : "")];
+    // 완성본에서 보낸 글은 첫 줄로 알린다 — 그 밖의 줄은 보드와 같다
+    var lines = (FINAL ? [B.finalLine()] : []).concat([B.themeLine() + (isLocked("theme") && isLocked("type") && isLocked("swatch") ? " (확정)" : "")]);
     if (B.fontPicked()) lines.push(B.fontLine());
     var one = function (s) { return String(s || "").replace(/\s*\n+\s*/g, " / ").trim(); };
     // 안내 문구 모양: 추천과 다를 때만 — "안내 문구: 위치 화면 아래 · 아이콘 없음 · 색 어두운 바탕 · 글자 크게" (answer-parsing §1)
@@ -217,13 +234,11 @@
     });
     // 화면 아무 곳이나 골라 단 의견: "화면 <id> · <무엇> 바꿔: 메모 [<위치 경로>]"
     Object.keys(state.pins).map(Number).sort(function (a, b) { return a - b; }).forEach(function (id) {
-      var p = state.pins[id]; if (!p || (p.v !== "change" && p.v !== "remove")) return;
-      var head = "화면 " + p.sid + " · " + p.desc;
-      if (p.v === "change" && p.icon) lines.push(head + " 바꿔: 아이콘 " + p.icon.from + " → " + p.icon.to + (one(p.memo) ? ", " + one(p.memo) : "") + " [" + p.path + "]");
-      else lines.push(p.v === "change" ? head + " 바꿔" + (one(p.memo) ? ": " + one(p.memo) : "") + " [" + p.path + "]" : head + " 빼기 [" + p.path + "]");
+      var p = state.pins[id]; if (!p || p.concept) return;   // 시안 화면 핀은 시안 단계 줄(B.conceptEdits)
+      var l = B.pinLine(p); if (l) lines.push(l);
     });
     // 화면에서 바로 고친 것: 화면 번호 순, 한 화면 안은 고친 순서대로 (✕로 뺀 곳은 위 핀 줄 '빼기' 그대로)
-    state.edits.map(function (e, i) { return { e: e, s: HX.bySlug[e.slug], i: i }; }).filter(function (x) { return x.s; })
+    state.edits.map(function (e, i) { return { e: e, s: B.placeOf(e).s, i: i }; }).filter(function (x) { return x.s && !x.e.concept; })
       .sort(function (a, b) { return a.s.id - b.s.id || a.i - b.i; }).forEach(function (x) { lines.push(B.editLine(x.e)); });
     if (one(state.add)) lines.push("추가: " + one(state.add));
     if (one(state.memo)) lines.push("메모: " + one(state.memo));
@@ -234,14 +249,42 @@
   //   화면 <S> · 구역 순서: <key>, … / 화면 <S> · 구역 '<제목>' 안 순서: '<글자 앞 12자>', … [<부모 경로>]
   //   화면 <S> · <이름표> 고쳐 쓰기: '<전>' → '<후>' [<경로>] / 화면 <S> · <이름표> 크기 <+n|-n>단계 [<경로>]
   B.editLine = function (e) {
-    var head = "화면 " + HX.bySlug[e.slug].id + " · ";
+    var head = "화면 " + B.placeOf(e).s.id + " · ";
     if (e.kind === "order") return head + (e.region ? "구역 순서: " + e.names.join(", ") : "구역 '" + e.title + "' 안 순서: " + e.names.join(", ") + " [" + e.parent + "]");
     if (e.kind === "text") return head + e.desc + " 고쳐 쓰기: '" + B.one(e.from) + "' → '" + B.one(e.to) + "' [" + e.path + "]";
     return head + e.desc + " 크기 " + (e.n > 0 ? "+" : "") + e.n + "단계 [" + e.path + "]";
   };
+  // 화면 아무 곳이나 골라 단 의견 한 줄: "화면 <id> · <무엇> 바꿔: 메모 [<위치 경로>]" — 초안 · 완성본 · 시안 보드(고른 시안)가 같이 쓴다
+  B.pinLine = function (p) {
+    if (!p || (p.v !== "change" && p.v !== "remove")) return null;
+    var s = B.placeOf(p).s, head = "화면 " + (s ? s.id : p.sid) + " · " + p.desc, memo = B.one(p.memo);
+    if (p.v === "change" && p.icon) return head + " 바꿔: 아이콘 " + p.icon.from + " → " + p.icon.to + (memo ? ", " + memo : "") + " [" + p.path + "]";
+    return p.v === "change" ? head + " 바꿔" + (memo ? ": " + memo : "") + " [" + p.path + "]" : head + " 빼기 [" + p.path + "]";
+  };
+  // 시안 보드에서 고친 것(바로 고친 것 + 핀) → 고른 시안 것 { line } · 다른 시안 것 { say } — 보내기 글과 확인 창이 같이 쓴다
+  //   차례: 화면 번호 순, 한 화면 안은 핀(고른 차례) 뒤에 바로 고친 것(고친 차례)
+  B.conceptEdits = function () {
+    var items = [];
+    Object.keys(state.pins || {}).map(Number).sort(function (a, b) { return a - b; }).forEach(function (id, i) {
+      var p = state.pins[id]; if (!p || (p.v !== "change" && p.v !== "remove")) return;
+      items.push({ p: p, k: i });
+    });
+    state.edits.forEach(function (e, i) { items.push({ e: e, k: 1e4 + i }); });
+    var out = { picked: [], other: [] };
+    items.map(function (x) { x.at = B.placeOf(x.p || x.e); return x; }).filter(function (x) { return x.at.s; })
+      .sort(function (a, b) { return a.at.s.id - b.at.s.id || a.k - b.k; }).forEach(function (x) {
+        var cid = x.at.concept || state.concept, flat = Object.assign({}, x.p || x.e, { slug: x.at.slug });
+        var say = x.e ? (B.editSay ? B.editSay(flat) : B.editLine(flat)) : x.p.hide || x.p.v === "remove" ? x.p.desc + " 뺌"
+          : x.p.icon ? "아이콘 " + x.p.icon.from + " → " + x.p.icon.to : x.p.desc + " 바꿔" + (B.one(x.p.memo) ? ": " + B.one(x.p.memo) : "");
+        var row = { concept: cid, slug: x.at.slug, name: x.at.s.name, say: say };
+        if (cid === state.concept) { row.line = x.e ? B.editLine(flat) : B.pinLine(flat); out.picked.push(row); } else out.other.push(row);
+      });
+    return out;
+  };
+  B.finalLine = function () { return "완성본 " + (HX.meta.round || 1) + "차 의견"; };
   /* 추천과 다르게 표시한 항목 수 (복사 버튼 숫자) */
   B.diffCount = function () {
-    var n = B.answer().split("\n").length - 2;
+    var n = B.answer().split("\n").length - 2 - (FINAL ? 1 : 0);
     if (STAGE === "concept") return n + 1;   // 고른 시안은 늘 센다. 색 줄은 answer()에 이미 들어 있어 n에 포함
     if (!isLocked("theme") && (state.theme !== REC.theme || B.customChanged())) n++;
     if (!isLocked("type") && state.type !== REC.type) n++;
@@ -276,11 +319,11 @@
         else if (st.v === "remove") out.push({ slug: s.slug, key: r.key, kind: "remove", id: String(r.id), text: r.label + " — 빼기" });
       });
       Object.keys(state.pins).map(Number).sort(function (a, b) { return a - b; }).forEach(function (id) {
-        var p = state.pins[id]; if (!p || p.slug !== s.slug || (p.v !== "change" && p.v !== "remove")) return;
+        var p = state.pins[id]; if (!p || p.slug !== s.slug || p.concept || (p.v !== "change" && p.v !== "remove")) return;
         out.push({ slug: s.slug, key: "pin:" + id, kind: p.v, id: "의견 " + id, text: s.name + " · " + p.desc + (p.v === "change" ? " — 바꿔" + (B.one(p.memo) ? ": " + B.one(p.memo) : "") : " — 빼기") });
       });
       state.edits.forEach(function (e) {
-        if (e.slug === s.slug) out.push({ slug: s.slug, kind: "change", id: "바로 고침", text: s.name + " · " + (B.editSay ? B.editSay(e) : B.editLine(e)), edit: e });
+        if (e.slug === s.slug && !e.concept) out.push({ slug: s.slug, kind: "change", id: "바로 고침", text: s.name + " · " + (B.editSay ? B.editSay(e) : B.editLine(e)), edit: e });
       });
     });
     return out;
