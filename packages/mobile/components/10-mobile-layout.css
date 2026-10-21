@@ -102,6 +102,10 @@
 .big-num small { font-size: inherit; font-weight: inherit; color: var(--c-text); }
 .big-num + .text-sm, .big-num + p { margin-top: var(--sp-1); }
 
+/* ---- 숫자 칸 줄: 3칸 이상이면 한 줄에 2칸씩 (390px에서 4칸이 한 줄이면 글자가 끊긴다) ---- */
+.app-mobile .stat-row:has(> :nth-child(3)) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4) var(--sp-3); }
+.app-mobile .stat-row .stat-label { text-wrap: balance; }
+
 /* ---- 아래 꽉 찬 버튼 (본문 마지막 자식 · 내용이 짧으면 맨 아래, 길면 아래에 붙어 따라온다) ---- */
 .bottom-cta {
   position: sticky;

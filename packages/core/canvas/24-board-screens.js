@@ -1,4 +1,4 @@
-/* 24-board-screens.js — 보드의 두 탭.
+/* 24-board-screens.js — 보드의 두 탭(+ 흐름 재생 = 09-player.js · 디자인 시스템 탭 코드 12-design-system.js는 완성본 입구용, 여기선 꺼 둠).
    [사용 흐름]  흐름을 이해하는 곳 (05~07 캔버스). 빨간 번호·의견 창은 숨긴다. 화면을 누르면 화면 디자인 탭의 그 화면으로.
    [화면 디자인] 화면마다 한 번씩, 크게 보고 의견을 남기는 곳: 왼쪽 화면 목록 · 가운데 화면 한 장 · 오른쪽 그 화면의 번호 전부.
    목록 맨 위 "전체"는 질문·더 있었으면 하는 것·지금까지 남긴 의견(21-board-panel의 home)을 그대로 보여준다.
@@ -21,7 +21,7 @@
     (s.cases || []).forEach(function (c) { add({ text: c.show, tone: c.tone || "danger", when: c.when }); });
     return out;
   };
-  var TONE_NAME = { success: "완료", danger: "오류", warning: "주의", info: "안내" };
+  var TONE_NAME = HX.TONE_NAME;
   function parts(m) { return String(m || "").split(/\s*,\s*/).filter(Boolean); }
 
   // 흐름에 나오는 순서대로 화면을 늘어놓는다 (처음 시작 흐름이 앞)
@@ -48,10 +48,14 @@
     }
     // 시안이 있고 아직 고르지 않았으면 맨 앞에 '시안 비교' (25-board-concepts.js)
     var hasConcepts = !!(B.buildConcepts && B.concepts && B.concepts.length > 1 && !B.isLocked("concept"));
+    var dsOn = false;   // 디자인 시스템 탭은 완성본 입구에만 — 보드에서는 껐다(켜려면 true, 2026-10-21 결정)
     var tabs = HX.el("div", { class: "hx-bd-tabs", role: "tablist", "aria-label": "보기" }, [
-      hasConcepts ? tab("concept", "시안 비교", "#i-columns-3") : null, tab("flow", "사용 흐름", "#i-workflow"), HX.buildPlayer ? tab("play", "흐름 재생", "#i-play") : null, tab("design", "화면 디자인", "#i-layout-grid")]);
+      hasConcepts ? tab("concept", "시안 비교", "#i-columns-3") : null, tab("flow", "사용 흐름", "#i-workflow"), HX.buildPlayer ? tab("play", "흐름 재생", "#i-play") : null, tab("design", "화면 디자인", "#i-layout-grid"),
+      dsOn ? tab("ds", "디자인 시스템", "#i-palette") : null]);
     var player = HX.buildPlayer ? HX.buildPlayer() : null;   // 흐름 재생 탭 (09-player.js)
     if (player) app.appendChild(player.el);
+    var ds = dsOn && HX.buildDesignSystem ? HX.buildDesignSystem() : null;   // 디자인 시스템 탭 (12-design-system.js)
+    if (ds) app.appendChild(ds.el);
     bar.insertBefore(tabs, bar.children[1] || null);
 
     // ---------- 화면 디자인 뷰 ----------
@@ -493,11 +497,13 @@
     B.tab = function () { return tabNow; };
     B.setTab = function (t, o) {
       var was = tabNow;
-      tabNow = t === "design" || (t === "play" && player) || (t === "concept" && hasConcepts) ? t : "flow";
+      tabNow = t === "design" || (t === "play" && player) || (t === "concept" && hasConcepts) || (t === "ds" && ds) ? t : "flow";
       app.classList.toggle("hx-tab-design", tabNow === "design");
       app.classList.toggle("hx-tab-play", tabNow === "play");
       if (player) { if (tabNow === "play" && was !== "play") player.onShow(); else if (tabNow !== "play" && was === "play") player.onHide(); }
       app.classList.toggle("hx-tab-concept", tabNow === "concept");
+      app.classList.toggle("hx-tab-ds", tabNow === "ds");
+      if (ds) { if (tabNow === "ds" && was !== "ds") ds.onShow(); else if (tabNow !== "ds" && was === "ds") ds.onHide(); }
       Object.keys(tabBtns).forEach(function (k) { tabBtns[k].setAttribute("aria-selected", k === tabNow ? "true" : "false"); tabBtns[k].classList.toggle("hx-on", k === tabNow); });
       if (tabNow === "design" && !cur && !(o && o.slug)) show(order[0] || ALL);
       if (tabNow === "flow" && B.view) B.view.onShow();

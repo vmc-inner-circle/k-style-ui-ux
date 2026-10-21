@@ -1,4 +1,4 @@
-/* 22-board-canvas.js — board 진입: 상단바(글자 크기 · 색 바꾸기 · 의견 보내기) · 사용 흐름 = 구역 보드(08-sections.js) · 표시 상태를 보드에 칠하기.
+/* 22-board-canvas.js — board 진입: 상단바(테마 · 컬러 · 폰트 · 의견 보내기) · 사용 흐름 = 구역 보드(08-sections.js) · 표시 상태를 보드에 칠하기.
    사용 흐름은 이해하는 곳 — 화면을 누르면 화면 디자인 탭의 그 화면으로 가서 의견을 남긴다(24-board-screens.js). */
 (function () {
   "use strict";
@@ -6,36 +6,20 @@
   B.sel = { slug: null, key: null, inst: null };
 
   // ---------- 상단바 컨트롤 ----------
-  function segCtl(label, key, values, labels, onpick) {
-    var btns = [];
-    var seg = HX.el("div", { class: "hx-bd-seg", role: "group", "aria-label": label });
-    values.forEach(function (v, i) {
-      var isRec = v === B.REC[key];
-      var b = HX.el("button", { type: "button", class: "hx-bd-seg-btn", title: isRec ? "추천" + (B.recWhy[key] ? " — " + B.recWhy[key] : "") : null,
-        onclick: function () { onpick(v); sync(); } }, [labels[i], isRec ? HX.el("span", { class: "hx-rec-tag", text: "추천" }) : null]);
-      btns.push(b); seg.appendChild(b);
-    });
-    function sync() { btns.forEach(function (b, i) { b.setAttribute("aria-pressed", values[i] === B.state[key] ? "true" : "false"); }); }
-    sync();
-    var tip = { theme: "화면 전체의 배경색과 분위기예요", type: "화면 글자와 버튼의 크기예요", accent: "가장 중요한 버튼과 지금 고른 메뉴에 쓰는 색이에요" }[key];
-    return HX.el("div", { class: "hx-bd-ctl", title: tip || null }, [HX.el("span", { class: "hx-bd-ctl-l", text: label }), seg]);
-  }
-  // 화면 느낌 = 글자 크기만 상단바에 바로. 색(분위기·버튼 색)은 옆의 '색 바꾸기'(packages/core/color/picker.js)에서 자유롭게
-  // (사용자 결정 2026-10-14: "색상은 레이아웃 선택 후 결과물에서 바로바로 바뀌게")
-  function feelButton() {
-    var st = B.state;
-    if (B.isLocked("type")) return HX.el("span", { class: "hx-bd-locked", text: "확정: 글자 크기 " + B.TYPE_LABEL[st.type] });
-    return segCtl("글자 크기", "type", ["normal", "large"], ["보통", "크게"], function (v) { st.type = v; B.applyTheme(); });
-  }
-  /* '색 바꾸기' — 고르면 보드 상태(의견 보내기 첫 줄)에도 담긴다.
+  /* 버튼 셋 테마 · 컬러 · 폰트(packages/core/color/picker.js — 버튼이 곧 탭, 그 아래로 창) — 고르면 보드 상태(의견 보내기 첫 줄 · 꾸밈 font 줄)에도 담긴다.
+     글자 크기는 폰트 창에 있다. 색이 확정돼도 폰트(글꼴 · 글자 크기)가 열려 있으면 띄운다.
+     시안 단계는 글꼴을 시안 꾸밈이 정하고 글자 크기는 보내지 않으므로 폰트 창은 안내만.
      꾸밈은 화면 상자가 입으므로 html은 건드리지 않게(dress: false) — 프리셋을 고르면 상자들을 다시 입힌다(B.redress, 25-board-concepts.js) */
   B.mountColor = function (anchor, o) {
-    if (!window.HXColor || B.isLocked("theme")) return;
+    if (!window.HXColor || (B.isLocked("theme") && B.isLocked("font") && B.isLocked("type"))) return;
     var st = B.state;
-    window.HXColor.mount({ project: HX.meta.project, anchor: anchor, inline: !!(o && o.inline), dress: false, initial: { theme: st.theme, swatch: st.accent, custom: st.custom || null }, onChange: function (sel) {
+    window.HXColor.mount({ project: HX.meta.project, anchor: anchor, inline: !!(o && o.inline), dress: false,
+      colorLocked: B.isLocked("theme"), fontLocked: B.isLocked("font"), typeLocked: B.isLocked("type"), rec: { type: B.REC.type },
+      textNote: B.stage === "concept" ? "글꼴 · 글자 크기는 시안을 고른 뒤 초안에서 바꿀 수 있어요" : null,
+      initial: { theme: st.theme, swatch: st.accent, custom: st.custom || null, font: st.font, type: st.type }, onChange: function (sel) {
       st.custom = sel.theme === "custom" ? sel.custom : null;
       if (st.custom) B.putCustom(st.custom);
-      st.theme = sel.theme; st.accent = sel.swatch; B.applyTheme();
+      st.theme = sel.theme; st.accent = sel.swatch; if (sel.font) st.font = sel.font; if (sel.type) st.type = sel.type; B.applyTheme();
       if (B.redress) B.redress();
     } });
   };
@@ -69,7 +53,7 @@
     var colorAnchor = HX.el("span", { class: "hx-bd-color" });
     var bar = HX.el("div", { class: "hx-bar hx-bd-bar" }, [
       HX.el("div", { class: "hx-bar-title", title: HX.meta.title || "" }, [HX.meta.title || HX.meta.project || "", HX.el("small", { text: "초안 " + (HX.meta.round || 1) })]),
-      HX.el("div", { class: "hx-bd-ctls" }, [feelButton(), colorAnchor]),
+      HX.el("div", { class: "hx-bd-ctls" }, [colorAnchor]),
       HX.el("span", { class: "hx-bar-spacer" }),
       copyBtn
     ]);

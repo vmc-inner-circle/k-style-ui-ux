@@ -6,7 +6,7 @@
      시안마다 한 줄 = 시안 띠(시안 X · 단계 · 이름 · 이유 · 화면 구성 · 꾸밈 · '이 안으로 할게요') → 화면 이름표 → 메인 화면 5~6장 나란히(화면 전체 길이, 보기만).
      화면 안 스크롤·밀기는 넣지 않는다 — 사용자: "스크롤이나 이런 거 그냥 없애자, 화면만 봐도 될 듯". 끌기·휠은 언제나 캔버스 이동, ↑↓ = 이전·다음 시안 줄.
      끌어서 이동 · ⌘/Ctrl+휠 확대 · 위쪽 도구 = 시안 바로가기(시안마다 하나 — A~D) · 축소/확대 · 전체 보기. 화면 이름 옆 '크게 보기'.
-   맨 위 고정 상단바 = 제목 · '색 바꾸기'(packages/core/color/picker.js — 고르면 모든 시안이 그 색으로) · 보내기.
+   맨 위 고정 상단바 = 제목 · 테마 · 컬러 · 폰트(packages/core/color/picker.js — 고르면 모든 시안이 그 색으로) · 보내기.
    고른 뒤 흐름: 그 안 + 색 → 2턴 전체 화면 1차안 → 3턴 의견 반영 최종.
    다른 시안의 화면은 build.js가 "<시안 id>~<slug>" 섹션으로 싣고, 꾸밈은 화면 상자의 data-*(dress.css)로 입힌다.
    복사 글: "시안 <id>(이름)" + (색을 바꿨으면) "테마 …" (20-board.js) */
@@ -200,7 +200,7 @@
     return vp;
   };
 
-  /* 1턴 보드: 상단바(제목 · 색 바꾸기 · 보내기) + 시안 캔버스 */
+  /* 1턴 보드: 상단바(제목 · 테마 · 컬러 · 폰트 · 보내기) + 시안 캔버스 */
   B.startConcept = function (app) {
     app.classList.add("hx-app"); app.classList.add("hx-bd"); app.classList.add("hx-tab-concept");
     var copyBtn = HX.btn("", { cls: "hx-primary hx-bd-copy", icon: HX.icon("#i-send"), title: "무엇이 전달되는지 확인하고 복사해요", onclick: function () { B.openSend(); } });

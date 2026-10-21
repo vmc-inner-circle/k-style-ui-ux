@@ -110,6 +110,8 @@ function softInk(ink, bg, max) {
 // 글자는 바탕 · 판 위에서 4.5 이상(KRDS · WCAG AA). 보조 글자(text-2)는 흐린 글자보다 한 단계 진하게 6 이상.
 // 레퍼런스 스타일(exact)의 흰 버튼 글자만 3 이상 허용 — 그 앱이 실제로 쓰는 조합(당근 주황 · 토스 파랑 …), WCAG 큰 굵은 글자 기준. 검사는 경고로 드러낸다
 const TEXT_MIN = 4.5, TEXT2_MIN = 6, BRAND_BUTTON_MIN = 3;
+/** 버튼 글자의 바닥선 — 레퍼런스 프리셋(exact)의 흰 글자 3 · 그 밖(맞춤 · 직접 고른 색) 4.5. 버튼 색 계산 · audit · 입구와 보드의 '디자인 시스템' 탭이 함께 쓴다 */
+const buttonMin = (L, fg = "#FFFFFF") => (L && L.exact && !L.custom && String(fg).toUpperCase() === "#FFFFFF" ? BRAND_BUTTON_MIN : TEXT_MIN);
 /** fg가 bgs(여러 바탕) 모두 위에서 min을 넘을 때까지 toward 쪽으로 섞는다. toward로도 안 되면 toward */
 function atLeast(fg, bgs, min, toward) {
   const worst = (c) => Math.min(...[].concat(bgs).map((b) => contrast(c, b)));
@@ -198,7 +200,7 @@ function textTone(hex, bgs, min, dark) {
 function swatchTokens(L, sw) {
   const dark = L.mode === "dark", W = "#FFFFFF", D = dark ? L.bg : "#111827";
   const brand = primaryHex(L, sw);                   // 레퍼런스는 그 색 그대로, 맞춤 분위기는 채도만 차분하게
-  const T = L.exact ? BRAND_BUTTON_MIN : TEXT_MIN;   // 흰 버튼 글자의 바닥선 — 레퍼런스 3 · 맞춤 4.5
+  const T = buttonMin(L);   // 흰 버튼 글자의 바닥선 — 레퍼런스 3 · 맞춤 4.5
   let p = brand, fg = W;
   if (contrast(brand, W) < T) {
     // 1) 밝은 분위기: 흰 글자가 되도록 채움만 깊게(레퍼런스는 한도 0.08, 맞춤은 넉넉히)  2) 안 되면 진한 글자  3) 그래도 안 되면 끝까지 깊게
@@ -234,8 +236,8 @@ function audit(L, sw) {
     add(`흐린 글자/${bgk.slice(4)}`, "--c-text-muted", bgk, TEXT_MIN);
   }
   const cw = contrast(t["--c-primary"], t["--c-primary-fg"]);
-  const brand = L.exact && t["--c-primary-fg"] === "#FFFFFF" && cw < TEXT_MIN && cw >= BRAND_BUTTON_MIN;
-  out.push({ pair: "버튼 글자/버튼", ratio: +cw.toFixed(2), min: brand ? BRAND_BUTTON_MIN : TEXT_MIN, level: brand ? "warn" : cw >= TEXT_MIN ? "ok" : "fail", note: brand ? "레퍼런스의 흰 글자 그대로(3 이상)" : "" });
+  const bmin = buttonMin(L, t["--c-primary-fg"]), brand = bmin < TEXT_MIN && cw < TEXT_MIN && cw >= bmin;
+  out.push({ pair: "버튼 글자/버튼", ratio: +cw.toFixed(2), min: bmin, level: brand ? "warn" : cw >= bmin ? "ok" : "fail", note: brand ? "레퍼런스의 흰 글자 그대로(3 이상)" : "" });
   add("연한 강조 글자/연한 강조", "--c-primary-soft-fg", "--c-primary-soft", TEXT_MIN);
   for (const k of ["success", "warning", "danger", "info"]) add(`${k} 글자/${k} 연한 바탕`, `--c-${k}-soft-fg`, `--c-${k}-soft`, TEXT_MIN);
   // 강조 글자(링크 · 고른 탭) — --c-primary-text, 바탕 · 판 위 4.5
@@ -289,7 +291,7 @@ function resolveSwatch(L, v) {
   return L.swatches[0].id;
 }
 
-/** 어울리는 배색 5가지 — 색 하나에서 바탕·버튼 조합 (보드 '색 바꾸기'의 배색 추천) */
+/** 어울리는 배색 5가지 — 색 하나에서 바탕·버튼 조합 (보드 '화면 느낌'의 배색 추천) */
 function harmonies(hex) {
   const [L, C, H] = hex2oklch(hex), deg = (d) => H + (d * Math.PI) / 180, cl = (v, a, b) => Math.max(a, Math.min(b, v));
   const mk = (l, c, h) => oklch2hex([cl(l, 0, 1), cl(c, 0, 0.32), h]);
@@ -309,6 +311,6 @@ function swatchGrid() {
   return rows;
 }
 
-const API = { audit, TEXT_MIN, PRESETS, PALETTE, BASES, FONTS, harmonies, swatchGrid, hex2oklch, oklch2hex, fontOf, fontLinks, fontTokens, inkOf, calmHex, primaryHex, customLook, getLooks, looksCss, lookTokens, swatchTokens, resolveSwatch, contrast, mix, hex2rgb };
+const API = { audit, TEXT_MIN, TEXT2_MIN, buttonMin, PRESETS, PALETTE, BASES, FONTS, harmonies, swatchGrid, hex2oklch, oklch2hex, fontOf, fontLinks, fontTokens, inkOf, calmHex, primaryHex, customLook, getLooks, looksCss, lookTokens, swatchTokens, resolveSwatch, contrast, mix, hex2rgb };
 if (typeof module !== "undefined" && module.exports) module.exports = API; else window.HXLooks = API;
 })();

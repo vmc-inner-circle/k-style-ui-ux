@@ -1,12 +1,21 @@
-/* picker.js — "색 바꾸기": 다 만든 화면에서 색을 자유롭게 골라 그 자리에서 다시 칠한다.
+/* picker.js — 버튼 셋 테마 · 컬러 · 폰트: 다 만든 화면에서 골라 그 자리에서 다시 칠한다. 버튼이 곧 탭 — 누르면 그 내용만 담긴 창이 그 버튼 아래로 열린다.
+   테마(이 서비스 맞춤 분위기 + presets.json에서 근거(source)가 있는 8개, 색 · 판 모양 · 모서리 · 글꼴을 한 번에) · 컬러(버튼 색 · 팔레트 24 · 바탕 3) · 폰트(글꼴 · 글자 크기).
+   (이름 "색 바꾸기" → "화면 느낌"(탭 셋 스타일 · 색 · 글씨) → 지금. 설계 schema-on-pr27 9절 U1 · U2 · U4)
    사용자 결정(2026-10-14): "레이아웃이나 이런거 선택후에 색상은 자유롭게 최종 다 나온 결과물에서 바로바로 바뀌게".
-   쓰는 곳: 2턴 초안 보드(상단바) · 최종본 입구(index.html) · 화면별 페이지(screens/NN-slug.html).
+   사람 결정(2026-10-21): "저 버튼들을 그냥 상단 쪽으로 다 통일, 스타일은 테마 · 색은 컬러 · 글씨는 폰트로 이름 변경, 색도 더보기로 선택하게 굳이 안 해도 되고, 스타일도 8개 정도면 된다".
+   쓰는 곳: 초안 보드 · 시안 보드(상단바) · 최종본 입구(index.html 상단바) · 화면별 페이지(screens/NN-slug.html, 왼쪽 아래 — 창은 위로 열린다).
    필요한 것: window.HXLooks(scripts/looks.js) · window.HX_LOOKS_DATA(presets.json) · window.HX_OWN_LOOKS(screens.json looks — PRD 맞춤).
-   고르는 것: 스타일(맞춤 · 국내 · 해외 고정 스타일) + 그 스타일의 버튼 색 / 직접 고르기(팔레트 24색 + 그 밖의 색 + 바탕 흰·따뜻한·어두운).
+   컬러 창 = 버튼 색(지금 테마의 5 또는 직접 고른 색) · 팔레트 24(presets.json palette) · 바탕 3(흰 · 미색 · 어두운) — 접기 없이 한 화면.
+   색 바둑판 · 어울리는 배색 · 나머지 바탕은 그리지 않는다(looks.js swatchGrid · harmonies · BASES는 그대로, 보내기 글로 온 바탕도 그대로 칠한다).
+   근거 없는 레퍼런스(source: null)도 그리지만 않는다 — 보내기 글로 온 테마 id는 그대로 칠한다.
    칠하는 법: <html data-theme data-swatch>를 바꾸고, 페이지에 없는 분위기 토큰은 looks.js로 계산해 <style>로 넣는다(글꼴도 불러온다).
-   HXColor.mount({ project, anchor?, inline?, onChange?(sel), persist?, dress? }) — inline이면 단추 없이 anchor 안에 창을 펼쳐 둔다(시안 보드 오른쪽 사이드바) — persist면 이 브라우저에 기억(최종본 페이지끼리 함께 바뀐다).
+   HXColor.mount({ project, anchor?, inline?, onChange?(sel), persist?, dress?, colorLocked?, fontLocked?, typeLocked?, textNote?, rec?: { type } })
+     — anchor가 있으면 그 안(상단바)에, 없으면 왼쪽 아래에 버튼 셋. inline이면 버튼 없이 창 셋을 펼쳐 둔다 — persist면 이 브라우저에 기억(최종본 페이지끼리 함께 바뀐다).
+     colorLocked면 테마 · 컬러 창은 '확정'만. 글꼴 · 글자 크기는 따로 잠근다. textNote면 폰트 창은 그 말만(시안 단계).
    레퍼런스 프리셋(토스 느낌…)을 고르면 <html data-cards data-radius>(판 모양 · 모서리)도 프리셋 값으로 바뀐다(build.js가 싣는 HX_PRESET_DRESS) — dress: false면 html은 그대로(보드는 화면 상자가 꾸밈을 입는다).
-   sel = { theme, swatch, custom: { hex, name, base, bgHex?, font? } | null } — 바탕은 12가지(presets.json bases, tint = 고른 색으로 살짝) + 그 밖의 바탕(bgHex) */
+   sel = { theme, swatch, custom: { hex, name, base, bgHex?, font? } | null, font, type } — 바탕은 12가지(presets.json bases, tint = 고른 색으로 살짝) + 그 밖의 바탕(bgHex)
+   글꼴: font = "base"(테마 글꼴) | looks.js FONTS id. <html data-font>로 바꾸고(토큰 CSS는 build.js가 5벌 다 싣는다) 글꼴 CSS는 고를 때 CDN에서 불러온다.
+   글꼴 토큰은 글자 모양만 바꾸고 색은 바꾸지 않는다(looks.js fontTokens) — 대비는 그대로. 글자 크기 type = normal | large → <html data-type>. */
 (function () {
   "use strict";
   var LK = window.HXLooks, DATA = window.HX_LOOKS_DATA || {};
@@ -28,6 +37,7 @@
   }
   // ---------- 칠하기: 없는 분위기는 계산해서 넣는다 ----------
   var sheet = null, painted = {}, fontsOn = {};
+  function loadCss(urls) { (urls || []).forEach(function (u) { if (fontsOn[u] || doc.querySelector('link[href="' + u + '"]')) return; fontsOn[u] = 1; doc.head.appendChild(el("link", { rel: "stylesheet", href: u })); }); }
   function ensure(L) {
     if (!L || painted[L.id + (L.custom ? ":" + L.swatches[0].hex + L.base : "")]) return;
     if (!sheet) sheet = doc.head.appendChild(el("style", { id: "hx-color-runtime" }));
@@ -36,19 +46,29 @@
       if (L.custom) sheet.textContent = sheet.textContent.replace(/\/\*custom\*\/[\s\S]*?\/\*\/custom\*\//, "");
       sheet.textContent += (L.custom ? "/*custom*/" : "") + LK.looksCss([L]) + (L.custom ? "/*/custom*/" : "") + "\n";
     }
-    (LK.fontOf(L).css || []).forEach(function (u) { if (fontsOn[u] || doc.querySelector('link[href="' + u + '"]')) return; fontsOn[u] = 1; doc.head.appendChild(el("link", { rel: "stylesheet", href: u })); });
+    loadCss(LK.fontOf(L).css);
     painted[L.id + (L.custom ? ":" + L.swatches[0].hex + L.base : "")] = 1;
   }
   function lookOf(sel) { return sel.theme === "custom" && sel.custom ? LK.customLook(sel.custom, window.HX_OWN_LOOKS || []) : byId(sel.theme); }
+  var FONTS = LK.FONTS || {};
+  /* 글꼴: "base"면 data-font를 지워 테마 글꼴로, 아니면 그 글꼴 */
+  function paintFont(f) {
+    if (!f) return;
+    if (f === "base" || !FONTS[f]) { root.removeAttribute("data-font"); return; }
+    loadCss(FONTS[f].css); root.setAttribute("data-font", f);
+  }
+  function fontName(sel) { var L = lookOf(sel); return !sel.font || sel.font === "base" ? "기본 글꼴(" + ((L && LK.fontOf(L).name) || "") + ")" : (FONTS[sel.font] || {}).name || sel.font; }
   function paint(sel) {
     var L = lookOf(sel); if (!L) return;
     ensure(L);
     root.setAttribute("data-theme", L.id);
     root.setAttribute("data-swatch", L.swatches.some(function (s) { return s.id === sel.swatch; }) ? sel.swatch : L.swatches[0].id);
+    paintFont(sel.font);
+    if (sel.type) root.setAttribute("data-type", sel.type);
     dressRoot(sel);
   }
   // ---------- 프리셋 ↔ 꾸밈: 프리셋을 고르면 판 모양 · 모서리 두 칸만 덮는다(바탕 · 제목 · 간격은 시안 그대로) ----------
-  // 프리셋인 때 = 고른 스타일이 프리셋이거나, 직접 고른 색이 프리셋 위에 얹힌 것(custom.from). PRD 맞춤 분위기(OWN)는 아니다
+  // 프리셋인 때 = 고른 테마가 프리셋이거나, 직접 고른 색이 프리셋 위에 얹힌 것(custom.from). PRD 맞춤 분위기(OWN)는 아니다
   function presetId(sel) {
     var id = sel && (sel.theme === "custom" ? sel.custom && sel.custom.from : sel.theme);
     return PRE.some(function (p) { return p.id === id; }) ? id : null;
@@ -62,6 +82,8 @@
     ["cards", "radius"].forEach(function (k) { if (d[k] && d[k] !== "base") root.setAttribute("data-" + k, d[k]); else root.removeAttribute("data-" + k); });
   }
   function hexOf(L, sw) { return LK.primaryHex(L, sw); }
+  // 테마 창에 보이는 것 = 맞춤 분위기(맨 앞) + 근거 파일(source)이 있는 레퍼런스 — 나머지는 그리지 않는다
+  var SHOWN = OWN.concat(PRE.filter(function (p) { return p.source; }));
   function nameOf(sel) {
     var L = lookOf(sel); if (!L) return "";
     if (L.custom) return "직접 고른 색 " + (sel.custom.name || sel.custom.hex) + " · " + (L.why.split(" · ")[1] || "");
@@ -70,54 +92,67 @@
   }
 
   var CSS = [
-    ".hxp-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(0,0,0,.12);background:#fff;color:#111827;font:700 13px/1 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',Pretendard,sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.12)}",
+    ".hxp-bar{display:inline-flex;align-items:center;gap:6px}.hxp-one{position:relative;display:inline-flex}",
+    ".hxp-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:999px;border:1px solid rgba(0,0,0,.12);background:#fff;color:#111827;font:700 13px/1 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',Pretendard,sans-serif;cursor:pointer}",
+    ".hxp-btn[aria-expanded=true]{border-color:#2563EB;color:#1D4ED8;box-shadow:0 0 0 3px #DBEAFE}",
     ".hxp-btn i{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}",
-    ".hxp-float{position:fixed;left:16px;bottom:16px;z-index:10000}",
-    ".hxp-panel{position:fixed;left:16px;bottom:60px;z-index:10001;width:min(640px,calc(100vw - 32px));max-height:min(72vh,640px);overflow:auto;padding:14px 16px;border-radius:14px;background:#fff;color:#111827;border:1px solid #E5E7EB;box-shadow:0 18px 48px rgba(0,0,0,.22);font:13px/1.4 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',Pretendard,sans-serif}",
-    ".hxp-panel[hidden]{display:none}.hxp-anch .hxp-panel{left:auto;right:16px;top:64px;bottom:auto}",
+    ".hxp-float{position:fixed;left:16px;bottom:16px;z-index:10000}.hxp-float .hxp-btn{box-shadow:0 4px 14px rgba(0,0,0,.12)}",
+    ".hxp-panel{position:absolute;left:0;top:calc(100% + 8px);z-index:10001;width:min(640px,calc(100vw - 32px));max-height:min(72vh,640px);overflow:auto;box-sizing:border-box;padding:14px 16px;border-radius:14px;background:#fff;color:#111827;border:1px solid #E5E7EB;box-shadow:0 18px 48px rgba(0,0,0,.22);font:13px/1.4 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',Pretendard,sans-serif;text-align:left}",
+    ".hxp-panel[hidden]{display:none}.hxp-float .hxp-panel{top:auto;bottom:calc(100% + 8px)}",
     ".hxp-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}.hxp-head b{font-size:14px}.hxp-now{color:#4B5563;font-weight:700}.hxp-sp{flex:1}",
     ".hxp-x{border:0;background:none;font-size:18px;line-height:1;cursor:pointer;color:#6B7280}",
     ".hxp-sub{margin:10px 0 6px;font-size:12px;font-weight:800;color:#6B7280}",
-    ".hxp-row{display:grid;grid-template-columns:56px minmax(0,1fr);gap:6px;align-items:center;margin-bottom:6px}.hxp-row>span{font-size:12px;font-weight:700;color:#4B5563}",
-    ".hxp-styles{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:6px}",
-    ".hxp-style{display:flex;align-items:center;gap:7px;padding:5px 7px;border:1.5px solid #E5E7EB;border-radius:9px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit}",
-    ".hxp-style[aria-checked=true]{border-color:#2563EB;box-shadow:0 0 0 3px #DBEAFE}.hxp-style b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
-    ".hxp-prev{flex:0 0 auto;position:relative;width:28px;height:22px;border-radius:5px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);overflow:hidden}",
-    ".hxp-prev em{position:absolute;left:4px;right:9px;bottom:4px;height:6px;border-radius:3px}",
     ".hxp-dots{display:flex;flex-wrap:wrap;gap:2px}",
     ".hxp-dot{display:flex;flex-direction:column;align-items:center;gap:2px;width:48px;padding:3px 0;border:0;border-radius:8px;background:none;cursor:pointer;font:inherit;color:#4B5563}",
     ".hxp-dot:hover{background:#F3F4F6}.hxp-dot i{width:24px;height:24px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}",
     ".hxp-dot[aria-checked=true] i{box-shadow:0 0 0 2px #fff,0 0 0 4px #111827}.hxp-dot[aria-checked=true] small{color:#111827;font-weight:800}.hxp-dot small{font-size:10.5px;white-space:nowrap;max-width:52px;overflow:hidden;text-overflow:ellipsis}",
     ".hxp-seg{display:inline-flex;gap:2px;padding:2px;border-radius:9px;background:#F3F4F6}",
     ".hxp-seg button{border:0;background:none;padding:6px 10px;border-radius:7px;font:inherit;font-weight:700;color:#4B5563;cursor:pointer}.hxp-seg button[aria-pressed=true]{background:#fff;color:#111827;box-shadow:0 1px 2px rgba(0,0,0,.12)}",
-    ".hxp-other{display:inline-flex;align-items:center;gap:8px;color:#6B7280;cursor:pointer}.hxp-other input{width:30px;height:24px;padding:0;border:1px solid #E5E7EB;border-radius:6px;background:none;cursor:pointer}",
-    ".hxp-grid{display:grid;grid-template-columns:repeat(12,22px);gap:3px}.hxp-chip{width:22px;height:22px;padding:0;border:0;border-radius:5px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}",
-    ".hxp-chip:hover{transform:scale(1.15)}.hxp-chip[aria-checked=true]{box-shadow:0 0 0 2px #fff,0 0 0 4px #111827}",
-    ".hxp-harm{display:flex;flex-wrap:wrap;gap:6px}.hxp-hcard{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;border:1px solid #E5E7EB;border-radius:9px;background:#fff;cursor:pointer;font:inherit;color:#4B5563}",
-    ".hxp-hcard:hover{border-color:#2563EB}.hxp-hprev{position:relative;display:block;width:56px;height:34px;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}.hxp-hprev em{position:absolute;left:7px;right:7px;bottom:6px;height:9px;border-radius:5px}.hxp-hcard small{font-size:11px}",
+    ".hxp-pane[hidden]{display:none}.hxp-hint{margin:0 0 8px;color:#6B7280;font-size:12px}",
+    ".hxp-refs{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}",
+    ".hxp-ref{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:5px;border:1.5px solid #E5E7EB;border-radius:10px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit}.hxp-ref[aria-checked=true]{border-color:#2563EB;box-shadow:0 0 0 3px #DBEAFE}",
+    ".hxp-refprev{position:relative;display:block;width:100%;height:22px;border-radius:7px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);box-sizing:border-box}.hxp-refprev em{position:absolute;left:7px;right:7px;top:7px;height:8px;border-radius:4px}",
+    ".hxp-ref b{font-size:12px}",
+    ".hxp-fonts{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}",
+    ".hxp-font{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:6px 8px;border:1.5px solid #E5E7EB;border-radius:9px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit}",
+    ".hxp-font b{font-size:13px}.hxp-font small{font-size:11px;color:#6B7280}.hxp-font[aria-checked=true]{border-color:#2563EB;box-shadow:0 0 0 3px #DBEAFE}",
     ".hxp-warn{color:#B4532A;font-weight:700;font-size:12px}.hxp-reset{border:0;background:none;color:#2563EB;font:inherit;font-weight:700;cursor:pointer;padding:0}",
-    ".hxp-inline>.hxp-btn{display:none}.hxp-inline .hxp-panel{position:static;width:auto;max-height:none;padding:0;border:0;border-radius:0;box-shadow:none;background:none}",
-    ".hxp-row{grid-template-columns:72px minmax(0,1fr)}.hxp-inline .hxp-x{display:none}.hxp-inline .hxp-head{flex-wrap:wrap}.hxp-inline .hxp-row{grid-template-columns:1fr}.hxp-inline .hxp-styles{grid-template-columns:repeat(2,minmax(0,1fr))}"
+    ".hxp-inline .hxp-one{display:none}.hxp-inline .hxp-panel{position:static;width:auto;max-height:none;padding:0;border:0;border-radius:0;box-shadow:none;background:none}",
+    ".hxp-inline .hxp-x{display:none}.hxp-inline .hxp-head{flex-wrap:wrap}.hxp-inline .hxp-refs{grid-template-columns:repeat(2,minmax(0,1fr))}"
   ].join("\n");
+  // 컬러 창에 보이는 바탕 셋(presets.json bases id) — 나머지 바탕은 그리지 않는다
+  var FIRST_BASES = ["white", "warm", "dark"];
+  // 버튼 셋 = 창 셋. 이름은 여기 한 곳(시험은 화면에서 읽는다)
+  var PANES = [["theme", "테마", "잘 알려진 서비스의 느낌을 통째로 입혀 봐요"], ["color", "컬러", "버튼 색 · 바탕을 골라 바로 바꿔 봐요"], ["font", "폰트", "글꼴 · 글자 크기를 골라 바로 바꿔 봐요"]];
+  var TYPES = [["normal", "보통"], ["large", "크게"]];
 
   window.HXColor = {
-    names: nameOf, paint: paint, presetId: presetId, presetDress: presetDress,
-    /* 화면에 "색 바꾸기" 단추와 창을 붙인다. 처음 색 = html의 data-theme/data-swatch (persist면 이 브라우저에 기억한 색) */
+    names: nameOf, paint: paint, fontName: fontName, presetId: presetId, presetDress: presetDress,
+    /* 화면에 버튼 셋(테마 · 컬러 · 폰트)과 창을 붙인다. 처음 값 = html의 data-theme · data-swatch · data-font · data-type (persist면 이 브라우저에 기억한 값) */
     mount: function (o) {
       o = o || {};
       if (!doc.getElementById("hxp-css")) doc.head.appendChild(el("style", { id: "hxp-css", text: CSS }));
       var key = "hx-color:" + (o.project || "project");
-      var first = { theme: root.getAttribute("data-theme"), swatch: root.getAttribute("data-swatch"), custom: o.custom || null };
+      var first = { theme: root.getAttribute("data-theme"), swatch: root.getAttribute("data-swatch"), custom: o.custom || null, font: root.getAttribute("data-font") || "base", type: root.getAttribute("data-type") || "normal" };
       if (o.dress !== false) firstDress = { cards: root.getAttribute("data-cards"), radius: root.getAttribute("data-radius") };
-      var sel = Object.assign({}, first);
-      if (o.initial) sel = Object.assign(sel, o.initial);
-      if (o.persist) { try { var saved = JSON.parse(localStorage.getItem(key) || "null"); if (saved && saved.theme) sel = saved; } catch (e) {} }
+      var start = Object.assign({}, first, o.initial || {}), sel = Object.assign({}, start);
+      if (o.persist) { try { var saved = JSON.parse(localStorage.getItem(key) || "null"); if (saved && saved.theme) sel = Object.assign({ font: first.font, type: first.type }, saved); } catch (e) {} }
+      // 잠긴 것(또는 시안 단계의 글씨)은 기억한 값이 덮지 못하게 처음 값으로
+      var textOff = !!o.textNote, fontFixed = o.fontLocked || textOff, typeFixed = o.typeLocked || textOff;
+      if (fontFixed) sel.font = start.font;
+      if (typeFixed) sel.type = start.type;
       paint(sel);
-      var dotBtn = el("i"), btn = el("button", { type: "button", class: "hxp-btn", title: "색을 골라 바로 바꿔 봐요", "aria-expanded": "false" }, [dotBtn, "색 바꾸기"]);
-      var now = el("span", { class: "hxp-now" }), warn = el("span", { class: "hxp-warn" });
-      var panel = el("div", { class: "hxp-panel", role: "dialog", "aria-label": "색 바꾸기", hidden: "" });
-      var wrap = el("div", { class: o.inline ? "hxp-inline" : o.anchor ? "hxp-anch" : "hxp-float" }, [btn, panel]);
-      if (o.inline) panel.removeAttribute("hidden");
+      // 버튼 셋 — 버튼마다 자리(.hxp-one)가 있고, 창 하나가 누른 버튼 자리로 옮겨 가 그 아래(왼쪽 아래 묶음이면 위)로 열린다
+      var dotBtn = el("i"), btns = {}, ones = {};
+      var now = el("span", { class: "hxp-now" }), warn = el("span", { class: "hxp-warn" }), title = el("b");
+      var panel = el("div", { class: "hxp-panel", role: "dialog", hidden: "" });
+      var wrap = el("div", { class: "hxp-bar " + (o.inline ? "hxp-inline" : o.anchor ? "hxp-anch" : "hxp-float"), role: "group", "aria-label": PANES.map(function (p) { return p[1]; }).join(" · ") });
+      PANES.forEach(function (p) {
+        btns[p[0]] = el("button", { type: "button", class: "hxp-btn", title: p[2], "aria-expanded": "false", "aria-haspopup": "dialog", onclick: function (e) { e.stopPropagation(); toggle(panel.hasAttribute("hidden") || openId !== p[0] ? p[0] : false); } },
+          [p[0] === "color" ? dotBtn : null, p[1]]);
+        ones[p[0]] = wrap.appendChild(el("span", { class: "hxp-one" }, [btns[p[0]]]));
+      });
+      if (o.inline) { panel.removeAttribute("hidden"); wrap.appendChild(panel); }
       (o.anchor || doc.body).appendChild(wrap);
 
       function set(next) {
@@ -126,8 +161,12 @@
         if (o.onChange) o.onChange(sel);
         sync();
       }
-      function pickLook(L, swId) { set({ theme: L.id, swatch: swId || L.swatches[0].id, custom: null }); }
-      // 직접 고른 색은 지금 스타일 위에 버튼 색만 바꾼다(from) — 사용자: "직접 고르기를 하면 스타일이 사라지니까"
+      function pickLook(L, swId) { set(Object.assign({}, sel, { theme: L.id, swatch: swId || L.swatches[0].id, custom: null })); }
+      // 테마(레퍼런스): 색 · 판 모양 · 모서리에 더해 글꼴도 그 테마 것으로 되돌린다(font=base) — 시안 꾸밈 글꼴이 덮어 "토스 느낌인데 명조"가 되지 않게
+      function pickRef(P) { set(Object.assign({}, sel, { theme: P.id, swatch: P.swatches[0].id, custom: null, font: fontFixed ? sel.font : "base" })); }
+      function pickFont(f) { set(Object.assign({}, sel, { font: f })); }
+      function pickType(t) { set(Object.assign({}, sel, { type: t })); }
+      // 직접 고른 색은 지금 테마 위에 버튼 색만 바꾼다(from) — 사용자: "직접 고르기를 하면 스타일이 사라지니까"
       function pickCustom(c) {
         var prev = sel.custom || {}, from = sel.theme === "custom" ? (prev.from || null) : sel.theme;
         var base = c.base || prev.base || "white", bgHex = c.base ? (c.bgHex || null) : (c.bgHex !== undefined ? c.bgHex : prev.bgHex || null);
@@ -136,89 +175,127 @@
         if (prev.font) cu.font = prev.font;   // 프리셋 글꼴은 색을 바꿔도 그대로
         if (!cu.base) delete cu.base;
         if (bgHex) cu.bgHex = String(bgHex).toUpperCase();
-        set({ theme: "custom", swatch: "custom", custom: cu });
+        set(Object.assign({}, sel, { theme: "custom", swatch: "custom", custom: cu }));
       }
       function curHex() { var L = lookOf(sel); return sel.custom ? { hex: sel.custom.hex, name: sel.custom.name } : { hex: hexOf(L, L.swatches.filter(function (s) { return s.id === sel.swatch; })[0] || L.swatches[0]), name: "" }; }
-      // 스타일 목록(토스·당근… 고정 스타일)은 보이지 않는다 — 사용자: "스타일들 너무 많아서 그냥 스타일은 없애자".
-      // 이 서비스에 맞춘 색 하나 + 버튼 색 + 직접 고르기만. (고정 스타일 데이터는 남겨 둔다 — 예전 보내기 글·색 계산용)
-      var styleBtns = [], groups = {}, stylesBox = el("div");
-      (OWN.length ? OWN : ALL.slice(0, 1)).forEach(function (L) {
-        var g = "기본 색";
-        if (!groups[g]) { groups[g] = el("div", { class: "hxp-styles" }); stylesBox.appendChild(el("div", { class: "hxp-row" }, [el("span", { text: g }), groups[g]])); }
-        var sw = L.swatches[0];
-        // 근거 파일이 없는 레퍼런스(source: null)는 이름표 끝에 '참고용' — docs/design-system.md §4
-        var label = L.name + (L.kind === "preset" && L.source === null ? " · 참고용" : "");
-        var b = el("button", { type: "button", class: "hxp-style", role: "radio", title: L.why || L.name, onclick: function () { pickLook(L); } },
-          [el("span", { class: "hxp-prev", style: "background:" + L.bg }, [el("em", { style: "background:" + hexOf(L, sw) })]), el("b", { text: label })]);
-        styleBtns.push([b, L.id]); groups[g].appendChild(b);
-      });
+      // 버튼 색: 지금 테마의 5개, 직접 고른 색이면 그 색 하나
       var swBox = el("div", { class: "hxp-dots" });
       function buildSw() {
-        swBox.innerHTML = "";
+        while (swBox.firstChild) swBox.removeChild(swBox.firstChild);
         var L = lookOf(sel);
-        if (!L || L.custom) { swBox.appendChild(el("span", { class: "hxp-now", text: "직접 고른 색을 쓰고 있어요" + (sel.custom && sel.custom.from ? " (스타일은 " + (byId(sel.custom.from) || {}).name + " 그대로)" : "") })); return; }
+        if (!L) return;
+        if (L.custom) {
+          swBox.appendChild(el("button", { type: "button", class: "hxp-dot", role: "radio", "aria-checked": "true", title: sel.custom.name || sel.custom.hex },
+            [el("i", { style: "background:" + sel.custom.hex }), el("small", { text: sel.custom.name || "직접 고른 색" })]));
+          if (sel.custom.from) swBox.appendChild(el("span", { class: "hxp-now", text: "테마는 " + (byId(sel.custom.from) || {}).name + " 그대로" }));
+          return;
+        }
         L.swatches.forEach(function (sw) {
           swBox.appendChild(el("button", { type: "button", class: "hxp-dot", role: "radio", "aria-checked": sw.id === sel.swatch ? "true" : "false", title: sw.name, onclick: function () { pickLook(L, sw.id); } },
             [el("i", { style: "background:" + hexOf(L, sw) }), el("small", { text: sw.name })]));
         });
       }
-      // 직접 고르기 — 색 바둑판(색상 12 × 밝기 5 + 회색) · 어울리는 배색 5가지 · 이름 있는 색 · 그 밖의 색 · 바탕
-      var palBtns = [], pal = el("div");
-      var grid = el("div", { class: "hxp-grid" });
-      (LK.swatchGrid ? LK.swatchGrid() : []).forEach(function (row) { row.forEach(function (hx) {
-        var b = el("button", { type: "button", class: "hxp-chip", title: hx, "aria-label": hx, style: "background:" + hx, onclick: function () { pickCustom({ hex: hx, name: "" }); } });
-        palBtns.push([b, hx.toUpperCase()]); grid.appendChild(b);
-      }); });
-      pal.appendChild(el("div", { class: "hxp-row" }, [el("span", { text: "색 바둑판" }), grid]));
-      var harmBox = el("div", { class: "hxp-harm" });
-      pal.appendChild(el("div", { class: "hxp-row" }, [el("span", { text: "어울리는 배색" }), harmBox]));
-      function buildHarm() {
-        while (harmBox.firstChild) harmBox.removeChild(harmBox.firstChild);
-        var base = curHex();
-        (LK.harmonies ? LK.harmonies(base.hex) : []).forEach(function (h) {
-          harmBox.appendChild(el("button", { type: "button", class: "hxp-hcard", title: h.name + " — 버튼 " + h.hex + " · 바탕 " + h.bgHex, onclick: function () { pickCustom({ hex: h.hex, name: h.name, bgHex: h.bgHex }); } },
-            [el("span", { class: "hxp-hprev", style: "background:" + h.bgHex }, [el("em", { style: "background:" + h.hex })]), el("small", { text: h.name })]));
-        });
+      // 바탕: 흰 · 미색 · 어두운 셋 (사용자: "바탕색은 한정적이야?" → 2026-10-21 "색도 더보기로 선택하게 굳이 안 해도 되고")
+      var baseBtns = [];
+      function baseDot(bs) {
+        var b = el("button", { type: "button", class: "hxp-dot", role: "radio", title: bs.name, onclick: function () { var c = curHex(); pickCustom({ hex: c.hex, name: c.name, base: bs.id }); } },
+          [el("i", { style: "background:" + bs.bg }), el("small", { text: bs.name })]);
+        baseBtns.push([b, bs.id]); return b;
       }
-      (LK.PALETTE || []).forEach(function (g) {
-        pal.appendChild(el("div", { class: "hxp-row" }, [el("span", { text: g.group }), el("div", { class: "hxp-dots" }, g.colors.map(function (c) {
+      var BASES = (LK.BASES || []).filter(function (bs) { return FIRST_BASES.indexOf(bs.id) >= 0; });
+      // 팔레트 24색: presets.json palette(기본 색 12 · 색다른 색 12)
+      var palBtns = [];
+      function palRow(g) {
+        return el("div", { class: "hxp-dots" }, g.colors.map(function (c) {
           var b = el("button", { type: "button", class: "hxp-dot", role: "radio", title: c.name, onclick: function () { pickCustom(c); } }, [el("i", { style: "background:" + c.hex }), el("small", { text: c.name })]);
           palBtns.push([b, c.hex.toUpperCase()]); return b;
-        }))]));
-      });
-      var other = el("input", { type: "color", "aria-label": "그 밖의 색", value: "#5B5BD6", oninput: function () { pickCustom({ hex: other.value, name: "" }); } });
-      pal.appendChild(el("div", { class: "hxp-row" }, [el("span", { text: "그 밖의 색" }), el("label", { class: "hxp-other" }, [other, el("small", { text: "눌러서 아무 색이나" })])]));
-      // 바탕: 색 조각 12가지 + 그 밖의 바탕 (사용자: "바탕색은 한정적이야?")
-      var baseBtns = [], baseRow = el("div", { class: "hxp-dots" }, (LK.BASES || []).map(function (bs) {
-        var sw = bs.id === "tint" ? "linear-gradient(135deg, #FFFFFF 40%, " + (sel.custom ? sel.custom.hex : "#9BB4F0") + ")" : bs.bg;
-        var b = el("button", { type: "button", class: "hxp-dot", role: "radio", title: bs.name, onclick: function () { var c = curHex(); pickCustom({ hex: c.hex, name: c.name, base: bs.id }); } },
-          [el("i", { style: "background:" + sw }), el("small", { text: bs.name })]);
-        baseBtns.push([b, bs.id]); return b;
-      }));
-      var otherBg = el("input", { type: "color", "aria-label": "그 밖의 바탕", value: "#F4F1EA", oninput: function () { var c = curHex(); pickCustom({ hex: c.hex, name: c.name, bgHex: otherBg.value }); } });
-      pal.appendChild(el("div", { class: "hxp-row" }, [el("span", { text: "바탕" }), baseRow]));
-      pal.appendChild(el("div", { class: "hxp-row" }, [el("span", { text: "그 밖의 바탕" }), el("label", { class: "hxp-other" }, [otherBg, el("small", { text: "눌러서 아무 바탕이나" })])]));
-      var reset = el("button", { type: "button", class: "hxp-reset", text: "처음 색으로", onclick: function () { set(Object.assign({}, first)); } });
-      panel.appendChild(el("div", { class: "hxp-head" }, [el("b", { text: "색 바꾸기" }), now, el("span", { class: "hxp-sp" }), reset, el("button", { type: "button", class: "hxp-x", "aria-label": "닫기", text: "×", onclick: function () { toggle(false); } })]));
+        }));
+      }
+      var reset = el("button", { type: "button", class: "hxp-reset", text: "처음으로", onclick: function () { set(Object.assign({}, first, fontFixed ? { font: sel.font } : {}, typeFixed ? { type: sel.type } : {})); } });
+      panel.appendChild(el("div", { class: "hxp-head" }, [title, now, el("span", { class: "hxp-sp" }), reset, el("button", { type: "button", class: "hxp-x", "aria-label": "닫기", text: "×", onclick: function () { toggle(false); } })]));
       panel.appendChild(warn);
-      panel.appendChild(stylesBox);
-      panel.appendChild(el("div", { class: "hxp-sub", text: "버튼 색" })); panel.appendChild(swBox);
-      panel.appendChild(el("div", { class: "hxp-sub", text: "직접 고르기" })); panel.appendChild(pal);
+      var lockNote = function (t) { return el("span", { class: "hxp-now", text: "확정: " + t }); };
+      // ---- 테마 창: 맞춤 분위기(맨 앞) + 근거 있는 레퍼런스 8개 ----
+      // (2026-10-18 "당근 · 토스 등 레퍼런스 preset" → 2026-10-21 "스타일도 8개 정도면 된다" — 근거(source) 있는 8개만, 더 보기 없음)
+      var themeBtns = [], themePane = el("div", { class: "hxp-pane" });
+      function themeCard(L) {
+        var sw = L.swatches[0], own = L.kind === "own";
+        var b = el("button", { type: "button", class: "hxp-ref", role: "radio", title: L.why || L.name, onclick: function () { if (own) pickLook(L); else pickRef(L); } },
+          [el("span", { class: "hxp-refprev", style: "background:" + L.bg }, [el("em", { style: "background:" + hexOf(L, sw) })]), el("b", { text: L.name })]);
+        themeBtns.push([b, L.id]); return b;
+      }
+      if (o.colorLocked) themePane.appendChild(lockNote(nameOf(sel)));
+      else {
+        themePane.appendChild(el("p", { class: "hxp-hint", text: "잘 알려진 서비스의 느낌을 통째로 입혀 봐요. 색 · 판 모양 · 모서리 · 글꼴이 함께 바뀌고, 화면 구성은 그대로예요." }));
+        themePane.appendChild(el("div", { class: "hxp-refs" }, SHOWN.map(themeCard)));
+      }
+      // ---- 컬러 창: 버튼 색 · 팔레트 24 · 바탕 3 — 접기 없이 한 화면 ----
+      var colorPane = el("div", { class: "hxp-pane" });
+      if (o.colorLocked) colorPane.appendChild(lockNote(nameOf(sel)));
+      else {
+        colorPane.appendChild(el("div", { class: "hxp-sub", text: "버튼 색" })); colorPane.appendChild(swBox);
+        (LK.PALETTE || []).forEach(function (g) { colorPane.appendChild(el("div", { class: "hxp-sub", text: g.group })); colorPane.appendChild(palRow(g)); });
+        colorPane.appendChild(el("div", { class: "hxp-sub", text: "바탕" })); colorPane.appendChild(el("div", { class: "hxp-dots" }, BASES.map(baseDot)));
+      }
+      // ---- 폰트 창: 글꼴(기본 글꼴 + looks.js FONTS) · 글자 크기 ----
+      var fontPane = el("div", { class: "hxp-pane" });
+      var fontBtns = [], typeBtns = [];
+      if (textOff) fontPane.appendChild(el("p", { class: "hxp-hint", text: o.textNote }));
+      else {
+        var fontBox = el("div", { class: "hxp-fonts" });
+        if (o.fontLocked) fontBox.appendChild(lockNote(fontName(sel)));
+        else ["base"].concat(Object.keys(FONTS)).forEach(function (f) {
+          var F = FONTS[f], b = el("button", { type: "button", class: "hxp-font", role: "radio", title: F ? F.why : "고른 테마에 맞춘 글꼴", onclick: function () { pickFont(f); } },
+            [el("b", { text: F ? F.name : "기본 글꼴", style: F ? "font-family:" + (F.head || F.sans) : null }), el("small", { text: F ? "가나다 Aa 123" : "테마 것", style: F ? "font-family:" + F.sans : null })]);
+          fontBtns.push([b, f]); fontBox.appendChild(b);
+        });
+        var typeBox = el("div", { class: "hxp-seg", role: "group", "aria-label": "글자 크기" });
+        if (o.typeLocked) typeBox = lockNote("글자 크기 " + ((TYPES.filter(function (t) { return t[0] === sel.type; })[0] || [0, sel.type])[1]));
+        else TYPES.forEach(function (t) { var b = el("button", { type: "button", "aria-pressed": "false", text: t[1] + (o.rec && o.rec.type === t[0] ? " · 추천" : ""), onclick: function () { pickType(t[0]); } }); typeBtns.push([b, t[0]]); typeBox.appendChild(b); });
+        fontPane.appendChild(el("div", { class: "hxp-sub", text: "글꼴" })); fontPane.appendChild(fontBox);
+        fontPane.appendChild(el("div", { class: "hxp-sub", text: "글자 크기" })); fontPane.appendChild(typeBox);
+      }
+      // ---- 버튼 = 탭: 누른 버튼의 창만 보인다(inline이면 셋 다) ----
+      var panes = { theme: themePane, color: colorPane, font: fontPane }, openId = null;
+      PANES.forEach(function (p) { panel.appendChild(panes[p[0]]); });
+      function show(id) {
+        openId = id;
+        PANES.forEach(function (p) {
+          var on = o.inline || p[0] === id;
+          if (on) panes[p[0]].removeAttribute("hidden"); else panes[p[0]].setAttribute("hidden", "");
+          btns[p[0]].setAttribute("aria-expanded", !o.inline && p[0] === id && !panel.hasAttribute("hidden") ? "true" : "false");
+          if (p[0] === id) { title.textContent = p[1]; panel.setAttribute("aria-label", p[1]); }
+        });
+      }
 
       function sync() {
         var L = lookOf(sel), custom = L && L.custom;
-        styleBtns.forEach(function (x) { x[0].setAttribute("aria-checked", x[1] === sel.theme ? "true" : "false"); });
+        // 테마 칸의 고름 표시: 고른 테마, 직접 고른 색이면 그 색을 얹은 테마
+        var themeNow = custom ? sel.custom.from : sel.theme;
+        themeBtns.forEach(function (x) { x[0].setAttribute("aria-checked", x[1] === themeNow ? "true" : "false"); });
         palBtns.forEach(function (x) { x[0].setAttribute("aria-checked", custom && x[1] === String(sel.custom.hex).toUpperCase() ? "true" : "false"); });
-        styleBtns.forEach(function (x) { if (custom && sel.custom.from === x[1]) x[0].setAttribute("aria-checked", "true"); });
         baseBtns.forEach(function (x) { x[0].setAttribute("aria-checked", custom && !sel.custom.bgHex && x[1] === sel.custom.base ? "true" : "false"); });
-        buildSw(); buildHarm();
-        now.textContent = "지금: " + nameOf(sel);
+        fontBtns.forEach(function (x) { x[0].setAttribute("aria-checked", x[1] === (sel.font || "base") ? "true" : "false"); });
+        typeBtns.forEach(function (x) { x[0].setAttribute("aria-pressed", x[1] === sel.type ? "true" : "false"); });
+        buildSw();
+        now.textContent = "지금: " + nameOf(sel) + " · " + fontName(sel) + " · 글자 " + (sel.type === "large" ? "크게" : "보통");
         var sw = L && (L.swatches.filter(function (s) { return s.id === sel.swatch; })[0] || L.swatches[0]);
         dotBtn.style.background = L ? hexOf(L, sw) : "#999";
         warn.textContent = L && LK.contrast(hexOf(L, sw), L.bg) < 1.6 ? "바탕과 색이 비슷해서 버튼이 잘 안 보일 수 있어요" : "";
       }
-      function toggle(on) { if (o.inline) return; if (on) panel.removeAttribute("hidden"); else panel.setAttribute("hidden", ""); btn.setAttribute("aria-expanded", on ? "true" : "false"); }
-      btn.addEventListener("click", function (e) { e.stopPropagation(); toggle(panel.hasAttribute("hidden")); });
+      // toggle(id): 그 버튼 아래로 창을 연다 · toggle(false): 닫는다
+      // 상단바에서 버튼이 화면 오른쪽 절반에 있으면 창 오른쪽 끝을 버튼에 맞춘다(화면 밖으로 안 나가게)
+      function toggle(id) {
+        if (o.inline) return;
+        if (!id) { panel.setAttribute("hidden", ""); show(openId); return; }
+        ones[id].appendChild(panel); panel.removeAttribute("hidden"); show(id);
+        if (o.anchor && ones[id].getBoundingClientRect) {
+          var r = ones[id].getBoundingClientRect(), end = r.left + r.width / 2 > (window.innerWidth || 0) / 2;
+          panel.style.left = end ? "auto" : "0"; panel.style.right = end ? "0" : "auto";
+        }
+      }
+      if (!o.inline) ones[PANES[0][0]].appendChild(panel);
+      show(PANES[0][0]);
       // 창 안을 누르면 닫지 않는다 — 누른 단추가 다시 그려지며 사라져도(버튼 색 줄) 안쪽으로 본다 (사용자: "버튼 누르면 팝업이 닫히는데 안 닫히게")
       var inside = false;
       wrap.addEventListener("pointerdown", function () { inside = true; }, true);
@@ -229,8 +306,8 @@
       });
       doc.addEventListener("keydown", function (e) { if (e.key === "Escape") toggle(false); });
       sync();
-      if (o.onChange && (sel.theme !== first.theme || sel.swatch !== first.swatch)) o.onChange(sel);
-      return { get: function () { return sel; }, set: set, open: function () { toggle(true); } };
+      if (o.onChange && (sel.theme !== first.theme || sel.swatch !== first.swatch || sel.font !== first.font || sel.type !== first.type)) o.onChange(sel);
+      return { get: function () { return sel; }, set: set, open: function (id) { toggle(id || PANES[0][0]); }, tab: function (id) { toggle(id); } };
     }
   };
 })();

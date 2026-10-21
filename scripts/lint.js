@@ -192,6 +192,9 @@ function mobileChecks(desc, s, html) {
     const text = m[2].replace(/<span\b[^>]*class=["'][^"']*\bnowrap\b[^>]*>[^]*?<\/span>/g, "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
     if (text.length > 12) warn(`${desc}: 큰 글자(.big-num) "${text.slice(0, 14)}…" ${text.length}자 — 12자 이내로. 날짜·시간은 .nowrap으로 묶거나 줄을 나눠라`);
   }
+  // 숫자 칸(.stat)이 5개 이상이면 2칸씩 줄바꿈해도 화면을 너무 차지한다
+  const stats = [...html.matchAll(/class=["']([^"']+)["']/g)].filter((m) => m[1].split(/\s+/).includes("stat")).length;
+  if (stats >= 5) warn(`${desc}: 숫자 칸(.stat)이 ${stats}개 — 휴대폰에선 4개 이내로 (2칸씩 줄바꿈)`);
   if (!s.overlayOf) {
     const app = /<div\s+class=["']([^"']*\bapp\b[^"']*)["']/.exec(html);
     if (app && !/\bapp-mobile\b/.test(app[1])) warn(`${desc}: .app에 app-mobile 없음 — node scripts/expand.js --reshell`);

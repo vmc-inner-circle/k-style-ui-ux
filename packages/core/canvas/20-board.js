@@ -70,10 +70,12 @@
 
   // ---------- 상태 ----------
   // pins: 화면 디자인 탭에서 사용자가 화면 아무 곳이나 골라 단 의견 { id: {id, sid, slug, path, desc, where, v, memo} }
-  var state = { concept: REC.concept, cmemo: {}, custom: recCustom, theme: REC.theme, type: REC.type, accent: REC.accent, ask: {}, regions: {}, screens: {}, pins: {}, pinSeq: 0, add: "", memo: "", toast: toastOk(REC.toast) };
+  // 글꼴(폰트 창): 처음 값 = build가 <html data-font>에 넣은 board.dress.font, 없으면 "base"(테마 글꼴). 잠금 키는 "font" — "dress" 잠금은 글꼴을 잠그지 않는다
+  REC.font = root.getAttribute("data-font") || "base";
+  var state = { concept: REC.concept, cmemo: {}, custom: recCustom, theme: REC.theme, type: REC.type, accent: REC.accent, font: REC.font, ask: {}, regions: {}, screens: {}, pins: {}, pinSeq: 0, add: "", memo: "", toast: toastOk(REC.toast) };
   (function restore() {
     var saved = HX.storage.get(storeKey); if (!saved || typeof saved !== "object") return;
-    ["concept", "theme", "type", "accent", "add", "memo"].forEach(function (k) { if (typeof saved[k] === "string") state[k] = saved[k]; });
+    ["concept", "theme", "type", "accent", "font", "add", "memo"].forEach(function (k) { if (typeof saved[k] === "string") state[k] = saved[k]; });
     if (saved.picked === true) state.picked = true;
     if (isLocked("concept") || !B.concept(state.concept) || (CONCEPTS.length && B.concept(state.concept).id !== state.concept)) state.concept = REC.concept;
     // regions(미리 정한 번호로 남긴 의견)는 지금 보드에서 보이지도 지울 수도 없으므로 불러오지 않는다
@@ -84,6 +86,7 @@
     if (isLocked("theme") || !LOOKS.some(function (l) { return l.id === state.theme; })) state.theme = REC.theme;
     if (isLocked("type")) state.type = REC.type;
     if (isLocked("swatch")) state.accent = REC.accent;
+    if (isLocked("font")) state.font = REC.font;
     state.accent = fixSwatch(state.theme, state.accent);
     if (isLocked("ask")) state.ask = {};
     state.toast = toastOk(isLocked("toast") || !saved.toast ? REC.toast : saved.toast);
@@ -99,6 +102,7 @@
     if (!isLocked("type")) state.type = REC.type;
     if (!isLocked("swatch")) state.accent = fixSwatch(state.theme, REC.accent);
     if (!isLocked("toast")) state.toast = toastOk(REC.toast);
+    if (!isLocked("font")) state.font = REC.font;
     if (B.applyTheme) B.applyTheme();
     B.changed();
   };
@@ -117,23 +121,33 @@
   B.presetDress = function () { return window.HXColor ? window.HXColor.presetDress({ theme: state.theme, custom: state.custom }) : null; };
   // 프리셋이면 줄 끝에 붙는 말 — 화면 꾸밈의 판 모양 · 모서리가 프리셋을 따라간다(answer-parsing §1, 따로 반영할 것 없음)
   function presetTail() { return window.HXColor && window.HXColor.presetId({ theme: state.theme, custom: state.custom }) ? " · 판 모양 · 모서리: 프리셋 따라감" : ""; }
-  // 사람이 읽는 한 줄 / 복사 글 첫 줄(answer-parsing.md: "테마 <look id>(이름) · 글자 <보통|크게> · 버튼색 <swatch id>(이름)")
+  // 사람이 읽는 한 줄(버튼 이름 테마 · 컬러 · 폰트 그대로) / 복사 글 첫 줄은 themeLine(answer-parsing.md: "테마 <look id>(이름) · 글자 <보통|크게> · 버튼색 <swatch id>(이름)")
   B.lookLine = function () {
     var L = B.look(state.theme), c = L.id === "custom" && state.custom;
-    return "색 " + (c ? "직접 고른 색 " + (state.custom.name || state.custom.hex) : L.name + " · " + B.swatch(state.theme, state.accent).name) + " · 글자 크기 " + (TYPE_LABEL[state.type] || state.type) + presetTail();
+    return (c ? "컬러 직접 고른 색 " + (state.custom.name || state.custom.hex) : "테마 " + L.name + " · 컬러 " + B.swatch(state.theme, state.accent).name) + " · 글자 크기 " + (TYPE_LABEL[state.type] || state.type) + (state.font !== REC.font ? " · 폰트 " + B.fontName(state.font) : "") + presetTail();
   };
   B.themeLine = function () {
     var L = B.look(state.theme), sw = B.swatch(state.theme, state.accent), t = " · 글자 " + (TYPE_LABEL[state.type] || state.type);
-    // '색 바꾸기'에서 직접 고른 색: "테마 custom(#C8553D 테라코타 · 바탕 warm) · 글자 …" (answer-parsing §1)
+    // 컬러 창에서 직접 고른 색: "테마 custom(#C8553D 테라코타 · 바탕 warm) · 글자 …" (answer-parsing §1)
     if (L.id === "custom" && state.custom) return "테마 custom(" + String(state.custom.hex).toUpperCase() + (state.custom.name ? " " + state.custom.name : "") + (state.custom.from ? " · 스타일 " + state.custom.from : "") + ((state.custom.bgHex || state.custom.base) ? " · 바탕 " + (state.custom.bgHex || state.custom.base) : "") + ")" + t + presetTail();
     return "테마 " + L.id + "(" + L.name + ")" + t + " · 버튼색 " + sw.id + "(" + sw.name + ")" + presetTail();
   };
+  // 직접 고른 색이 처음 값(recCustom)과 다른가 — 색 · 스타일 · 바탕만 본다(이름은 같은 색이면 따라오므로 뺀다)
+  B.customChanged = function () {
+    if (state.theme !== "custom") return false;
+    var c = state.custom || {}, r = recCustom || {};
+    return String(c.hex || "").toUpperCase() !== String(r.hex || "").toUpperCase() || (c.from || "") !== (r.from || "") || (c.base || "") !== (r.base || "") || (c.bgHex || "") !== (r.bgHex || "");
+  };
+  B.fontName = function (f) { var F = LK && LK.FONTS && LK.FONTS[f]; return F ? F.name : "기본 글꼴"; };
+  // 복사 글의 글꼴 줄 — answer-parsing §1 "꾸밈 k=v": 적힌 칸만 바꾼다
+  B.fontLine = function () { return "꾸밈 font=" + state.font + "(" + B.fontName(state.font) + ")"; };
   B.one = function (s) { return String(s || "").replace(/\s*\n+\s*/g, " / ").trim(); };
 
   // ---------- 테마 적용: 문서 전체(=캔버스 모든 화면)를 다시 칠한다 ----------
   B.applyTheme = function () {
     state.accent = fixSwatch(state.theme, state.accent);
     root.setAttribute("data-theme", state.theme); root.setAttribute("data-type", state.type); root.setAttribute("data-swatch", state.accent); root.removeAttribute("data-accent");
+    if (state.font && state.font !== "base") root.setAttribute("data-font", state.font); else root.removeAttribute("data-font");
     TOAST_KEYS.forEach(function (k) { root.setAttribute("data-toast-" + k, state.toast[k]); });
     // 글자 크기가 바뀌면 화면 길이가 달라진다 → 늘린 프레임을 되돌리고 다시 늘린다
     if (B.view && B.view.resetHeights) B.view.resetHeights();
@@ -154,7 +168,7 @@
       if (Cc && state.dress && DC && Object.keys(DC.cats).some(function (k) { return (state.dress[k] || DC.base[k]) !== ((Cc.dress || {})[k] || DC.base[k]); }))
         cl.push("꾸밈 " + Object.keys(DC.cats).map(function (k) { return k + "=" + (state.dress[k] || DC.base[k]); }).join(" "));
       // 오른쪽 사이드바에서 색을 바꿨으면 둘째 줄: "테마 toss(토스 느낌) · 글자 … · 버튼색 …" (answer-parsing §1, 초안의 처음 색)
-      if (state.theme !== REC.theme || state.accent !== fixSwatch(state.theme, REC.accent)) cl.push(B.themeLine());
+      if (state.theme !== REC.theme || state.accent !== fixSwatch(state.theme, REC.accent) || B.customChanged()) cl.push(B.themeLine());
       B.conceptMemos().forEach(function (m) { cl.push("시안 " + m.c.id + " 메모: " + m.text); });
       if (B.one(state.add)) cl.push("추가: " + B.one(state.add));
       if (B.one(state.memo)) cl.push("메모: " + B.one(state.memo));
@@ -163,6 +177,7 @@
     }
     var locked = Array.isArray(board.locked) ? board.locked : [];
     var lines = [B.themeLine() + (isLocked("theme") && isLocked("type") && isLocked("swatch") ? " (확정)" : "")];
+    if (!isLocked("font") && state.font !== REC.font) lines.push(B.fontLine());
     var one = function (s) { return String(s || "").replace(/\s*\n+\s*/g, " / ").trim(); };
     // 안내 문구 모양: 추천과 다를 때만 — "안내 문구: 위치 화면 아래 · 아이콘 없음 · 색 어두운 바탕 · 글자 크게" (answer-parsing §1)
     if (!isLocked("toast") && B.toastDiff().length) lines.push("안내 문구: " + TOAST_KEYS.map(function (k) { return TOAST[k].label + " " + B.toastLabel(k, state.toast[k]); }).join(" · "));
@@ -199,7 +214,7 @@
   B.diffCount = function () {
     var n = B.answer().split("\n").length - 2;
     if (STAGE === "concept") return n + 1;   // 고른 시안은 늘 센다. 색 줄은 answer()에 이미 들어 있어 n에 포함
-    if (!isLocked("theme") && state.theme !== REC.theme) n++;
+    if (!isLocked("theme") && (state.theme !== REC.theme || B.customChanged())) n++;
     if (!isLocked("type") && state.type !== REC.type) n++;
     if (!isLocked("swatch") && state.accent !== fixSwatch(state.theme, REC.accent)) n++;
     return n;

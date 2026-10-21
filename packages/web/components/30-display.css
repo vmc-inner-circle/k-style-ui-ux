@@ -147,6 +147,7 @@ button.chip, a.chip { cursor: pointer; }
 .stat-value {
   font-family: var(--font-head); font-size: var(--fs-2xl); font-weight: var(--fw-head); line-height: var(--lh-tight);
   letter-spacing: var(--ls-head); font-variant-numeric: tabular-nums; color: var(--c-text);
+  white-space: nowrap;   /* 숫자와 단위는 한 덩어리 (.nowrap과 같게) */
 }
 .stat-value small { font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--c-text-muted); margin-left: var(--sp-1); }
 .stat-delta { display: inline-flex; align-items: center; gap: var(--sp-1); font-size: var(--fs-sm); color: var(--c-text-muted); }

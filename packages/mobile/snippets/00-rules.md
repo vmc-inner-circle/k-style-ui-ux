@@ -12,6 +12,7 @@
 6. **뜨는 창은 아래에서 올라오는 창**이다. 쓰는 법은 web과 같다(`<x-modal title="…" desc="…">본문 <div class="modal-footer">버튼</div></x-modal>`) — expand.js가 아래 창으로 펼친다. 바닥줄 버튼은 위아래로 꽉 차게 놓이고 primary가 맨 위로 간다. 돌아가는 버튼(`data-back`, "돌아가기"·"취소")을 바닥줄에 하나 넣는다(있으면 X 닫기가 빠진다). 제목은 질문이나 결과 한 문장("방금 마감됐어요. 대기할까요?"), desc는 회색 1~2줄.
 7. **규정·조건은 그 화면 안에 판으로 보여 준다**(따로 창·링크로 숨기지 않는다). `<x-section title="취소 규정"><x-list plain><x-item icon="calendar-days" tone="primary" title="10월 19일(월) 20:00까지 무료 취소" sub="이후 취소하면 1회 차감돼요"/></x-list></x-section>` — 굵은 날짜·조건 한 줄 + 회색 설명.
 8. **중요한 숫자는 크게, 주 색으로.** `<p class="big-num">잔여 3회 <small>/ 10</small></p>` 아래에 회색 한 줄(`<p class="text-sm text-2">지금 예약 가능 3회</p>`).
+   숫자 칸(`.stat-row`)은 3칸 이상이면 한 줄에 2칸씩 줄바뀌고, 5칸 이상이면 lint가 WARN을 낸다.
    날짜 · 시간 · 숫자+단위가 큰 글자(`.big-num` · `.page-title`)에 들어가면 끊기면 안 되는 덩어리를 `<span class="nowrap">11월 14일(토)</span> <span class="nowrap">오전 7시</span>`처럼 묶는다.
 9. **상태는 작은 연한 알약 배지**(`<x-badge tone="success">예약함</x-badge>`, "확정 필요"=warning, "마감 임박"=danger). 목록 한 줄에서는 제목 위나 제목 옆.
 10. **고르기**: 몇 개 중 하나 = `.segmented.w-full`(예정 2 · 대기 중 2 · 지난 수업), 여러 조건 = `.chip-group`(한 줄로 가로로 밀린다). 고른 것은 주 색 테두리 + 연한 주 색으로 보인다.

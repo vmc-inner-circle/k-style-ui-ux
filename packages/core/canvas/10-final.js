@@ -1,6 +1,6 @@
-/* 10-final.js — final 모드: 상단 바 + 탭 [사용 흐름][화면 전체].
+/* 10-final.js — final 모드: 상단 바 + 탭 [사용 흐름][흐름 재생][화면 전체][디자인 시스템].
    사용 흐름 = 08-sections.js 구역 보드(큰 구역 → 단계 이름표 → 화면 나란히 · 조건 화살표 · 화면 아래 정책 메모). 처음 열리는 탭.
-   화면 전체 = 11-final-all.js (모든 화면 대지를 역할별로, 누르면 크게).
+   화면 전체 = 11-final-all.js (모든 화면 대지를 역할별로, 누르면 크게). 디자인 시스템 = 12-design-system.js (지금 칠해진 간격 · 모서리 · 글자 · 색과 대비).
    (예전 흐름 카드 → 두 장씩 따라가 보기는 구역 보드로 바꿨다 — 디자이너 보드처럼 주요 분기만 화살표) */
 (function () {
   "use strict";
@@ -9,14 +9,12 @@
 
   FINAL.start = function (app) {
     app.classList.add("hx-app"); app.classList.add("hx-final");
-    // 색 바꾸기 — 완성본에서도 색을 자유롭게 (이 브라우저에 기억해 화면별 페이지와 함께 바뀐다)
-    if (window.HXColor) window.HXColor.mount({ project: HX.meta.project, persist: true, custom: HX.meta.custom || null });
-    var views = { map: HX.buildSections(), play: HX.buildPlayer(), all: FINAL.buildAll() };
+    var views = { map: HX.buildSections(), play: HX.buildPlayer(), all: FINAL.buildAll(), ds: HX.buildDesignSystem() };
     views.play.el.classList.add("hx-pl-on");
     FINAL.views = views;
     var tabBtns = {}, current = null;
     var tablist = HX.el("div", { class: "hx-tabs", role: "tablist", "aria-label": "보기" });
-    [["map", "사용 흐름", HX.icon("#i-workflow")], ["play", "흐름 재생", HX.icon("#i-play")], ["all", "화면 전체", HX.icon("#i-layout-grid")]].forEach(function (t) {
+    [["map", "사용 흐름", HX.icon("#i-workflow")], ["play", "흐름 재생", HX.icon("#i-play")], ["all", "화면 전체", HX.icon("#i-layout-grid")], ["ds", "디자인 시스템", HX.icon("#i-palette")]].forEach(function (t) {
       var b = HX.el("button", { type: "button", class: "hx-tab", role: "tab", id: "hx-tab-" + t[0], "aria-selected": "false", tabindex: "-1", onclick: function () { select(t[0]); } }, [t[2], t[1]]);
       tabBtns[t[0]] = b; tablist.appendChild(b);
     });
@@ -26,10 +24,13 @@
       e.preventDefault(); select(ks[(i + (e.key === "ArrowRight" ? 1 : ks.length - 1)) % ks.length]); tabBtns[current].focus();
     });
     var nSec = (HX.data.sections || []).length;
+    var colorSlot = HX.el("span", { class: "hx-bd-color" });
     app.appendChild(HX.el("div", { class: "hx-bar" }, [
       HX.el("div", { class: "hx-bar-title" }, [HX.meta.title || HX.meta.project || "화면 지도", HX.el("small", { text: "화면 " + HX.data.screens.length + (nSec ? " · 구역 " + nSec : "") })]),
-      tablist, HX.el("span", { class: "hx-bar-spacer" })
+      tablist, HX.el("span", { class: "hx-bar-spacer" }), colorSlot
     ]));
+    // 테마 · 컬러 · 폰트 — 상단바 오른쪽 버튼 셋, 완성본에서도 자유롭게 (이 브라우저에 기억해 화면별 페이지와 함께 바뀐다)
+    if (window.HXColor) FINAL.color = window.HXColor.mount({ project: HX.meta.project, anchor: colorSlot, persist: true, custom: HX.meta.custom || null });
     Object.keys(views).forEach(function (k) { views[k].el.style.display = "none"; views[k].el.setAttribute("role", "tabpanel"); views[k].el.setAttribute("aria-labelledby", "hx-tab-" + k); app.appendChild(views[k].el); });
     function select(name) {
       if (current === name) return;
@@ -39,10 +40,13 @@
         tabBtns[k].setAttribute("aria-selected", on ? "true" : "false"); tabBtns[k].tabIndex = on ? 0 : -1;
         if (on && views[k].onShow) views[k].onShow(); else if (!on && views[k].onHide) views[k].onHide();
       });
+      // 좁은 폭에서 탭 줄을 가로로 밀어 보는 경우 — 고른 탭이 가려져 있으면 보이는 자리로
+      var b = tabBtns[name].getBoundingClientRect(), box = tablist.getBoundingClientRect();
+      if (b.right > box.right) tablist.scrollLeft += b.right - box.right + 3; else if (b.left < box.left) tablist.scrollLeft -= box.left - b.left + 3;
       try { history.replaceState(null, "", "#" + name); } catch (e) { /* file:// */ }
     }
     FINAL.select = select;
-    select(location.hash === "#all" ? "all" : location.hash === "#play" ? "play" : "map");
+    select(views[location.hash.slice(1)] ? location.hash.slice(1) : "map");
     doc.addEventListener("keydown", function (e) {
       var t = e.target, typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
       if (typing || doc.querySelector(".hx-modal")) return;

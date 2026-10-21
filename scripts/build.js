@@ -265,12 +265,12 @@ const dataJSON = JSON.stringify(data).replace(/<\//g, "<\\/");
 const canvasJsParts = readDir(path.join(coreDir, "canvas"), ".js");
 if (canvasJsParts.length === 0) console.warn(`[build] WARN packages/core/canvas/*.js 없음`);
 // 보드: 색을 직접 고르면 그 자리에서 칠하도록 색 계산(scripts/looks.js)과 색 데이터(presets.json)를 함께 싣는다
-// '색 바꾸기'(packages/core/color/picker.js)는 보드·최종본 모두 — 사용자 결정 2026-10-14: "색상은 최종 결과물에서 바로바로"
+// 테마 · 컬러 · 폰트(packages/core/color/picker.js)는 보드·최종본 모두 — 사용자 결정 2026-10-14: "색상은 최종 결과물에서 바로바로"
 // 레퍼런스를 고르면 덮을 판 모양 · 모서리(scripts/dress.js presetDress) — 보드에서 레퍼런스를 바꾸면 그 자리에서 입힌다
 const RADIUS_STEPS = DRESS.radiusSteps();
 const COLOR_JS = [`window.HX_LOOKS_DATA = ${JSON.stringify(readJSON(path.join(coreDir, "tokens/presets.json")))};`,
   `window.HX_PRESET_DRESS = ${JSON.stringify(Object.fromEntries(LOOKS.PRESETS.map((p) => [p.id, DRESS.presetDress(p, RADIUS_STEPS)])))};`,
-  `window.HX_OWN_LOOKS = ${JSON.stringify(S.looks || [])};`, read(path.join(ROOT, "scripts/looks.js")), read(path.join(coreDir, "color/picker.js"))];
+  `window.HX_OWN_LOOKS = ${JSON.stringify(S.looks && S.looks.length ? S.looks : S.presetLook ? [S.presetLook] : [])};`, read(path.join(ROOT, "scripts/looks.js")), read(path.join(coreDir, "color/picker.js"))];
 const looksJs = COLOR_JS;
 const canvasJs = looksJs.concat([read(path.join(coreDir, "motion/motion.js"))]).concat(canvasJsParts.length ? canvasJsParts : ["console.warn('canvas.js 없음');"]).join("\n\n");
 
@@ -459,7 +459,7 @@ ${MOTION_JS}
 </script>
 <script>
 ${COLOR_JS.join("\n").replace(/<\/script/gi, "<\\/script")}
-window.HXColor && window.HXColor.mount({ project: ${JSON.stringify(S.project || "project")}, persist: true, custom: ${JSON.stringify(S.custom || null)} });   // 색 바꾸기 — 이 브라우저에 기억해 모든 화면이 함께 바뀐다
+window.HXColor && window.HXColor.mount({ project: ${JSON.stringify(S.project || "project")}, persist: true, custom: ${JSON.stringify(S.custom || null)} });   // 테마 · 컬러 · 폰트 — 왼쪽 아래 버튼 셋, 이 브라우저에 기억해 모든 화면이 함께 바뀐다
 </script>
 </body>
 </html>

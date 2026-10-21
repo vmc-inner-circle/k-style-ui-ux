@@ -3,6 +3,7 @@
 > **이 문서가 기준이다.** 레퍼런스 8개는 이 그릇에 값만 채운다. 코드(base.css · looks.js · dress.css · 부품 CSS)는 DS2~DS5에서 이 문서대로 바꾼다.
 > 배경: [preset-review.md](preset-review.md)(레퍼런스 대조 · 구조 검토).
 > 형식(기계 검사용): [`packages/core/tokens/preset.schema.json`](../packages/core/tokens/preset.schema.json).
+> 화면에서 보기: 완성본 입구의 **'디자인 시스템' 탭**(초안 보드에는 없음)([`12-design-system.js`](../packages/core/canvas/12-design-system.js))이 §1 파운데이션(간격 · 모서리 · 그림자 · 글자 단계) · §2 색 역할과 대비(바닥선 그대로) · §3 부품 견본 · §4 고른 레퍼런스의 `source`(없으면 참고용)를 지금 칠해진 값으로 보여 준다.
 
 ## 0. 원칙
 
@@ -119,7 +120,7 @@
 | `--fw-head` | 제목 굵기 | `weight.head`(없으면 글꼴 세트 값) |
 | `--t-body-size` | 본문 크기 | `body` |
 
-- **우선순위**(한 줄 규칙): 파운데이션 기본값 < **프리셋** < **시안 꾸밈**(dress — 구조 쪽 축만: 간격 · 제목 크기 · 배경 무늬) < 사람이 '화면 느낌'에서 고른 값.
+- **우선순위**(한 줄 규칙): 파운데이션 기본값 < **프리셋** < **시안 꾸밈**(dress — 구조 쪽 축만: 간격 · 제목 크기 · 배경 무늬) < 사람이 테마 · 컬러 · 폰트에서 고른 값.
 - 시안 꾸밈의 `radius` · `cards` 축은 **프리셋이 있으면 쓰지 않는다**. 모서리 · 카드 방식은 프리셋 하나가 정한다(정본 하나).
 - 모바일 토큰이 카드 테두리 · 그림자를 강제로 지우던 줄은 **없앤다**(카드 방식은 프리셋이 정한다).
 
@@ -167,7 +168,7 @@
 | 8 | 리멤버 | `services/remember.tokens.json` | 새로 · 흑백 · 업무 |
 
 - 빠지는 것은 해외 8개 전부와 출처 없는 국내 8개다. 옛 id를 쓰는 실행물을 위해 **별칭 표**(예: notion → remember, airbnb → yeogi)를 둔다.
-- **출처 표기**(CC BY 4.0): `packages/core/tokens/NOTICE.md`와 '화면 느낌' 레퍼런스 탭 아래 한 줄에 둔다 — "ko-design-md by ChangSik Yoon (https://github.com/CaesiumY/ko-design-md), CC BY 4.0".
+- **출처 표기**(CC BY 4.0): `packages/core/tokens/NOTICE.md`와 테마 창 아래 한 줄에 둔다 — "ko-design-md by ChangSik Yoon (https://github.com/CaesiumY/ko-design-md), CC BY 4.0".
 - 어두운 레퍼런스는 없다. 토큰 파일에 dark 값이 있는 곳(SEED 등)은 나중에 `dark` 짝으로 넣는다(v3).
 
 ## 6. 단계와 확인

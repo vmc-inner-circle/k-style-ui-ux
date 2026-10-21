@@ -81,7 +81,7 @@
     function moveTo(p, ms) { fg.hidden = false; fg.style.transition = "left " + ms / speed + "ms cubic-bezier(.2,.8,.2,1), top " + ms / speed + "ms cubic-bezier(.2,.8,.2,1), transform .15s ease"; fg.style.left = p.x + "px"; fg.style.top = p.y + "px"; }
     function say(no, txt) { stepNo.textContent = no; stepTxt.textContent = txt; }
     // 화면 옆 말풍선: 이 화면이 언제 나오는지 · 이 안내가 언제 뜨는지 — 자리가 없으면 화면 위 오른쪽 위에
-    var KIND = { danger: "오류", warning: "주의", info: "안내", success: "완료" };
+    var KIND = HX.TONE_NAME;
     var TONE_HEX = { danger: "#D92D20", warning: "#DC6803", success: "#16A34A", info: "#2563EB" };
     function note(text, tone, target) {
       if (!text) { bubble.hidden = true; link.style.display = "none"; return; }

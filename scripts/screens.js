@@ -25,8 +25,10 @@ function loadScreens(runDir) {
   // 프리셋이 있으면 색은 직접 고른 색(custom) 하나로 잇는다 — 계산은 looks.js customLook(색 바꾸기와 같은 함수). AI는 looks를 쓰지 않는다
   //   tone → custom.base · brand → custom.hex · 기준어 → custom.name · font → custom.font · size → toggles.type. 보드에서 고른 색(custom)이 있으면 그쪽이 이긴다
   if (S.preset && !(Array.isArray(S.looks) && S.looks.length)) {
-    const P = S.preset;
-    S.custom = Object.assign(S.custom ? { font: P.font } : { hex: P.brand, name: (P.keywords || []).map((k) => k.word).join(" · "), base: BASE_OF[P.tone] || "white", font: P.font }, S.custom);
+    const P = S.preset, first = { hex: P.brand, name: (P.keywords || []).map((k) => k.word).join(" · "), base: BASE_OF[P.tone] || "white", font: P.font };
+    S.custom = Object.assign(S.custom ? { font: P.font } : first, S.custom);
+    // 테마 창 맨 앞 '이 서비스 맞춤' — 처음 색(preset 색) 그대로의 분위기 하나. build.js가 HX_OWN_LOOKS 맨 앞에 싣기만 한다(보드에서 고친 custom과 상관없이 처음 색)
+    S.presetLook = Object.assign(LOOKS.customLook(first), { id: "service", name: "이 서비스 맞춤", custom: false });
     if (!S.theme) S.theme = "custom";
     S.toggles = Object.assign({ type: P.size }, S.toggles);
   }

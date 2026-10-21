@@ -19,7 +19,7 @@
     if (B.stage === "concept") {
       var C = B.concept(st.concept);   // 시안 단계의 추천은 형식상 첫 시안일 뿐이라 '추천 그대로'를 붙이지 않는다
       groups.push({ title: "고른 시안", items: [(C ? "시안 " + C.id.toUpperCase() + " · " + C.name : "") + " — 직접 고름"] });
-      if (st.theme !== B.REC.theme || st.accent !== B.fixSwatch(st.theme, B.REC.accent)) groups.push({ title: "고른 색", items: [B.lookLine()] });
+      if (st.theme !== B.REC.theme || st.accent !== B.fixSwatch(st.theme, B.REC.accent) || B.customChanged()) groups.push({ title: "고른 테마 · 컬러", items: [B.lookLine()] });
       var cm = B.conceptMemos().map(function (m) { return "시안 " + m.c.id.toUpperCase() + "(" + m.c.name + "): " + m.text; });
       if (cm.length) groups.push({ title: "시안에 남긴 말", items: cm });
       var more0 = [];
@@ -28,10 +28,11 @@
       if (more0.length) groups.push({ title: "더 필요한 것", items: more0 });
       return groups;
     }
-    // 1) 화면 느낌
+    // 1) 테마 · 컬러 · 폰트
     var look = B.lookLine();
-    var same = st.theme === B.REC.theme && st.type === B.REC.type && st.accent === B.fixSwatch(st.theme, B.REC.accent);
-    groups.push({ title: "화면 느낌", items: [look + (locked.indexOf("theme") >= 0 ? " (이미 정해짐)" : same ? " — 추천 그대로" : " — 직접 고름")] });
+    var same = st.theme === B.REC.theme && st.type === B.REC.type && st.accent === B.fixSwatch(st.theme, B.REC.accent) && st.font === B.REC.font;
+    var fontPicked = st.font !== B.REC.font;   // 컬러가 정해졌어도 글꼴은 따로 고를 수 있다(폰트 창)
+    groups.push({ title: "테마 · 컬러 · 폰트", items: [look + (locked.indexOf("theme") >= 0 ? (fontPicked ? " — 컬러는 이미 정해짐, 폰트만 직접 고름" : " (이미 정해짐)") : same ? " — 추천 그대로" : " — 직접 고름")] });
     // 2) 확인 질문 중 추천과 다르게 고른 것
     var asks = [];
     if (locked.indexOf("ask") < 0) (board.ask || []).forEach(function (q) {

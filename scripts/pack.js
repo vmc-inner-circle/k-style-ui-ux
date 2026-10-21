@@ -24,6 +24,8 @@ const S = require("./screens.js").loadScreens(runDir);
 const F = JSON.parse(read(path.join(runDir, "flow.json")));
 const slugs = opt("screens").split(",").map((x) => x.trim()).filter(Boolean);
 const concept = opt("concept");
+// 시안 단계(1턴)에서만 --concept가 출력 폴더까지 정한다
+const conceptStage = !!concept && S.stage === "concept";
 const C = concept ? (S.concepts || []).find((c) => c.id === concept) : null;
 const bySlug = new Map((S.screens || []).map((s) => [s.slug, s]));
 
@@ -201,7 +203,7 @@ const blocks = slugs.map((slug) => {
     return `  - \`data-trigger="${x.trigger}"\` · 버튼 글자 **'${quote(x.action) || x.action}'** · 영역 \`${x.region}\` 안 → ${to ? to.name : x.to} (${x.kind})`;
   });
   // 1턴(시안 단계)만 concepts/<id>/에 쓴다. 2턴부터 --concept는 시안의 메뉴 구조·첫 화면·밀도를 담기 위한 것 — 화면은 screens/로
-  const file = concept && S.stage === "concept" ? `concepts/${concept}/${slug}.html` : s.file || `screens/${slug}.html`;
+  const file = conceptStage ? `concepts/${concept}/${slug}.html` : s.file || `screens/${slug}.html`;
   const layoutLine = s.overlayOf ? `- **뜨는 창**: 파일 전체가 \`<x-modal title="…">본문 <div class="modal-footer">버튼</div></x-modal>\` 하나. 완료 버튼도 창을 닫으면 data-back(흐름에 있으면 data-trigger).${MOBILE ? " 모바일은 아래에서 올라오는 창으로 펼쳐진다 — 제목은 질문·결과 한 문장, desc 회색 1~2줄, 바닥줄 = primary 하나 + 돌아가기(data-back)." : ""}`
       : MOBILE ? `- 배치 힌트(${s.pattern || "-"}): ${mobileShell(s)} · ${LAYOUT_MOBILE[s.pattern] || "x-page-header + x-section 판들"}`
       : `- 배치 힌트(${s.pattern || "-"}): ${LAYOUT[s.pattern] || "page-header + x-section들"}`;
@@ -228,7 +230,9 @@ const LEVEL_NOTE = !C || !C.level ? "" : C.level <= 3 ? "무난하게: 흔한 �
   : C.level <= 6 ? "조금 과감하게: 두 패턴을 섞어 첫 화면 위쪽과 아래쪽 구성이 확실히 다르게, 큰 숫자·큰 판 하나로 강약을 준다."
   : "과감하게: 창의 부품(.hero+.overlap · .bento · .scroll-row · .story-row · .chat · .poster)을 적극 써서 흔한 앱과 다른 첫인상을 만든다. 크기 대비를 크게(아주 큰 글자·꽉 찬 색 판·넓은 여백), 같은 모양의 판이 세 번 이상 연달아 오지 않게.";
 const layoutNote = CLAYOUT ? `레이아웃 ${recipeOf(CLAYOUT)}${CMIX ? `\n섞을 레이아웃 ${recipeOf(CMIX)} — 첫 화면의 위쪽은 첫 레이아웃, 아래쪽이나 다른 메뉴 화면은 섞을 레이아웃으로 조합한다.` : ""}${C.level ? `\n과감함 ${C.level}단계 / 10 — ${LEVEL_NOTE}` : ""}\n(메뉴에 있는 화면·첫 화면은 이 구성으로, 나머지 화면도 같은 밀도·같은 손맛으로. 색·배경·판 모양·글꼴은 화면 바깥에서 입히니 조각에 쓰지 않는다)` : "";
-const out = `# 작업 묶음 — ${slugs.join(", ")}${C ? ` (시안 ${C.id})` : ""}
+const out = `# 작업 묶음 — ${slugs.join(", ")}${conceptStage ? ` (시안 ${C.id})` : ""}
+
+**쓸 곳: ${conceptStage ? `RUN/concepts/${concept}/<slug>.html` : "RUN/screens/<slug>.html"}** (화면마다 아래 '→' 뒤 경로가 같은 곳)
 
 **이 파일만 읽고, 아래 화면을 하나씩 Write 한 번으로 쓴 뒤 끝낸다.** 점검은 메인이 한다. RUN = ${runDir}
 **플랫폼: ${MOBILE ? "휴대폰(390×844) — 아래 '모바일 규칙'이 위 규칙보다 우선. 메뉴 구조(아래 탭·위 알약 탭·메뉴 없음)와 상관없이 모든 화면이 휴대폰 화면이다" : "컴퓨터(1280×800)"}**

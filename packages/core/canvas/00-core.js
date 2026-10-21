@@ -19,6 +19,8 @@
   HX.frame = HX.platform === "mobile" ? { w: 390, h: 844 } : { w: 1280, h: 800 };
   HX.bySlug = {};
   data.screens.forEach(function (s) { s.regions = s.regions || []; HX.bySlug[s.slug] = s; });
+  // 상태색 이름 — 안내 문구 이름표 · 흐름 재생 · 디자인 시스템 탭이 같이 쓴다
+  HX.TONE_NAME = { success: "완료", warning: "주의", danger: "오류", info: "안내" };
   HX.roleLabel = function (key) {
     if (!key) return "공통";
     var hit = data.meta.roles.filter(function (r) { return r.key === key; })[0];

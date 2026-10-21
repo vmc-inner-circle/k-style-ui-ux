@@ -29,6 +29,11 @@ try {
     run("pack.js", w.run, "--screens", planner.slug);
     const other = fs.readFileSync(path.join(w.run, "packs", planner.slug + ".md"), "utf8");
     /숨길 상태/.test(other) ? t.fail("후보를 볼 수 있는 역할 묶음에 숨길 상태가 실림") : t.ok("후보를 보는 역할 묶음에는 숨길 상태 줄이 없다");
+    S.stage = "draft"; S.concepts = [{ id: "a", name: "가", shell: "top" }];
+    fs.writeFileSync(file, JSON.stringify(S, null, 2));
+    run("pack.js", w.run, "--screens", parent.slug, "--concept", "a", "--name", "k8");
+    const k8 = fs.readFileSync(path.join(w.run, "packs", "k8.md"), "utf8");
+    /쓸 곳: RUN\/screens\//.test(k8) && !/concepts\/a\//.test(k8) ? t.ok("초안 단계 + --concept 묶음의 쓸 곳은 screens/") : t.fail("초안 단계 묶음의 쓸 곳이 screens/가 아님");
   }
 } finally { w.done(); }
 t.end();

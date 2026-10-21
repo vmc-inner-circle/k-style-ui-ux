@@ -65,7 +65,7 @@
     return secs.map(function (x) { return byKey[x.key]; }).filter(function (x) { return x.groups.length; });
   }
   // 조건 화살표: 흐름 단계·갈래 중 when이 있는 것만
-  var TONE_TAG = { danger: "오류", warning: "주의", info: "안내", success: "완료" };
+  var TONE_TAG = HX.TONE_NAME;
   function eul(w) { return window.HXJosa ? window.HXJosa.eul(w) : "'" + w + "'을"; }
   function derivedOf(s) {
     var list = [];
