@@ -5,7 +5,7 @@
    고르는 것: 스타일(맞춤 · 국내 · 해외 고정 스타일) + 그 스타일의 버튼 색 / 직접 고르기(팔레트 24색 + 그 밖의 색 + 바탕 흰·따뜻한·어두운).
    칠하는 법: <html data-theme data-swatch>를 바꾸고, 페이지에 없는 분위기 토큰은 looks.js로 계산해 <style>로 넣는다(글꼴도 불러온다).
    HXColor.mount({ project, anchor?, inline?, onChange?(sel), persist? }) — inline이면 단추 없이 anchor 안에 창을 펼쳐 둔다(시안 보드 오른쪽 사이드바) — persist면 이 브라우저에 기억(최종본 페이지끼리 함께 바뀐다).
-   sel = { theme, swatch, custom: { hex, name, base, bgHex? } | null } — 바탕은 12가지(presets.json bases, tint = 고른 색으로 살짝) + 그 밖의 바탕(bgHex) */
+   sel = { theme, swatch, custom: { hex, name, base, bgHex?, font? } | null } — 바탕은 12가지(presets.json bases, tint = 고른 색으로 살짝) + 그 밖의 바탕(bgHex) */
 (function () {
   "use strict";
   var LK = window.HXLooks, DATA = window.HX_LOOKS_DATA || {};
@@ -116,6 +116,7 @@
         var base = c.base || prev.base || "white", bgHex = c.base ? (c.bgHex || null) : (c.bgHex !== undefined ? c.bgHex : prev.bgHex || null);
         var cu = { hex: String(c.hex).toUpperCase(), name: c.name || "", base: c.base || prev.base || null };
         if (from) cu.from = from;
+        if (prev.font) cu.font = prev.font;   // 프리셋 글꼴은 색을 바꿔도 그대로
         if (!cu.base) delete cu.base;
         if (bgHex) cu.bgHex = String(bgHex).toUpperCase();
         set({ theme: "custom", swatch: "custom", custom: cu });

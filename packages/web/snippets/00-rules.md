@@ -7,7 +7,7 @@
 0. **먼저 `05-parts.md`를 읽는다 — 짧은 부품 태그로 쓰고, 셸(상단바·메뉴)은 쓰지 않는다.** 파일은 `<main class="content">…</main>` 하나(뜨는 창은 `<x-modal>` 하나). 메인이 `scripts/expand.js`로 펼치고 셸을 붙인다. 쓰는 분량이 절반 이하로 줄어 화면이 빨리 나온다.
 1. **파일은 `<body>` 안쪽 내용만.** `<html> <head> <body> <style> <script> <link>` 금지. 루트는 `<main class="content">`(펼친 뒤에는 `<div class="app">` 하나).
 2. **클래스는 이 폴더 조각에 있는 것만.** 새 클래스·인라인 `style=` 금지. 스타일이 부족하면 만들지 말고 가장 가까운 조각을 쓴다. (lint가 잡는다)
-3. **영역 표시**: `screens.json`의 `regions[].key`마다 그 영역을 감싸는 요소 하나에 `data-region="<key>"`를 붙인다. 화면당 한 key는 정확히 한 번. 빠지거나 남으면 lint 실패.
+3. **영역 표시**: 작업 묶음(PACK)이 준 영역 key마다 그 영역을 감싸는 요소 하나에 `data-region="<key>"`를 붙인다. 화면당 한 key는 정확히 한 번. 빠지거나 남으면 lint 실패.
    - 영역은 사용자가 "7번 바꿔주세요"라고 가리킬 단위다. 버튼 하나보다 **의미 있는 덩어리**(목록 전체, 카드 한 장, 상단 요약 띠, 우측 패널)에 붙인다. 너무 작으면 배지가 겹친다.
 3-1. **트리거 표시**: `flow.json`에서 이 화면이 `from`인 step마다, 그 step의 `trigger` key를 **실제로 누르는 요소 하나**(버튼·링크·탭·목록 항목)에 `data-trigger="<key>"`로 붙인다. 그 요소는 step의 `region` 영역 안에 있어야 한다. 누를 요소가 조각에 없으면 그 영역 안에 버튼을 만든다(문구는 step의 `action` 따옴표 안 말). 화살표가 여기서 출발한다.
 3-2. **버튼마다 누르면 어떻게 되는지**: 글자가 있는 `.btn`(아이콘만 있는 `.btn-icon`과 `.nav-item` 제외)은 셋 중 하나를 반드시 가진다 — lint FAIL.
@@ -22,7 +22,7 @@
 7. **상태 표시는 `.badge`로 통일**한다 (예: 확정 = `badge-success`, 후보 = `badge-neutral`, 변경됨 = `badge-warning`). 같은 의미에 같은 색.
 8. **화면당 primary 버튼은 1개**(`.btn-primary`). 나머지는 secondary/ghost.
 9. 패턴 파일(`packages/web/patterns/<pattern>.html`)은 **`<main>` 안쪽 배치만** 참고한다(셸 부분은 옮기지 않는다). `<!-- slot: … -->` 자리를 조각으로 채우고 주석은 지운다.
-10. 완성 후 스스로 점검: data-region 개수 = screens.json 영역 개수 / 이 화면이 from인 step의 trigger가 모두 `data-trigger`로 있음 / 아이콘 이름 allowlist 확인 / `style=` 없음 / Lorem 없음.
+10. 완성 후 스스로 점검: data-region 개수 = PACK이 준 영역 개수 / 이 화면이 from인 step의 trigger가 모두 `data-trigger`로 있음 / 아이콘 이름 allowlist 확인 / `style=` 없음 / Lorem 없음.
 11. **사이드바·상단바는 쓰지 않는다 — expand.js가 `screens.json`의 `roles[].nav`로 붙인다.** (예전 방식: 직접 쓸 때는 roles[].nav를 그대로 옮긴다.) 항목 순서·라벨·아이콘을 바꾸지 않고, 현재 화면 항목에만 `.active`. 상단바 제목은 `screens.json`의 `title`. 화면마다 내비가 달라지면 안 된다.
 11-1. **메뉴 구조(시안의 shell)** — 셸을 쓰지 않으면 expand.js가 시안의 shell로 붙이므로 신경 쓰지 않는다. 직접 쓸 때만: 기본은 왼쪽 메뉴(`.sidebar`). 프롬프트에 `SHELL=nav-top`이면 `<div class="app nav-top">` + 상단바 안 `<nav class="topnav-nav">`에 같은 `.nav-item`들(사이드바 없음), `SHELL=nav-rail`이면 `<div class="app nav-rail">` + 사이드바는 그대로(좁은 아이콘 메뉴로 보인다). 골격은 `patterns/shell-top.html`·`shell-rail.html`, 설명은 10-layout "app 변형". `.nav-item` 클래스 이름은 바꾸지 않는다.
 12. **영역을 나누기 위한 클래스 없는 `<div data-region="…">` 래퍼는 허용**된다(스타일이 필요 없는 순수 묶음). 단 `.stack`/`.section`처럼 간격이 필요하면 그 클래스를 쓴다.
@@ -53,7 +53,7 @@
 20. **실제 앱처럼 글자·정렬**(사용자 결정 2026-10-14: "실제 앱처럼 정렬이나 글씨 배치, 텍스트 크기, 폰트를 다 맞춰야"):
    - 글자 크기는 정해진 단계만 — 화면 제목(`.page-title`) · 큰 숫자(`.big-num`/`.stat-value`/`.tile-num`, 판 하나에 하나) · 묶음 제목(`.section-title`) · 본문(클래스 없음) · 보조(`.text-sm .text-2`) · 작은 글(`.text-xs`). `.text-lg`·`.text-xl`을 본문에 섞지 않는다. 한 판 안에서 가장 큰 글자는 하나.
    - 정렬은 왼쪽. 가운데 정렬(`.text-center`)은 빈 화면(`.empty`)·처음 화면·뜨는 창의 안내·`.hero`/`.poster` 안에서만. 같은 종류의 줄(목록 행·숫자 칸)은 같은 크기·같은 들여쓰기·같은 높이.
-   - 숫자와 단위는 한 줄로(`D-65` 다음에 줄바꿈 금지 — 길면 보조 글자로 아래에). 버튼 글자는 한 줄, 6~10자.
+   - 숫자와 단위는 한 줄로(`D-65` 다음에 줄바꿈 금지 — 길면 보조 글자로 아래에). 버튼 글자는 한 줄, 6~10자. 큰 글자에 날짜·시간이 들어가면 끊기면 안 되는 덩어리를 `<span class="nowrap">11월 14일(토)</span>`처럼 묶는다.
    - 얼굴 동그라미(`.avatar`) 안에는 한 글자(이름 첫 글자), 이름은 옆이나 아래에 한 번만.
    - 글꼴·굵기·색은 조각에 쓰지 않는다(꾸밈·분위기가 바깥에서 입힌다). `size="lg"` 버튼은 화면 맨 아래 주 버튼 하나에만.
 

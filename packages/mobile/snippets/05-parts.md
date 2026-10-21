@@ -29,4 +29,4 @@
   <div class="bottom-cta" data-region="book"><x-btn variant="primary" data-trigger="book">예약하기</x-btn></div>
 </main>
 ```
-(예시 값은 형식 설명용 — 실제 문구는 DOMAIN 값을 쓴다)
+(예시 값은 형식 설명용 — 실제 문구는 작업 묶음의 '쓰는 사실' 줄 값을 쓴다)

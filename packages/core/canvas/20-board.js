@@ -40,6 +40,8 @@
   var recType = isLocked("type") && toggles.type ? toggles.type : (rec.type || toggles.type || "normal");
   var recSwatch = isLocked("swatch") && toggles.swatch ? toggles.swatch : (rec.swatch || rec.accent || toggles.swatch);
   var REC = B.REC = { theme: recTheme, type: recType, accent: fixSwatch(recTheme, recSwatch) };
+  // 추천 분위기가 직접 고른 색(프리셋 → custom, scripts/screens.js)이면 그 색이 처음 고른 값
+  var recCustom = REC.theme === "custom" ? HX.meta.custom || null : null;
   // 안내 문구(toast) 모양: 위치 · 아이콘 · 색 · 글자 — 기본 규칙(위쪽 · 아이콘 · 흰 바탕 · 보통)이 추천. 확정되면 확정값이 추천
   var TOAST = B.TOAST = {
     at: { label: "위치", opts: [["top", "화면 위"], ["bottom", "화면 아래"]] },
@@ -68,7 +70,7 @@
 
   // ---------- 상태 ----------
   // pins: 화면 디자인 탭에서 사용자가 화면 아무 곳이나 골라 단 의견 { id: {id, sid, slug, path, desc, where, v, memo} }
-  var state = { concept: REC.concept, cmemo: {}, custom: null, theme: REC.theme, type: REC.type, accent: REC.accent, ask: {}, regions: {}, screens: {}, pins: {}, pinSeq: 0, add: "", memo: "", toast: toastOk(REC.toast) };
+  var state = { concept: REC.concept, cmemo: {}, custom: recCustom, theme: REC.theme, type: REC.type, accent: REC.accent, ask: {}, regions: {}, screens: {}, pins: {}, pinSeq: 0, add: "", memo: "", toast: toastOk(REC.toast) };
   (function restore() {
     var saved = HX.storage.get(storeKey); if (!saved || typeof saved !== "object") return;
     ["concept", "theme", "type", "accent", "add", "memo"].forEach(function (k) { if (typeof saved[k] === "string") state[k] = saved[k]; });
@@ -91,7 +93,7 @@
   B.resetAll = function () {
     state.ask = {}; state.regions = {}; state.screens = {}; state.pins = {}; state.add = ""; state.memo = "";
     if (!isLocked("concept")) { state.concept = REC.concept; state.cmemo = {}; state.picked = false; }
-    if (!isLocked("theme")) state.custom = null;
+    if (!isLocked("theme")) { state.custom = recCustom; if (recCustom) B.putCustom(recCustom); }
     state.cup = null; state.dress = null;
     if (!isLocked("theme")) state.theme = REC.theme;
     if (!isLocked("type")) state.type = REC.type;
@@ -192,7 +194,7 @@
   /* 추천과 다르게 표시한 항목 수 (복사 버튼 숫자) */
   B.diffCount = function () {
     var n = B.answer().split("\n").length - 2;
-    if (STAGE === "concept") return n + (state.concept !== REC.concept ? 1 : 0);   // 색 줄은 answer()에 이미 들어 있어 n에 포함
+    if (STAGE === "concept") return n + 1;   // 고른 시안은 늘 센다. 색 줄은 answer()에 이미 들어 있어 n에 포함
     if (!isLocked("theme") && state.theme !== REC.theme) n++;
     if (!isLocked("type") && state.type !== REC.type) n++;
     if (!isLocked("swatch") && state.accent !== fixSwatch(state.theme, REC.accent)) n++;

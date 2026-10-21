@@ -16,7 +16,7 @@
 
 | 턴 | 사용자 | 하네스 |
 |---|---|---|
-| 1 | PRD 입력 | 질문 없이 PRD 분석 → `brief.md`·`screens.json`·`flow.json` → 레이아웃 패턴 목록(`packages/core/layouts/layouts.json`)에서 **화면 구성이 다른 시안 5개**, 시안마다 메인 화면 3~6장(서브 에이전트 최대 10개 병렬) → **시안 보드**(`stage: "concept"`, 시안 고르기 화면만)를 **자동으로 브라우저에 띄움** |
+| 1 | PRD 입력 | 질문 없이 PRD 분석 → `brief.md`·`screens.json`·`flow.json` → 레이아웃 패턴 목록(`packages/core/layouts/layouts.json`)에서 **화면 구성이 다른 시안 5개**, 시안마다 메인 화면 3~6장(서브 에이전트 최대 10개 병렬) → **시안 보드**(`board.stage: "concept"`, 시안 고르기 화면만)를 **자동으로 브라우저에 띄움** |
 | 2 | 시안·색 고르기 (+안마다 적은 말) | 고른 시안으로 **전체 화면·흐름·갈래** → **초안 보드**(사용 흐름 / 화면 디자인 / 화면 느낌) |
 | 3 | 의견 | 국소 수정 + 화면 느낌 확정 → **최종**(`out/index.html` + `screens/`) → **묻지 않고 바로 제출** |
 | 4 | (선택) 더 고칠 의견 | 사용자가 붙여넣을 때만 → 반영해 다시 제출(더 묻지 않음) |
@@ -34,7 +34,7 @@
 
 이해와 의견을 분리한다. 흐름 화면에서 의견을 받으면 같은 화면이 여러 번 나와 헷갈린다.
 
-**시안 고르기** (1턴 보드는 이 화면 하나뿐 — `stage: "concept"`) — 디자이너가 고객에게 안을 보여주듯. 사용자 요청: "맨 처음에 시안을 선택하고 그 이후에 사용 흐름과 화면 디자인을", "시안은 5개로".
+**시안 고르기** (1턴 보드는 이 화면 하나뿐 — `board.stage: "concept"`) — 디자이너가 고객에게 안을 보여주듯. 사용자 요청: "맨 처음에 시안을 선택하고 그 이후에 사용 흐름과 화면 디자인을", "시안은 5개로".
 - 맨 위 **색 고르기**(사용자 결정 2026-10-14 — 레퍼런스 조사 대신): 스타일 카드(PRD 맞춤 1개 + 고정 스타일 7개 토스·당근·카카오·배민·네이버·무신사·넷플릭스 느낌, `packages/core/tokens/presets.json`) · 고른 스타일의 버튼 색 5개 · 직접 고르기(기본 색 12 · 색다른 색 12 팔레트 + 그 밖의 색 + 흰·따뜻한·어두운 바탕). 누르면 아래 시안 5개의 화면이 **그 자리에서 다시 칠해진다**(보드에 실린 `scripts/looks.js`가 토큰을 계산). 앱 이름은 이름표로만 — 화면 안에 로고·브랜드를 넣지 않는다.
 - 시안 5개(시안마다 한 줄 — 왼쪽 설명, 오른쪽 메인 화면들 가로로): 시안 A~E · "추천" · 이름('무엇이 먼저 보이는지') · 이유 · 특징(메뉴 구조·밀도·첫 화면) · 화면 구성(레이아웃 패턴 이름 — 그 방식을 쓰는 곳) · "이 안으로 할게요" · **안마다 적는 칸**("달력은 이 안처럼") · **메인 화면 3~6장**(PRD를 보고 역할별 메뉴 화면 먼저, 그 시안의 메뉴 구조·레이아웃으로 가로로 나란히 — 캐러셀은 좌우로 넘기고, 화면은 모두 같은 높이(첫 화면)에 넘치는 내용은 화면 안에서 스크롤, 이름을 누르면 크게).
 - 오른쪽 위 '시안 X(으)로 보내기' → 확인 창 → 복사: `시안 b(이름) · 색 toss(토스 느낌) · 버튼색 blue(파랑)`(직접 고르면 `· 색 직접 #C8553D(테라코타) · 바탕 warm(따뜻한 바탕)`) / `시안 c 메모: …` / `(나머지는 추천대로)`. 2턴부터 색은 확정.
@@ -60,7 +60,7 @@
 - **바꿔주세요 / 빼주세요** 중 하나를 고르면 의견이 생기고 화면 위에 **핀 번호**(1, 2, 3… 보드 전체에서 이어짐, 바꿔 = 주황, 빼기 = 회색)가 붙는다. "바꿔주세요"는 **예시 칩**(글자 더 크게 · 더 단순하게 · 위로 올려주세요 · 잘 안 보여요 · 색을 바꿔주세요 · 다른 모양으로 · 버튼을 더 크게 · 순서를 바꿔주세요) + 메모. 핀을 누르면 다시 고치거나 지운다.
 - **아이콘을 고르면 "다른 아이콘으로 바꾸기"**: 검색칸 + 허용된 Lucide 아이콘 목록(core allowlist + 프로젝트 icons.json, 보드 빌드에 전부 실린다). 고르면 화면 속 아이콘이 바로 바뀌고 핀이 붙는다. 복사 글: `화면 S · 아이콘 'plane' 바꿔: 아이콘 plane → luggage [경로]`.
 - 화면 안 버튼·링크·입력칸은 실제로 동작하지 않는다(누르면 고르기만).
-- 미리 정한 항목(`regions`)은 사용자 화면에 번호로 보이지 않는다. 내부에서 **위치 경로의 기준점**과 "'…' 안에 있어요" 설명으로 쓴다.
+- 미리 정한 블록(`answer` · `rest`, 조각의 `data-region`)은 사용자 화면에 번호로 보이지 않는다. 내부에서 **위치 경로의 기준점**과 "'…' 안에 있어요" 설명으로 쓴다.
 
 ### 3.3 상단바
 
@@ -76,7 +76,7 @@
 - **복사되는 글의 형식은 고정**이다(`references/answer-parsing.md`가 읽는다). 화면 문구를 바꿔도 이 형식은 바꾸지 않는다. 고른 곳 의견은 `화면 <id> · <이름표> 바꿔|빼기 [<위치 경로>]` — 위치 경로는 가장 가까운 `data-region`(`@key`)부터 `태그:순번`:
 
 ```
-테마 B · 글자 크게 · 강조 차분
+테마 toss(토스 느낌) · 글자 크게 · 버튼색 blue(파랑)
 확인: member-start=전체 모임 일정
 화면 1 · 버튼 '새 모임 만들기' 바꿔: 버튼을 더 크게 [@start-club > div > button]
 화면 1 · 부분 '3 출석 확인하기' 빼기 [@how-it-works > div:3]
@@ -133,7 +133,8 @@ packages/
       20~25-board*.js      보드 상태·답변 형식 / '전체' 창 / 상단바·사용 흐름 / 의견 보내기 창 / 두 탭·화면 디자인·고르기 / 시안 고르기
       canvas.css
     motion/                motion.css · motion.js — 최종본 화면별 페이지의 움직임 재현(build.js가 페이지마다 인라인)
-    schema/                screens.json · flow.json 형식과 예시
+    schema/                schema.json(screens.json · flow.json 형식의 정본, scripts/schema.js가 검사) · README(짧은 예시)
+    feedback/              glossary.json(의견 사전 F01~) — scripts/feedback.js가 찾는다
   web/                     ← 1차 (데스크톱 1280×800 프레임)
     components/*.css       컴포넌트 스타일. 토큰만 참조
     snippets/*.md          조각 HTML (screen-writer의 유일한 재료). 00-rules.md가 조립 규칙
@@ -145,6 +146,9 @@ scripts/                   Node, 의존성 0
   looks.js                 분위기·버튼 색·글꼴 세트 → 전체 토큰 계산 + 디자이너 기준 자동 보정 (build·lint 공용)
   platform.js              web·mobile 패키지 레이어(mobile = web + packages/mobile)와 프레임 크기 (build·lint·pack 공용)
   expand.js · pack.js      셸 자동 조립·짧은 부품 태그 펼치기 / 에이전트 작업 묶음 (둘 다 web·mobile)
+  schema.js                screens.json · flow.json을 스키마(packages/core/schema/schema.json)로 검사 — --step intent|list|full
+  screens.js · derive.js   screens.json 읽기 하나 — 답 하나 · 나머지에서 조립 · 검사가 쓰는 칸을 계산(파일에 쓰지 않음)
+  feedback.js              의견 한 줄 → 의견 사전(packages/core/feedback/glossary.json) 줄 찾기
   lint.js                  데이터·조각·말 검사. exit 0 전에는 끝난 게 아니다
   ids.js                   screens.json의 빠진 id를 이어서 채운다
   calendar.js              월 달력 격자 조각 생성 (손으로 35칸 쓰지 않기)
@@ -162,54 +166,54 @@ submissions/srlee0408/     제출 (index.html · prompt-log.md · elapsed.txt)
 
 ### 6.1 `screens.json`
 
+**정본은 `packages/core/schema/schema.json`**(`$defs.project`가 뿌리) — 칸 이름 · 필수 · 값 범위 · 어느 걸음에 쓰는지(`x-stage`)는 거기에만 있고, 여기에 칸 표를 옮기지 않는다. 스키마에 없는 칸을 쓰면 FAIL이다. 아래는 모양을 보는 짧은 예시다.
+
 ```json
 {
   "project": "book-club",
   "title": "동네 독서 모임",
-  "platform": "web",
-  "round": 1,
-  "theme": "warm",
-  "toggles": { "type": "normal", "swatch": "terracotta" },
-  "looks": [ { "id": "warm", "name": "따뜻한 종이", "why": "책 모임다운 포근한 느낌이에요", "mode": "light", "bg": "#FBF8F3", "ink": "#1F1B16", "shape": "round",
-               "swatches": [ { "id": "terracotta", "name": "테라코타", "hex": "#D9562B" }, "… 5개" ] }, "… 3개" ],
-  "roles": [
-    { "key": "host", "label": "모임장", "nav": [ { "slug": "host-home", "label": "모임", "icon": "house" } ] },
-    { "key": "member", "label": "회원", "nav": [ { "slug": "member-home", "label": "다음 모임", "icon": "calendar-days" } ] }
-  ],
-  "board": {
-    "recommend": { "theme": "warm", "themeWhy": "…", "type": "normal", "typeWhy": "…", "swatch": "terracotta", "swatchWhy": "…" },
-    "ask": [ { "id": "member-start", "text": "회원 화면은 어디서 시작할까요?", "options": ["다음 모임 한 장 (추천)", "전체 모임 일정"], "recommended": 0 } ],
-    "locked": [], "focus": []
+  "platform": "mobile",
+  "stories": [ { "id": "story-next", "kind": "story", "role": "member", "text": "회원은 다음 모임 날짜와 읽을 범위를 한 번에 확인하고 싶다", "prd": "§2-1" } ],
+  "roles": [ { "key": "member", "label": "회원", "goal": "다음 모임에 갈지 정하고 읽을 책을 준비한다" } ],
+  "states": [ { "key": "maybe", "label": "정하는 중", "show": ["member"], "tone": "warning", "icon": "circle-dashed" } ],
+  "facts": { "next": "10월 25일(토) 오후 2시 · 망원동 책방 '오후' · 『작별하지 않는다』 1~3장" },
+  "preset": {
+    "keywords": [ { "word": "포근한", "not": "어두운 서재", "from": "member" }, { "word": "한눈에", "not": "빽빽한 공지", "from": "next" }, { "word": "동네 사랑방", "not": "딱딱한 행사", "from": "member" } ],
+    "tone": "paper", "brand": "#C8553D", "font": "nanum-square-round", "size": "normal", "density": "airy",
+    "why": [ { "pick": "tone", "keyword": 0, "text": "책 종이 같은 바탕이라 오래 봐도 편해요" }, "… 3~6개" ]
   },
   "screens": [
     {
-      "id": 1, "slug": "host-home-empty", "name": "모임 홈 (처음)", "role": "host",
-      "state": "first-run", "variantOf": "host-home",
-      "purpose": "아직 모임이 없을 때 새 모임을 만들게 한다",
-      "pattern": "dashboard", "file": "screens/host-home-empty.html",
-      "regions": [
-        { "id": 101, "key": "start-club", "label": "새 모임 만들기", "why": "여기서 첫 모임을 만들어요", "prd": "§4-1" }
-      ]
-    },
-    {
-      "id": 4, "slug": "member-add", "name": "회원 추가 창", "role": "host", "overlayOf": "club-members",
-      "purpose": "초대할 회원의 이름과 연락처를 적는다", "pattern": "form", "file": "screens/member-add.html",
-      "regions": [ { "id": 112, "key": "member-form", "label": "회원 정보 적기", "why": "이름과 연락처만 적으면 초대 문자가 가요" } ]
+      "slug": "member-home", "name": "다음 모임", "role": "member", "story": "story-next", "pattern": "상세 정보 확인",
+      "goal": "다음 모임 날짜·장소·읽을 범위를 한 번에 확인한다",
+      "problem": "단톡방 공지가 위로 밀려 날짜와 범위를 다시 묻는다",
+      "answer": { "key": "next-meet", "label": "다음 모임", "why": "날짜와 장소를 한 장에 — 정하는 중이면 그 표시", "say": "10월 25일(토) 오후 2시 · 책방 '오후'",
+                  "form": "hero", "items": ["10월 25일(토) 오후 2시", "망원동 책방 '오후'"], "facts": ["next"] },
+      "rest": [ { "key": "reading", "label": "읽을 범위", "why": "모임 전에 어디까지 읽을지", "form": "list", "items": ["『작별하지 않는다』 1~3장"], "facts": ["next"] } ],
+      "later": [ { "what": "지난 모임 기록", "why": "다음 모임 확인이 먼저라 기록 화면으로" } ],
+      "action": { "label": "참석 알리기" }
     }
   ],
-  "nextScreenId": 5, "nextRegionId": 113
+  "board": {
+    "stage": "concept", "theme": "custom", "toggles": { "type": "normal", "swatch": "custom" },
+    "feedback": [ { "said": "날짜 글자가 너무 작아요", "scope": "region", "screen": "member-home", "region": "next-meet", "entry": "F03",
+                    "measured": "날짜 17px · 장소 17px", "fix": "날짜만 굵게 · 한 단계 진하게", "rule": "body-size-min", "keep": false } ]
+  }
 }
 ```
 
-- `id`: 화면은 1부터, 항목은 101부터 **따로** 센다(§3.5). 비어 있으면 `ids.js`가 채운다. screens.json의 화면 순서 = 사용자가 만나는 순서(역할별 처음 시작 → 핵심 작업 순), 뜨는 창은 그 뒷 화면 바로 다음.
+- **걸음 순서**: I 의도 → L 화면 목록 → S 화면 하나 → C 시안 → P 프리셋. 어느 칸이 어느 걸음인지는 스키마의 칸마다 붙은 `x-stage`가 정한다. 검사 문은 `node scripts/schema.js runs/<p> --step intent|list|full`(§10).
+- **화면 = 답 하나 + 나머지**: `answer`(1순위, 화면에 하나 · `say`가 가장 크게 보이는 문장) → `rest`(읽는 순서대로) → `later`(이 화면에서 뺀 것과 이유). 블록마다 `items`는 화면에 그대로 나오는 실제 값, `facts`는 그 값이 나온 `facts` 이름표 — 사실은 `facts` 한 곳에만 산다.
+- 블록 `key`(와 주 버튼 `action`)가 조각의 `data-region`과 1:1이다. 조립 · lint · pack이 쓰는 영역 목록 · 목적 · 강조는 `scripts/screens.js`가 `scripts/derive.js`로 이 칸들에서 **계산한다** — AI가 따로 쓰지 않는다.
+- `id`: 화면은 1부터(§3.5). 비어 있으면 `ids.js`가 채운다. screens.json의 화면 순서 = 사용자가 만나는 순서(역할별 처음 시작 → 핵심 작업 순), 뜨는 창은 그 뒷 화면 바로 다음. 영역 번호(101 이상)는 derive.js가 화면 번호와 읽는 순서로 계산한다.
 - `slug`: 파일명·flow 참조용. 케밥케이스 영문.
-- `state`(선택): `first-run`(처음 켰을 때) · `empty`(데이터 없을 때) · `input`(입력할 때) · `error`(오류일 때) · `success`(완료됐을 때). 캔버스가 태그로 보여준다. `variantOf`는 상태 변형의 원래 화면(오류·완료는 필수 — 구역 보드에서 원래 화면 옆). 입력 화면이 있으면 오류 1개 이상, 완료 1개 이상(lint FAIL) — 사용자가 밟게 될 상태는 반드시 그린다.
-- `sections`(최상위) · `section` · `step` · `policy`: 구역 보드(§3.1). 구역 2~6개 `{key, name}`, 화면마다 구역과 단계 이름표, 상태 변형을 뺀 모든 화면에 정책 `[{ title, items[] }]`(lint FAIL). 규칙은 `references/prd-to-screens.md` §5-2, 말은 `ux-writing.md` §8·§9.
-- `concept` · `concepts` · `references`: 시안과 레퍼런스 — 형식·규칙은 `references/prd-to-screens.md` §6-1. 시안의 메인 화면 조각은 `concepts/<id>/<slug>.html`.
+- `state`(선택): `first-run`(처음 켰을 때) · `empty`(데이터 없을 때) · `input`(입력할 때) · `error`(오류일 때) · `success`(완료됐을 때). 캔버스가 태그로 보여준다. `variantOf`는 상태 변형의 원래 화면(오류·완료는 필수 — 구역 보드에서 원래 화면 옆). 입력 화면이 있으면 오류 1개 이상, 완료 1개 이상(lint FAIL) — 사용자가 밟게 될 상태는 반드시 그린다. 서비스의 상태 어휘(확정 · 후보 …)는 이와 따로 최상위 `states` 하나 — 볼 수 없는 역할의 화면에는 `hidden` 문구.
+- `sections` · `section` · `step` · `policy`: 구역 보드(§3.1). 구역 2~6개 `{key, name, desc}`, 화면마다 구역과 단계 이름표, 상태 변형을 뺀 모든 화면에 정책 `[{ title, items[] }]`(lint FAIL). 규칙은 `references/prd-to-screens.md` §5-2, 말은 `ux-writing.md` §8·§9.
+- `concepts` · `board.concept`: 시안과 고른 시안 — 형식·규칙은 `references/prd-to-screens.md` §6-1. 시안의 메인 화면 조각은 `concepts/<id>/<slug>.html`.
 - `overlayOf`(선택): **뜨는 창 화면**(대화상자·오른쪽 패널). 조각에는 창(`.modal-backdrop`)만 쓰고, 뒷 화면은 `build.js`가 `overlayOf` 화면을 깔아 합친다(뒷 화면의 누를 곳·항목 표시는 지운다). 이름은 '~ 창'. 이 창을 여는 버튼이 `flow.json` 흐름이나 갈래에 반드시 있다. 한 실행에 6개 이하.
 - `roles[].nav`: 모든 화면의 사이드바가 그대로 복사하는 메뉴. 화면 간 일관성이 여기서 정해진다.
-- `regions[].key`: 조각의 `data-region`과 1:1. `label`·`why`는 **번호를 누르면 그대로 보이는 글**(ux-writing §2), `prd`는 내부 근거.
-- `theme`/`toggles`: 1턴에는 추천값, 2턴 의견으로 확정 후 `board.locked`.
+- **`board`** = 하네스 실행 상태 한 곳(라운드 · 단계 · 고른 시안 · 색 · 꾸밈 · 질문 · 잠금 · 의견). 1턴 시안 보드는 `board.stage: "concept"`, 2턴에 지운다. `board.theme` · `board.toggles`는 1턴에 추천값, 2턴 의견으로 확정 후 `board.locked`.
+- `board.feedback`: 붙여넣은 의견 한 줄 = 한 기록. `node scripts/feedback.js "<의견>"`로 의견 사전(`packages/core/feedback/glossary.json`)의 줄을 찾아 `entry`에 적고(맞는 줄이 없으면 `null`), 먼저 잰 값 · 고친 것 · 같은 기준의 lint 규칙을 남긴다. 좋다는 의견은 `keep: true` — 그곳은 고치지 않는다. 절차는 `references/answer-parsing.md` §2.
 - `board.focus`: 지난 라운드에 고친 화면 slug — "의견 반영" 태그. `board.changes`: `[{ slug, said, did }]` — 남긴 의견(짧게)과 바뀐 점. 태그·ⓘ 카드·화면 디자인 오른쪽에 "의견 '…' → …"로 보인다(사용자: "고친 화면은 뭐야" → 무엇을 고쳤는지 같이).
 
 ### 6.2 `flow.json`
@@ -230,7 +234,7 @@ submissions/srlee0408/     제출 (index.html · prompt-log.md · elapsed.txt)
 
 - **흐름 하나 = 끊기지 않는 한 줄**: `steps[i].from == steps[i-1].to`. 중간에 홈으로 돌아가 다른 걸 누르면 별도 흐름으로 쪼갠다.
 - `name` = 짧은 '~하기' 작업 이름(ux-writing §1). 누가 하는지는 `role`과 화면의 역할이 태그로 보여준다.
-- `from`/`to`는 slug, `region`은 from 화면의 항목 key.
+- `from`/`to`는 slug, `region`은 from 화면의 블록 key(`answer` · `rest`) 또는 `action`.
 - `trigger`는 **실제로 누르는 버튼**의 key. 조각의 그 요소에 `data-trigger`(화면 안에서 유일)가 있어야 하고, `region` 안에 있어야 한다.
 - **항목(region)과 트리거(trigger)는 역할이 다르다.** 항목 = 의견 단위(빨간 번호). 트리거 = 흐름 단위(파란 박스, 다음 화면으로 화살표가 나간다).
 - `action` = 버튼 문구를 따옴표 안에 그대로 넣은 한 문장(ux-writing §4).
@@ -262,7 +266,7 @@ submissions/srlee0408/     제출 (index.html · prompt-log.md · elapsed.txt)
 **빨리 쓰는 방법(라이브러리·모듈)** — 셀프 테스트에서 가장 느린 구간이 화면 HTML 쓰기(에이전트 3장에 4~8분)였다.
 - **셸 자동 조립**: 에이전트는 `<main class="content">…</main>`만 쓴다. 상단바·메뉴·현재 위치·사용자 표시는 `scripts/expand.js`가 `roles[].nav`(+`roles[].user`, `brand`)와 시안의 메뉴 구조(sidebar·top·rail·none)로 붙인다 — 메뉴가 화면마다 어긋나지 않는다.
 - **짧은 부품 태그**: `<x-btn>` `<x-badge>` `<x-icon>` `<x-avatar>` `<x-list>` `<x-item>` `<x-stat>` `<x-empty>` `<x-card>` `<x-section>` `<x-page-header>` `<x-modal>`(형식은 `packages/web/snippets/05-parts.md`). expand.js가 라이브러리와 같은 HTML로 펼쳐 **파일에 다시 쓴다** — 이후 lint·보드 요소 고르기·수정 에이전트는 일반 HTML만 본다. 쓰는 분량이 화면당 절반 이하(수업 예약 화면 7,218자 → 2,463자).
-- **작업 묶음(팩)**: `node scripts/pack.js runs/<p> --screens a,b,c [--concept id]` → 그 에이전트가 맡은 화면에 필요한 것만(규칙 요약·부품 표·쓸 수 있는 클래스·아이콘·화면별 영역과 눌러야 하는 버튼 문구) 파일 하나로. 에이전트는 그것만 읽고 화면마다 한 번 쓰고 끝낸다 — 점검은 lint가. 셀프 테스트 측정(같은 3장, sonnet): 4~8분·도구 호출 15~38회·토큰 약 10만 → **1.8분·4회·약 3만**.
+- **작업 묶음(팩)**: `node scripts/pack.js runs/<p> --screens a,b,c [--concept id]` → 그 에이전트가 맡은 화면에 필요한 것만(규칙 요약·부품 표·쓸 수 있는 클래스·아이콘·눌러야 하는 버튼 문구, 화면마다 '이 화면의 사람' · '쓰는 사실(실제 값 …)' · '숨길 상태' · '이 화면의 규칙' 줄과 '답(1순위)' · '1순위 문장' · '나머지 — 읽는 순서대로' · '주 버튼 하나' 줄) 파일 하나로. 에이전트는 그것만 읽고 화면마다 한 번 쓰고 끝낸다 — 점검은 lint가. 셀프 테스트 측정(같은 3장, sonnet): 4~8분·도구 호출 15~38회·토큰 약 10만 → **1.8분·4회·약 3만**.
 - 순서: pack.js → screen-writer(PACK=) → `node scripts/expand.js runs/<p>` → `lint.js`(펼치지 않은 `<x-…>`가 남으면 FAIL) → `build.js`(안전장치로 한 번 더 펼침). 시안을 바꿔 셸만 바꿀 때는 `expand.js --reshell`.
 
 ### 6.4 `icons.json` (프로젝트)
@@ -271,9 +275,9 @@ submissions/srlee0408/     제출 (index.html · prompt-log.md · elapsed.txt)
 
 ## 7. 분위기·글자 크기·버튼 색
 
-- **PRD마다 만든다**(`screens.json`의 `looks`, 규칙은 prd-to-screens §6). 분위기 = `{id, name, why, mode, bg, ink, shape, font, swatches[5]}`.
-- **글꼴 세트**(`font`, 분위기마다 하나 — 사용자 결정 2026-10-07): 글꼴마다 굵기·자간·줄간격·글자 진하기가 묶여 있다(`looks.js` FONTS: pretendard · suit · nanum-square-round · ibm-plex · serif-title). 분위기를 고르면 글꼴도 따라간다 — 선택지는 늘리지 않는다.
-- **디자이너 기준 자동 보정**(looks.js): 본문 글자는 순수 검정·흰색이 아니게(대비 상한, #000 → #2C2C2C), 버튼 색은 형광처럼 쨍하지 않게(OKLCH 채도 상한), 상태색은 차분하게(흙빛 빨강 등). 기본 토큰은 강약(제목 크게·굵게 / 본문 보통 / 보조 작게·흐리게)과 넉넉한 여백 리듬(`--space-section`·`--space-block`·`--pad-card`·`--pad-row`)을 갖는다. 메인은 배경·글자·모양·버튼 색만 정하고, `scripts/looks.js`가 표면·테두리·흐린 글자·눌림색·연한 강조·상태색까지 계산해 `[data-theme="<id>"]`·`[data-theme][data-swatch="<id>"]` CSS를 만든다. looks가 없으면 기본 3개(깔끔한 흰색 · 따뜻한 크림 · 차분한 밤).
+- **PRD마다 만든다** — AI는 `preset`(기준어 셋 · 바탕 톤 · 대표색 · 글꼴 · 글자 크기 · 간격 · 이유, 칸은 스키마 `$defs.preset`)만 쓴다. 계산은 preset → `custom`(looks.js `customLook`, '색 바꾸기'와 같은 함수) + `toggles.type` — 분위기를 손으로 적지 않는다. 규칙은 prd-to-screens §6.
+- **글꼴 세트**(`preset.font`, 하나 — 사용자 결정 2026-10-07): 글꼴마다 굵기·자간·줄간격·글자 진하기가 묶여 있다(`looks.js` FONTS: pretendard · suit · nanum-square-round · ibm-plex · serif-title). 분위기를 고르면 글꼴도 따라간다 — 선택지는 늘리지 않는다.
+- **디자이너 기준 자동 보정**(looks.js): 본문 글자는 순수 검정·흰색이 아니게(대비 상한, #000 → #2C2C2C), 버튼 색은 형광처럼 쨍하지 않게(OKLCH 채도 상한), 상태색은 차분하게(흙빛 빨강 등). 기본 토큰은 강약(제목 크게·굵게 / 본문 보통 / 보조 작게·흐리게)과 넉넉한 여백 리듬(`--space-section`·`--space-block`·`--pad-card`·`--pad-row`)을 갖는다. 메인은 바탕 톤·대표색만 정하고(preset), `scripts/looks.js`가 표면·테두리·흐린 글자·눌림색·연한 강조·상태색까지 계산해 `[data-theme="<id>"]`·`[data-theme][data-swatch="<id>"]` CSS를 만든다. 대표색이 바탕과 대비가 모자라면 looks.js가 고치고, 강조색을 글자로 쓸 때는 `--c-primary-text`(대비를 맞춘 강조 글자색)를 쓴다.
 - 글자 크기 `[data-type="normal|large"]`. 버튼 색은 `data-swatch`(예전 `data-accent calm|vivid`는 첫째·둘째 색으로 호환).
 - 잠금: `board.locked`에 `theme`·`type`·`swatch`(또는 둘을 묶은 `toggles`) — 확정된 것만 잠그고, 새로 생긴 선택지는 연다.
 - 컴포넌트 CSS는 토큰 변수만 참조한다. 색·간격·반경·그림자 하드코딩 금지.
@@ -301,6 +305,7 @@ submissions/srlee0408/     제출 (index.html · prompt-log.md · elapsed.txt)
 
 | 시점 | 명령 | 실패 시 |
 |---|---|---|
+| I 의도를 쓴 뒤 · L 화면 목록을 쓴 뒤 · P 프리셋까지 쓴 뒤 | `node scripts/schema.js runs/<p> --step intent` · `--step list` · `--step full`(S · C는 따로 문이 없고 full이 함께 본다) | 그 걸음의 칸만 고쳐 다시 |
 | 조각 생성 후 | `node scripts/lint.js runs/<p>` | FAIL 화면만 재호출 |
 | 사용자에게 보여주기 전 | `build.js --mode board` → 메인이 헤드리스 Chrome으로 검수 → 헤드리스 종료 → `build.js --mode board --open` | 깨졌으면 보여주지 않는다 |
 | 최종 전 | `lint.js && build.js --mode final` → 검수 → `--open` | 동일 |
@@ -374,8 +379,8 @@ lint가 보는 것:
 
 | 사용자 말 | 결정 |
 |---|---|
-| "디자이너 수준의 미감 맞추기" (참고: 디자이너 Figma 보드 · 모바일 앱 화면 이미지) | `looks.js` 자동 보정(본문 글자 대비 상한·버튼 색 채도 상한·차분한 상태색) + 강약 타입 스케일(자간 -2%·제목 줄간격 1.35) + 여백 리듬 토큰. 사용자 선택지는 늘리지 않는다 |
-| "폰트마다 어울리는 색·굵기 조합이 달라 폰트별 토큰 세트" → "분위기마다 글꼴 세트를 묶음" | 분위기(look)에 `font` — 글꼴 세트 5개(굵기·자간·줄간격·글자 진하기). 분위기를 고르면 따라간다 |
+| "디자이너 수준의 미감 맞추기" (참고: 디자이너 Figma 보드 · 모바일 앱 화면 이미지) | `looks.js` 자동 보정(지금 계산은 preset → custom · 본문 글자 대비 상한·버튼 색 채도 상한·차분한 상태색) + 강약 타입 스케일(자간 -2%·제목 줄간격 1.35) + 여백 리듬 토큰. 사용자 선택지는 늘리지 않는다 |
+| "폰트마다 어울리는 색·굵기 조합이 달라 폰트별 토큰 세트" → "분위기마다 글꼴 세트를 묶음" | 분위기에 `font` — 글꼴 세트 5개(굵기·자간·줄간격·글자 진하기). 분위기를 고르면 따라간다(지금은 `preset.font`) |
 | "유저플로우 한눈에 유지 + 정책 정의" → "디자이너식 구역 보드로 교체" | 사용 흐름 = 구역 보드(구역 → 단계 이름표 → 화면 나란히 · 조건 분기에만 화살표+이름표 · 화면 아래 정책 메모). 흐름 카드·따라가 보기 제거(05~07 삭제, 08-sections.js). 최종본 index도 사용 흐름이 첫 탭 |
 | "사용자가 밟게 될 오류·성공 상태는 반드시 그린다" | `state: error|success` + `variantOf`, 입력 화면이 있으면 오류 1개 이상·완료 1개 이상(lint FAIL) |
 | "피그마는 애니메이션·인터랙션을 못 그린다 — HTML의 기회" → "이번엔 미감·흐름 먼저" | 움직임은 이번에 만들지 않고 정책 메모의 [움직임] 묶음에 글로만 |
@@ -390,7 +395,7 @@ lint가 보는 것:
 | "화면으로 넘어가는 걸 없애거나 옆에 아이콘으로" | 구역 보드에서 화면을 눌러도 이동하지 않음. 이름 옆 버튼(보드 '의견 남기기' · 최종 '크게 보기') |
 | "굳이 뒤 배경 검정으로 할 필요 없어" → "이전처럼 흰색으로" | 구역 보드 캔버스는 흰색, 화면에 얇은 테두리·그림자. 정책 메모만 어두운 상자 |
 | "모바일 버전용 패키지도 같이" → "PRD에 없을 때만 처음에 묻기" | `packages/mobile`(web 위 레이어, 390×844: 위 제목 줄·아래 탭·꽉 찬 주 버튼·아래에서 올라오는 창). 휴대폰/컴퓨터는 PRD에 분명하면 묻지 않고, 없을 때만 초안 전 객관식 — 필수 개입 3회 유지 |
-| "에러 문구들이 하단에 있는데 상단에 올리는 게 맞는 듯 · 글자도 좀 크게 · 기본 규칙에" → "토스트 같은 케이스들만 따로 모아서 수정 — 위치·아이콘 유무·색상·폰트" · "화면 디자인 쪽에서 요청하면 수정" | 안내·오류 문구(`.toast`)는 기본이 **화면 위쪽 · 본문 크기 글자**(web 00-rules 17-2 · mobile 14, 부품 CSS). 화면 디자인 탭 왼쪽 '안내 문구 모음': 모든 화면의 안내 문구(`data-stay`·`cases`)를 한 목록으로, 위치·아이콘·색·글자를 눌러 보고 고르면 모든 화면에 바로(`toggles.toast` → `<html data-toast-*>`). 문구마다(또는 화면 오른쪽 '이 화면의 안내 문구', 화면에 뜬 문구를 눌러) '바꿔주세요' 의견 → `[toast:…]` |
+| "에러 문구들이 하단에 있는데 상단에 올리는 게 맞는 듯 · 글자도 좀 크게 · 기본 규칙에" → "토스트 같은 케이스들만 따로 모아서 수정 — 위치·아이콘 유무·색상·폰트" · "화면 디자인 쪽에서 요청하면 수정" | 안내·오류 문구(`.toast`)는 기본이 **화면 위쪽 · 본문 크기 글자**(web 00-rules 17-2 · mobile 14, 부품 CSS). 화면 디자인 탭 왼쪽 '안내 문구 모음': 모든 화면의 안내 문구(`data-stay`·`cases`)를 한 목록으로, 위치·아이콘·색·글자를 눌러 보고 고르면 모든 화면에 바로(`board.toggles.toast` → `<html data-toast-*>`). 문구마다(또는 화면 오른쪽 '이 화면의 안내 문구', 화면에 뜬 문구를 눌러) '바꿔주세요' 의견 → `[toast:…]` |
 | "자동 흐름에서 말풍선을 보여 주고 그 화살표로 에러 문구 위치를" · "'이럴 때'라는 말보다 흐름 재생 옆에 말풍선처럼" · "하나도 빼먹지 말고 다 넣어라" | 흐름 재생은 화면마다 그 화면의 동작을 빠짐없이 한 번씩(위아래 스크롤·고르기·스위치·타이핑·밀기·길게 누르기·순서 바꾸기·재생·어두워짐·안내 문구·앱 밖·다른 길·엣지 케이스) 한 뒤 흐름 버튼을 누른다(가려져 있으면 내려가서). 조건은 화면 옆 말풍선, 말풍선에서 화면 속 문구까지 화살표 + 문구 둘레 표시, 뜬 뒤 1초 더 머문다 |
 | "4턴이 필요한가?" → "묻지 않고 바로 제출" | 3턴 최종본을 만들면 제출 폴더까지 넣고 끝낸다. "이대로 제출할까요?"를 묻지 않는다. 사용자가 더 고칠 의견을 붙여넣을 때만 4턴(고치기). 필수 개입 PRD · 시안 · 의견 = 3회 |
 | "레퍼런스를 탐색하는 과정을 없애고 다양한 레이아웃 패턴을" · "당근 스타일·토스 스타일이나 사용자가 원하는 색감을 컬러 팔레트처럼" · "빨강 파랑도 있고 잘 안 쓰는 색상도 고르고, 실시간으로 화면 UI에서 반영" (2026-10-14) | ref-scout 조사 없앰 → 시안 5개는 `packages/core/layouts/layouts.json` 레이아웃 패턴 15개에서 서로 다른 5개(`concepts[].layout`). 색은 시안에서 떼어 1턴 시안 보드 위쪽에서 고른다: PRD 맞춤 1개 + 고정 스타일 7개(presets.json, 앱 이름은 이름표로만) + 직접 고르기(팔레트 24색 + 그 밖의 색 + 바탕 3개) — 누르면 보드에서 바로 다시 칠함. 2턴부터 색 확정 |
@@ -401,7 +406,7 @@ lint가 보는 것:
 | "색상 선택을 맨 처음에 보여주기보다 레이아웃 선택 후 최종 결과물에서 바로바로 바뀌게" (2026-10-14) | 1턴 색 고르기 없앰. 2턴 초안 상단·최종본(입구·화면별 페이지) 왼쪽 아래 '색 바꾸기'(packages/core/color/picker.js — 스타일 21 + 팔레트 + 바탕, 최종본은 브라우저에 기억). 초안에서 고른 색은 의견 보내기로 최종본의 처음 색 |
 | "너무 다 몰려서 보기 힘들다 — 캐러셀이나 로테이션으로 2~3개씩" · "화면들 세로로 쭉, 밑으로 스크롤하면서" · "항목별 탭은 만들지 말고" (2026-10-14) | 시안 보드 기본 = 나란히 넘기기: 시안 2~3개(2개씩/3개씩)를 세로 칸으로, 칸 안 메인 화면은 세로로 쭉(페이지 스크롤, 넘기기 줄·칸 머리는 위에 붙음). ‹ › · 시안 줄 · 키보드 ←→. 화면 고르기 칩 없앰. 위 '한눈에 10칸' 결정을 대체 |
 | "색상 팔레트도 같이 — 우측 사이드바에서 그 색상이랑 쿠팡 같은 것들 선택" · "상단 고르는 것을 더 위에 고정" · "각 화면 내부 스크롤" (2026-10-14) | 시안 보드 오른쪽 사이드바 = 색(picker.js inline). 넘기기 줄은 맨 위 고정 상단바로. 시안 화면은 화면 안 스크롤(이름을 누르면 크게). 1턴에 고른 색은 의견 보내기 둘째 줄 `테마 …` → 초안의 처음 색(잠그지 않음) |
-| "그냥 2개씩, 간격 띄우자 — 아니면 이상형 월드컵처럼 점점 원하는 타입으로, 이게 낫겠다" → "너가 판단해 10~15단계" → "월드컵 9 + 꾸밈 다듬기 4" · "2개 보기 말고 나란히 다 보이게" (2026-10-14) | 시안 보드 = 이상형 월드컵 13단계(레이아웃 9경기 10→5→3→2→1, 첫 판 무난↔과감 + 꾸밈 다듬기 4: 배경·색 쓰는 방식 / 판 모양·모서리 / 제목·글꼴 / 간격·아이콘, data-*로 바로·건너뛰기). 진행·되돌리기·처음부터는 상단바. 보조 보기 '모두 나란히' = 10개 옆으로 스크롤. 고른 꾸밈은 `꾸밈 …` 줄 → screens.json dress. '2~3개씩 넘기기'를 대체 |
+| "그냥 2개씩, 간격 띄우자 — 아니면 이상형 월드컵처럼 점점 원하는 타입으로, 이게 낫겠다" → "너가 판단해 10~15단계" → "월드컵 9 + 꾸밈 다듬기 4" · "2개 보기 말고 나란히 다 보이게" (2026-10-14) | 시안 보드 = 이상형 월드컵 13단계(레이아웃 9경기 10→5→3→2→1, 첫 판 무난↔과감 + 꾸밈 다듬기 4: 배경·색 쓰는 방식 / 판 모양·모서리 / 제목·글꼴 / 간격·아이콘, data-*로 바로·건너뛰기). 진행·되돌리기·처음부터는 상단바. 보조 보기 '모두 나란히' = 10개 옆으로 스크롤. 고른 꾸밈은 `꾸밈 …` 줄 → `board.dress`. '2~3개씩 넘기기'를 대체 |
 | "색상이랑 그라데이션도 토너먼트로" → "색 4강 + 그라데이션 1경기 = 17단계" · "그라데이션은 배경 · 주 버튼·큰 색 머리 · 큰 제목 글자" · "사이드바는 빼자" (2026-10-14) | 월드컵 17단계(레이아웃 9 · 꾸밈 4 · 색 4강 3 · 그라데이션 1). 꾸밈 카테고리에 grad(none·fade·sunset·aurora). 시안 보드 색 사이드바 없앰(2턴·최종본 '색 바꾸기'는 유지) |
 | "레이아웃 색상이 버튼이랑 안 맞으면 좋아 보이는 것도 안 좋게 보인다" (2026-10-14) | 색 번짐·그라데이션은 버튼 색과 이웃 색(oklch ±40°)으로만. 강조색 큰 꾸밈(색 띠·번짐·연한 바탕 / 진한 색 판 / 그라데이션)은 한 안에 두 개까지(dress.js). 진한 색 판은 제목 다음 판 하나만, 큰 색 머리·벤토 강조 칸이 있으면 안 칠함, 강조색 위 배지는 뒤집음 |
 | "실제 앱처럼 정렬이나 글씨 배치, 텍스트 크기, 폰트를 다 맞춰야" (2026-10-14) | 글자 크기는 역할마다(`roles[].type: large` → 그 역할 .app에 data-type, 앱 전체는 보통) — 조각에서 키우지 않음. 가운데 제목 꾸밈 없앰, 아주 큰 제목은 화면 제목+8px까지. 조립 규칙 00-rules 20 · pack 10-3(글자 단계 6개 · 왼쪽 정렬 · 숫자+단위 한 줄 · 얼굴 동그라미 한 글자 · 큰 버튼은 맨 아래 하나) + lint `[글자·정렬]`(시안 화면도 검사) |

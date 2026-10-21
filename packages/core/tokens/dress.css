@@ -1,12 +1,15 @@
 /* dress.css — 꾸밈 카테고리 8개 (사용자 결정 2026-10-14: "너무 다 비슷함" → 시안 10개를 과감함 1~10단계로, 카테고리를 섞어 다르게).
    조각은 바꾸지 않고 바깥 요소의 data-* 로만 바뀐다: 시안 보드는 시안 화면 상자, 초안·최종본은 <html> (screens.json dress).
    data-bg 배경 · data-cards 판 모양 · data-head 제목 · data-radius 모서리 · data-space 간격 · data-font 글꼴(looks.js가 따로 만든다)
-   · data-tone 색 쓰는 방식 · 아이콘(선/Fluent)은 build.js가 조각을 바꾼다. 값과 과감함 점수는 scripts/dress.js. 토큰 변수만 쓴다. */
+   · data-tone 색 쓰는 방식 · 아이콘(선/Fluent)은 build.js가 조각을 바꾼다. 값과 과감함 점수는 scripts/dress.js. 토큰 변수만 쓴다.
+   판 모양에는 스타일 견본 9개를 흡수했다 — 숫자는 견본 축(재질 · 깊이 · 테두리), 근거는 scripts/dress.js NOTE. */
 
-/* ---------- 배경 data-bg: plain · tint · glow · dots · band · mesh · dark ---------- */
+/* ---------- 배경 data-bg: plain · tint · glow · texture · dots · band · mesh · dark ---------- */
 [data-bg="tint"] .app { --c-bg: var(--c-primary-soft); --m-page-bg: var(--c-primary-soft); }
 [data-bg] .app .content { background-attachment: local; }
 [data-bg="glow"] .app .content { background-image: radial-gradient(130% 55% at 50% 0%, color-mix(in srgb, var(--c-primary) 20%, transparent) 0%, transparent 72%); }
+/* 질감 바탕: 바탕보다 3% 진한 빗금(견본 스큐어모피즘의 바탕) */
+[data-bg="texture"] .app .content { background-image: repeating-linear-gradient(45deg, color-mix(in srgb, var(--c-bg) 97%, var(--c-text)) 0 2px, transparent 2px 6px); }
 [data-bg="dots"] .app .content { background-image: radial-gradient(color-mix(in srgb, var(--c-text) 14%, transparent) 1.2px, transparent 1.6px); background-size: 14px 14px; }
 /* 색은 모두 버튼 색(--c-primary)에서 — 이웃 색(색상 ±40°)만 섞어 버튼과 따로 놀지 않게 (사용자: "레이아웃 색이 버튼이랑 안 맞으면 좋아 보이는 것도 안 좋게 보인다") */
 .app { --dress-near1: oklch(from var(--c-primary) l c calc(h + 40)); --dress-near2: oklch(from var(--c-primary) l c calc(h - 40)); }
@@ -25,7 +28,7 @@
 :is([data-bg="band"], [data-bg="dark"]) .app-mobile > :is(.appbar, .toptabs) { background: var(--dress-band); color: var(--dress-band-fg); }
 :is([data-bg="band"], [data-bg="dark"]) .app-mobile > .toptabs :is(a, button) { color: var(--dress-band-fg); }
 
-/* ---------- 판 모양 data-cards: boxed · flat · line · float · outline ---------- */
+/* ---------- 판 모양 data-cards: boxed · flat · layered · line · float · glass · neumorph · clay · outline · aurora · skeuo · brutal ---------- */
 [data-cards="boxed"] .app { --border-card: 1px solid var(--c-border); --shadow-card: none; }
 [data-cards="boxed"] .app-mobile .section { border: 1px solid var(--c-border); }
 [data-cards="flat"] .app { --border-card: 1px solid transparent; --shadow-card: none; --m-card-bg: color-mix(in srgb, var(--c-surface) 55%, var(--m-page-bg, var(--c-bg))); }
@@ -37,6 +40,38 @@
 [data-cards="line"] .app :is(.section, .content > .card, .content > div > .card) { background: transparent; border: 0; border-top: 1.5px solid var(--c-text); border-radius: 0; box-shadow: none; }
 [data-cards="line"] .app-mobile .section { padding-left: 0; padding-right: 0; }
 
+/* 견본에서 온 판 모양: 판 색(--dress-card) · 테두리 · 그림자를 .app에 정하고 판(카드 · 묶음 · 표 · 달력)이 함께 읽는다.
+   색은 looks.js 변수만 — 어두운 분위기에서도 판이 바탕보다 한 단계 떠 보이게 --c-surface · --c-bg에서 섞는다 */
+:is([data-cards="layered"], [data-cards="glass"], [data-cards="neumorph"], [data-cards="clay"], [data-cards="aurora"], [data-cards="skeuo"], [data-cards="brutal"]) .app { --dress-card: var(--c-surface); --m-card-bg: var(--dress-card); }
+:is([data-cards="layered"], [data-cards="glass"], [data-cards="neumorph"], [data-cards="clay"], [data-cards="aurora"], [data-cards="skeuo"], [data-cards="brutal"]) .app :is(.card, .app-mobile .section, .table-wrap, .calendar) {
+  background: var(--dress-card); border: var(--border-card); box-shadow: var(--shadow-card); }
+/* 겹 그림자(머티리얼): 가까운 그림자 + 먼 그림자 */
+[data-cards="layered"] .app { --border-card: 1px solid transparent; --shadow-card: 0 1px 3px rgba(0, 0, 0, .14), 0 4px 14px rgba(0, 0, 0, .08); }
+/* 유리 · 빛나는 판: 60% 판 + 뒤를 흐림. 위쪽 색 띠 · 어두운 머리와는 함께 두지 않는다(dress.js SEE) — 판 위 흐린 글자는 아래에서 당긴다 */
+[data-cards="glass"] .app { --dress-card: color-mix(in srgb, var(--c-surface) 60%, transparent); --border-card: 1px solid color-mix(in srgb, #FFFFFF 60%, transparent); --shadow-card: 0 8px 32px rgba(0, 0, 0, .1); }
+[data-cards="aurora"] .app { --dress-card: color-mix(in srgb, var(--c-surface) 60%, transparent); --border-card: 1px solid transparent; --shadow-card: 0 0 40px color-mix(in srgb, var(--c-primary) 28%, transparent); }
+:is([data-cards="glass"], [data-cards="aurora"]) .app :is(.card, .app-mobile .section, .table-wrap, .calendar) { -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+/* 도드라진 판(뉴모피즘): 판 = 바탕색, 오른쪽 아래 그늘 + 왼쪽 위 빛 */
+[data-cards="neumorph"] .app { --dress-card: var(--m-page-bg, var(--c-bg)); --border-card: 1px solid transparent;
+  --shadow-card: 9px 9px 18px color-mix(in srgb, var(--m-page-bg, var(--c-bg)) 84%, #000000), -9px -9px 18px var(--c-surface); }
+/* 말랑한 판(클레이): 강조색을 10% 섞은 판 + 실제 같은 그림자와 위쪽 빛 한 줄 */
+[data-cards="clay"] .app { --dress-card: color-mix(in srgb, var(--c-surface) 90%, var(--c-primary)); --border-card: 1px solid transparent;
+  --shadow-card: 0 2px 3px rgba(0, 0, 0, .22), 0 8px 18px rgba(0, 0, 0, .12), inset 0 1px 0 rgba(255, 255, 255, .8); }
+/* 실물 같은 판(스큐어모피즘): 위에서 아래로 살짝 진해지는 판 + 굵은 선 + 실제 같은 그림자. 모서리는 sm(dress.js NOTE) */
+[data-cards="skeuo"] .app { --dress-card: linear-gradient(180deg, var(--c-surface), color-mix(in srgb, var(--c-surface) 95%, var(--c-text))); --border-card: 3px solid var(--c-text);
+  --shadow-card: 0 2px 3px rgba(0, 0, 0, .22), 0 8px 18px rgba(0, 0, 0, .12), inset 0 1px 0 rgba(255, 255, 255, .8); }
+/* 어긋난 그림자 판(네오브루탈리즘): 굵은 선 + 번지지 않는 그림자 + 아주 굵은 제목. 주 버튼도 같은 선 · 그림자. 모서리는 sm */
+[data-cards="brutal"] .app { --border-card: 3px solid var(--c-text); --shadow-card: 6px 6px 0 var(--c-text); --fw-head: 900; }
+[data-cards="brutal"] .app .btn-primary { border: 3px solid var(--c-text); box-shadow: 4px 4px 0 var(--c-text); }
+
+/* 판 색이 --c-surface가 아닌 판 모양: looks.js는 흐린 글자 · 강조 글자를 판(--c-surface) · 바탕(--c-bg) 기준 4.5로 맞췄다 —
+   판이 더 진하거나 비치면 글자 쪽으로 당긴다(판 위만). 같은 변수를 스스로 읽으면 돌고 도니 .app에서 --dress-* 로 한 번 받아 둔다 */
+:is([data-cards="flat"], [data-cards="line"], [data-cards="glass"], [data-cards="neumorph"], [data-cards="clay"], [data-cards="aurora"], [data-cards="skeuo"]) .app {
+  --dress-muted: color-mix(in srgb, var(--c-text-muted) 60%, var(--c-text)); --dress-text-2: color-mix(in srgb, var(--c-text-2) 60%, var(--c-text));
+  --dress-primary-text: color-mix(in srgb, var(--c-primary-text) 60%, var(--c-text)); }
+:is([data-cards="flat"], [data-cards="line"], [data-cards="glass"], [data-cards="neumorph"], [data-cards="clay"], [data-cards="aurora"], [data-cards="skeuo"]) .app :is(.card, .app-mobile .section, .table-wrap, .calendar) {
+  --c-text-muted: var(--dress-muted); --c-text-2: var(--dress-text-2); --c-primary-text: var(--dress-primary-text); }
+
 /* ---------- 제목 data-head: normal · big · center · huge ---------- */
 /* 실제 앱의 글자 단계 안에서만 키운다: 휴대폰 화면 제목 28 → 큰 32 · 아주 큰 36 (한 줄에 9~10자), 컴퓨터는 한 단계씩 더 */
 [data-head="big"] .app .page-title { font-size: calc(var(--fs-2xl) + 4px); line-height: 1.25; }
@@ -44,10 +79,13 @@
 [data-head="huge"] .app .section-title { font-size: calc(var(--fs-lg) + 2px); letter-spacing: -0.02em; }
 [data-platform="web"] [data-head="huge"] .app .page-title, [data-platform="web"][data-head="huge"] .app .page-title { font-size: 44px; }
 
-/* ---------- 모서리 data-radius: soft · round · sharp · pill ---------- */
+/* ---------- 모서리 data-radius: soft · round · sharp · pill · sm · none ---------- */
 [data-radius="sharp"] .app { --r-card: 2px; --r-control: 2px; }
 [data-radius="round"] .app { --r-card: 22px; --r-control: var(--r-pill); }
 [data-radius="pill"] .app { --r-card: 32px; --r-control: var(--r-pill); }
+/* sm · none은 판 모양이 함께 정한다(브루탈 · 스큐어 sm, 라인 none — scripts/dress.js NOTE) */
+[data-radius="sm"] .app { --r-card: 4px; --r-control: 4px; }
+[data-radius="none"] .app { --r-card: 0; --r-control: 0; }
 [data-radius="sharp"] .app .badge, [data-radius="sharp"] .app .chip { border-radius: 2px; }
 
 /* ---------- 간격 data-space: normal · airy · tight · extra ---------- */
@@ -71,7 +109,7 @@
   background: var(--dress-p); color: var(--dress-pf); border-color: transparent;
   --c-text: var(--dress-pf); --c-text-2: color-mix(in srgb, var(--dress-pf) 78%, var(--dress-p)); --c-text-muted: color-mix(in srgb, var(--dress-pf) 62%, var(--dress-p));
   --c-border: color-mix(in srgb, var(--dress-pf) 22%, var(--dress-p)); --c-surface: color-mix(in srgb, var(--dress-pf) 12%, var(--dress-p)); --c-surface-2: color-mix(in srgb, var(--dress-pf) 16%, var(--dress-p));
-  --c-primary: var(--dress-pf); --c-primary-fg: var(--dress-p); --c-primary-soft: color-mix(in srgb, var(--dress-pf) 18%, var(--dress-p)); --c-primary-soft-fg: var(--dress-pf);
+  --c-primary: var(--dress-pf); --c-primary-text: var(--dress-pf); --c-primary-fg: var(--dress-p); --c-primary-soft: color-mix(in srgb, var(--dress-pf) 18%, var(--dress-p)); --c-primary-soft-fg: var(--dress-pf);
 }
 
 /* ---------- 그라데이션 data-grad: none · fade · sunset · aurora — 배경 · 주 버튼과 큰 색 머리 · 큰 제목 글자 ---------- */

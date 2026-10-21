@@ -61,7 +61,7 @@ haiku에 넘기는 `CHANGES`의 "할 것"은 명령형으로 완결한다(어떤
 
 턴 계획: **PRD(1) → 시안 고르기(2) → 초안에 의견(3) → 최종본·바로 제출** → (더 고칠 때만) 고치기(4) → 여유(5). 사용자 결정(2026-10-07): "4턴이 필요한가?" → 제출 확인을 묻지 않고 바로 제출. 사용자 요청(리허설 2): "맨 처음에 시안을 선택하고 그 이후에 사용 흐름과 화면 디자인을 주는 게 맞다", "시안은 5개로".
 
-## 1턴 — PRD → 시안 보드 (`stage: "concept"`)
+## 1턴 — PRD → 시안 보드 (`board.stage: "concept"`)
 
 디자이너처럼: 레이아웃 패턴과 꾸밈을 섞어 과감함 1~10단계 시안 10개 → 고객이 한눈에 비교해 하나를 고른다. 사용자 결정(2026-10-14): "레퍼런스를 탐색하는 과정을 없애고 다양한 레이아웃 패턴을", "너무 다 비슷함 — 1~10단계 다른 형태를 다 보여주자", "카테고리로 다양하게 믹스", "색상은 최종 결과물에서 바로바로". **전체 화면은 아직 만들지 않는다**(고른 뒤 2턴에).
 
@@ -89,29 +89,40 @@ PRD를 읽고 아래 표로 판단한다. **대부분의 PRD는 묻지 않는다
 - **휴대폰/컴퓨터**: PRD에 "앱·휴대폰·푸시" 또는 "웹·PC·관리자 페이지"가 분명하면 묻지 않는다(prd-to-screens §1). 둘 다 없거나 섞여 있으면 이 질문 하나를 꼭 넣는다: "주로 휴대폰으로 쓰나요, 컴퓨터로 쓰나요?" [신호가 조금이라도 강한 쪽 (추천) / 다른 쪽 / 알아서 해주세요]. 사용자 결정(2026-10-07): 항상 묻지 않고 PRD에 없을 때만 — 개입 4회를 지킨다.
 - 묻지 않기로 했으면 그 판단을 `brief.md` 가정 로그 첫 줄에 한 줄로 남긴다(예: "[판단] 초안 전 확인 없음 — 누가·어디서·핵심이 PRD에 분명함").
 
-### 1.1 PRD 분석 → brief.md (메인, 4분)
-`references/prd-to-screens.md`대로:
-- 플랫폼: `web`(1280×800) 또는 `mobile`(390×844, `packages/mobile` — web 위에 겹침). prd-to-screens §1.
-- 역할 2~3개 + 역할마다 `nav`. 보기만 하는 역할(부모님 등)은 `"type": "large"`(그 역할 화면만 글자 크게) — screen-writer에게 "글자 크게"라고 시키지 않는다.
-- 화면: **핵심 8~14개 + 처음 시작용 3~5개**(빈 홈·등록·빈 목록·초대 받았을 때 등, `state`·`variantOf`). 순서 = 사용자가 만나는 순서(번호 1, 2, 3…).
-- 흐름: **처음 시작 흐름을 역할마다 맨 앞에** + 핵심 흐름. 전부 끊김 없는 한 줄, 흐름 6~9개.
+### 1.1 PRD 분석 → screens.json · brief.md (메인, 4분)
+`references/prd-to-screens.md`대로, 칸은 `packages/core/schema/schema.json`이 정본이다. **걸음 순서대로 채운다** — I 의도 → L 화면 목록 → S 화면 하나씩 → C 시안(1.2) → P 프리셋(1.2). 걸음 검사 문은 스키마 `x-steps`에 있는 셋뿐이다: I 끝에 `--step intent`, L 끝에 `--step list`, flow.json까지 쓴 뒤 `--step full`(1.3). **S · C에는 따로 문이 없다** — full은 preset · 흐름까지 필수로 보므로 S · C 중간에는 돌리지 않는다.
+
+**I 의도** — 이 서비스가 무엇을 누구에게 (끝나면 `node scripts/schema.js runs/<project> --step intent`)
+- 플랫폼: `platform` = `web`(1280×800) 또는 `mobile`(390×844, `packages/mobile` — web 위에 겹침). prd-to-screens §1.
+- `stories`: PRD의 유저스토리 · 기능 · 조건을 한 문장씩(`kind` · `text` · `prd` 위치). 화면이 story id로 가리킨다.
+- `roles` 2~3개: `label` · `goal` · `inclusion`, 화면에 보일 사람 `user`(이름 · 머리글자). 보기만 하는 역할(부모님 등)은 `"type": "large"`(그 역할 화면만 글자 크게) — screen-writer에게 "글자 크게"라고 시키지 않는다.
+- `states`: 상태 어휘(확정 · 후보 …)마다 `label` · `show`(볼 수 있는 역할) · `tone` · `icon`, 못 보는 역할이 있으면 대신 문구 `hidden`.
+- `facts`: 인물 · 장소 · 날짜 · 금액처럼 여러 화면이 쓰는 실제 값 — **사실은 여기 한 곳에만** 적는다(화면 · 프롬프트에 다시 적지 않는다).
+- `say`: 화면에 쓸 말 → 쓰지 않을 말(ux-writing).
+
+**L 화면 목록 · 흐름 뼈대** (끝나면 `--step list`)
+- 화면: `slug` · `name` · `role` · `story` · `pattern`. **핵심 8~14개 + 처음 시작용 3~5개**(빈 홈·등록·빈 목록·초대 받았을 때 등, `state`·`variantOf`). 순서 = 사용자가 만나는 순서(번호 1, 2, 3…). 역할마다 메뉴 `nav`(roles 안).
+- 흐름: **처음 시작 흐름을 역할마다 맨 앞에** + 핵심 흐름. 전부 끊김 없는 한 줄, 흐름 6~9개(flow.json은 1.3에서 쓴다).
 - **갈래**: 화면마다 글자 버튼을 훑어 흐름 밖에서 다른 화면·창을 여는 버튼을 `branches`로(prd-to-screens §5-1). 새 입력·선택 UI를 여는 핵심 버튼은 **뜨는 창 화면**(`overlayOf`, 3~6개).
 - **오류·완료 상태**: 입력 화면 중 틀리기 쉬운 곳에 `state: "error"`, 핵심 작업 끝에 `state: "success"` 변형(`variantOf`) — 합쳐 2~4개(prd-to-screens §3).
-- **구역 보드 데이터**(prd-to-screens §5-2): `sections` 2~6개, 화면마다 `section`·`step`(단계 이름표), 상태 변형을 뺀 모든 화면에 `policy`(정책 메모 — 처음 상태·제한·표기·예외, ux-writing §9), 조건이 갈리는 step·branch에 `when`("처음 가입이면").
-- **움직임**(prd-to-screens §5-3): 길게 누르기·어두워짐·숫자 올라가기·끌어서 순서 바꾸기처럼 화면 그림으로 안 보이는 동작은 `motion`으로 — 완성본에서 실제로 재현되고, 설명은 보드의 ⓘ 규칙 카드에 붙는다. 정책에 글로만 적지 않는다.
-- 항목: 화면당 3~6개, `label`·`why`는 ux-writing §2.
-- 가정 로그: PRD에 없어서 정한 것 전부.
+- **구역 보드 데이터**(prd-to-screens §5-2): `sections` 2~6개, 화면마다 `section`·`step`(단계 이름표), 조건이 갈리는 step·branch에 `when`("처음 가입이면").
 
-### 1.2 시안 10개 — 과감함 1~10단계 (prd-to-screens §6-1)
-- `concepts` 10개(id a~j), `level` 1~10이 한 번씩(a = 1단계 무난 … j = 10단계 과감). **레이아웃은 추천하지 않는다**(사용자 결정 2026-10-14) — 보드에 '추천' 표시가 없고, 사용자가 고르기 전에는 보내기 단추가 꺼져 있다. `concept`은 형식상 a.
+**S 화면 하나씩** (따로 검사 문 없음)
+- 화면마다 `goal`(이루는 것) · `problem`(겪는 문제) · `answer`(1순위 블록 하나 — `say` 1순위 문장 + `items` 보일 줄 + `facts` 이름표) · `rest`(나머지 1~5개, 배열 = 읽는 순서) · `later`(뒤로 미룬 것) · `action`(주 버튼 하나). 블록마다 `key`(조각의 `data-region`) · `label` · `why`(ux-writing §2) · `form` · `items` · `facts`. 영역 목록 · 목적 줄은 하네스가 이 칸에서 계산한다(derive.js) — 따로 쓰지 않는다.
+- 상태 변형을 뺀 모든 화면에 `policy`(정책 메모 — 처음 상태·제한·표기·예외, ux-writing §9), 예외 경우는 `cases`.
+- **움직임**(prd-to-screens §5-3): 길게 누르기·어두워짐·숫자 올라가기·끌어서 순서 바꾸기처럼 화면 그림으로 안 보이는 동작은 `motion`으로 — 완성본에서 실제로 재현되고, 설명은 보드의 ⓘ 규칙 카드에 붙는다. 정책에 글로만 적지 않는다.
+- 가정 로그(brief.md): PRD에 없어서 정한 것 전부.
+
+### 1.2 C 시안 10개 — 과감함 1~10단계 (prd-to-screens §6-1) · P 프리셋 (따로 검사 문 없음)
+- `concepts` 10개(id a~j), 시안마다 `name`(무엇이 먼저 보이는지) · `why`(누구에게 왜 좋은지), `level` 1~10이 한 번씩(a = 1단계 무난 … j = 10단계 과감). **레이아웃은 추천하지 않는다**(사용자 결정 2026-10-14) — 보드에 '추천' 표시가 없고, 사용자가 고르기 전에는 보내기 단추가 꺼져 있다. `board.concept`은 형식상 a.
 - 레이아웃: `layout`(주 패턴)은 10개가 모두 다르게, 4단계부터 `mix`(섞을 패턴) — 단계가 높을수록 `bold` 높은 패턴(창의 패턴 hero-overlap · carousel-cards · bento · stories · chat · poster). 한 패턴은 시안 두 곳까지만.
 - 메뉴 구조(`shell`)는 세 가지를 섞고, 밀도도 단계마다.
 - 메인 화면은 시안마다 **5~6장**(`screens`, 모든 시안이 같은 slug — 역할별 메뉴 화면 먼저). 조립 에이전트 하나에 3장씩 = 시안 10개 × 2 = **20개 동시**(셀프 테스트 2026-10-14: 60장 2분 10초, expand·lint·build 포함 2분 21초).
 - 꾸밈(`dress`)은 쓰지 않고 `node scripts/dress.js runs/<project>`가 단계에 맞춰 채운다(시안끼리 3~4개 이상 카테고리가 다르게). 바꾸고 싶은 시안만 직접 적는다.
-- `looks` **1개**(PRD 맞춤) — 시안 보드는 이 색 하나로 보여주고, 색은 2턴부터 '색 바꾸기'로 고른다. `"stage": "concept"`, `"concept": "<추천 id>"`.
+- **P 프리셋** `preset` **하나**(PRD 맞춤) — 기준어 셋(`keywords`) · 고른 이유(`why`) · 바탕 톤(`tone`) · 대표색(`brand`) · 글꼴(`font`) · 글자 크기(`size`) · 밀도(`density`). 분위기 · 색은 하네스가 이 값으로 계산한다(tone → `custom.base` · brand → `custom.hex` · font → `custom.font` · size → `toggles.type`, `style` 칸 없음 — 판 모양은 꾸밈이 맡는다). 시안 보드는 이 색 하나로 보여주고, 색은 2턴부터 '색 바꾸기'로 고른다. `"board": { "stage": "concept", "concept": "<추천 id>", … }` — 고른 것 · 확정은 모두 board 아래(answer-parsing 첫머리).
 
 ### 1.3 데이터 파일 → 시안 화면 — screen-writer 병렬 (3장씩, 시안 10개 × 2 = 20개 동시, sonnet)
-- `screens.json`(계약 §6.1), `flow.json`(§6.2, 모든 step에 `trigger`, 제목 '~하기', `branches`), `icons.json`. **`node scripts/dress.js runs/<project>`**(시안마다 꾸밈). 달력이 있으면 `node scripts/calendar.js …`로 격자를 미리. `node scripts/ids.js runs/<project>`. `node scripts/lint.js runs/<project>` — 이때 FAIL은 "시안 조각 없음"만.
+- `screens.json`(계약 §6.1), `flow.json`(§6.2, 모든 step에 `trigger`, 제목 '~하기', `branches`), `icons.json`. **`node scripts/dress.js runs/<project>`**(시안마다 꾸밈). 달력이 있으면 `node scripts/calendar.js …`로 격자를 미리. `node scripts/ids.js runs/<project>`. **`node scripts/schema.js runs/<project> --step full`**(P까지 · flow.json까지 쓴 뒤 — 형식 · 관계) 통과. `node scripts/lint.js runs/<project>` — 이때 FAIL은 "시안 조각 없음"만.
 
 **화면을 빨리 쓰는 방법(라이브러리·모듈)**: 에이전트마다 먼저 작업 묶음을 만든다 — `node scripts/pack.js runs/<project> --screens <3장> [--concept <id>] --name <이름>` → `runs/<project>/packs/<이름>.md`. 에이전트는 **그 파일 하나만 읽고 화면마다 한 번씩 쓴 뒤 끝낸다**(셸 없이 `<main>`만, 짧은 부품 태그). 셀프 테스트 측정: 3장에 4~8분 · 도구 호출 15~38회 → **1.8분 · 4회**.
 
@@ -121,9 +132,8 @@ PACK=runs/<project>/packs/<이름>.md
 RUN=runs/<project>
 CONCEPT=<a|b|c|d|e>
 SCREENS=<그 시안의 screens 중 3장 — 4장 이상이면 에이전트를 나눠 같은 CONCEPT로 하나 더>
-DOMAIN=<도메인 한 줄 + 고정 더미 데이터: 인물(역할 포함)·장소·날짜 범위·상태 어휘. 모든 시안이 같은 값>
 시안 메모: <이름 · 레이아웃 패턴(layout — 작업 묶음에 구성이 적혀 있다) · 첫 화면에 무엇을 먼저(home) · 밀도를 화면별로 구체적으로>
-각 화면은 screens.json의 항목(name·purpose·pattern·regions)과 flow.json의 trigger·branches를 따른다(고르면 그대로 옮겨 쓴다).
+사실은 PACK의 '이 화면의 사람 · 쓰는 사실 · 숨길 상태 · 이 화면의 규칙' 줄만 쓰고, 화면 내용은 PACK의 '답(1순위) · 나머지' 줄을, 버튼은 flow.json의 trigger·branches를 따른다(고르면 그대로 옮겨 쓴다).
 이 PACK 파일 하나만 읽고, 화면마다 Write 한 번으로 쓴 뒤 끝낸다(다시 열어 점검하지 않는다).
 ")
 ```
@@ -143,21 +153,20 @@ DOMAIN=<도메인 한 줄 + 고정 더미 데이터: 인물(역할 포함)·장�
 고른 안으로 전체 화면과 사용 흐름을 만들어 드릴게요.
 ```
 
-## 2턴 — 시안 고르기 → 초안 (`stage` 없음 = draft)
+## 2턴 — 시안 고르기 → 초안 (`board.stage` 없음 = draft)
 
-1. `prompt-log.md` 2회에 (AI 질문 요약 = "시안 보드") + 붙여넣은 원문. `brief.md` 답변 로그에 **원문 | 해석 | 반영**.
-2. `시안 <id>(이름)` (+ `꾸밈 …` · `테마 …` 줄) → `screens.json`: `concept = <id>`, `stage` 삭제, **`dress` = `꾸밈` 줄이 있으면 그 값, 없으면 그 시안의 dress**, `테마` 줄이 있으면 theme·toggles.swatch(answer-parsing §1)(꾸밈이 모든 화면에 — build가 `<html>`에 data-*), `board.locked = ["concept", "dress"]`, `round: 1`(초안 1). 색은 잠그지 않는다(초안의 '색 바꾸기').
+1. `prompt-log.md` 2회에 (AI 질문 요약 = "시안 보드") + 붙여넣은 원문. `brief.md` 답변 로그에 **원문 | 해석 | 사전 줄 | 반영**. 의견 한 줄마다 `node scripts/feedback.js '<의견>'`로 의견 사전 줄을 찾아 `board.feedback`에 해석 기록(맞는 줄이 없으면 `entry: null`, 메인이 직접 잰다 — 6단계는 answer-parsing §2).
+2. `시안 <id>(이름)` (+ `꾸밈 …` · `테마 …` 줄) → `screens.json` board: `concept = <id>`, `stage` 삭제, **`dress` = `꾸밈` 줄이 있으면 그 값, 없으면 그 시안의 dress**, `테마` 줄이 있으면 theme·toggles.swatch(answer-parsing §1)(꾸밈이 모든 화면에 — build가 `<html>`에 data-*), `locked = ["concept", "dress"]`, `round: 1`(초안 1). 색은 잠그지 않는다(초안의 '색 바꾸기').
 3. `시안 <id> 메모: …` → 고른 시안의 메모면 그 시안을 고칠 점, 다른 시안의 메모면 **그 안에서 가져올 요소**(예: "B의 달력") — 모두 이번 초안의 전역 힌트로(answer-parsing §1).
 4. 고른 시안의 메인 화면 `concepts/<id>/<slug>.html`을 `screens/<slug>.html`로 복사(메모가 그 화면을 건드리면 복사 뒤 revise). 셸은 expand.js가 붙였으므로 그대로 맞다(시안을 바꿔 셸만 바꿀 때는 `expand.js --reshell`).
-5. 나머지 화면: 3장씩 `pack.js`로 작업 묶음을 만들고(`--concept <고른 id>`로 시안의 메뉴 구조·레이아웃 패턴·첫 화면·밀도가 묶음에 들어간다) screen-writer를 병렬로(sonnet). 프롬프트에는 `PACK=` · DOMAIN · 화면별 메모 · "시안 메모"(그 시안의 layout·home·밀도 + 3의 힌트)만.
+5. 나머지 화면: 3장씩 `pack.js`로 작업 묶음을 만들고(`--concept <고른 id>`로 시안의 메뉴 구조·레이아웃 패턴·첫 화면·밀도가 묶음에 들어간다) screen-writer를 병렬로(sonnet). 작업 묶음에는 화면마다 '이 화면의 사람 · 쓰는 사실(실제 값) · 숨길 상태 · 이 화면의 규칙' 줄과 '답(1순위) · 나머지 · 주 버튼 하나' 줄이 실린다 — 인물 · 날짜 · 사실 값을 프롬프트에 다시 적지 않는다. 프롬프트에는 `PACK=` · 화면별 메모 · "시안 메모"(그 시안의 layout·home·밀도 + 3의 힌트)만.
 
 ```
 Agent(subagent_type: "screen-writer", model: "sonnet", prompt: "
 PACK=runs/<project>/packs/<이름>.md
 RUN=runs/<project>
 SCREENS=<slug1>,<slug2>,<slug3>
-DOMAIN=<도메인 한 줄 + 고정 더미 데이터: 인물(역할 포함)·장소·날짜 범위·금액 단위·상태 어휘. 오늘 날짜>
-THEME_HINT=<상태 배지 규칙(예: 확정=badge-success+circle-check, 후보=badge-neutral+circle-dashed)>
+THEME_HINT=<상태 배지 규칙 — screens.json states의 tone·icon 그대로(예: 확정=badge-success+circle-check, 후보=badge-neutral+circle-dashed)>
 화면별 메모:
 - <slug>: <이 화면에 무엇이 보여야 하는지, 채울 값, 빈 상태면 .empty로 비워 둘 것, primary 버튼 문구>
 트리거: runs/<project>/flow.json에서 from이 이 화면인 step의 trigger를 실제 버튼에 data-trigger로 (00-rules 3-1).
@@ -179,9 +188,9 @@ THEME_HINT=<상태 배지 규칙(예: 확정=badge-success+circle-check, 후보=
 
 `references/answer-parsing.md`대로.
 1. `prompt-log.md` 3회 + 답변 로그.
-2. 반영: `화면 S 메모: …`가 규칙(정책)에 대한 말이면 그 화면의 `policy`를 고친다(화면 조각은 그대로). `화면 S · … [경로]` 줄은 그 화면의 경로 요소를 고칠 대상으로(answer-parsing §1-1) / 첫 줄의 분위기·글자 크기·버튼 색 확정(`theme`, `toggles.type`, `toggles.swatch`) / `확인:` → 구조 반영 / `화면 S … 빼기` → 요소·조각 블록 제거 / `화면 N 빼기` → 화면 제거 + 흐름을 **끊김 없게** 다시 잇기(끊기면 흐름을 쪼갬) / `추가:` → 새 화면(+ 필요하면 새 흐름·갈래) / `메모:` → 전역 힌트.
-2-1. 반영한 화면마다 `board.focus`에 slug, `board.changes`에 `{ slug, said: "남긴 의견 한 줄", did: "바뀐 점 한 줄" }`(규칙만 바꿨으면 "규칙: …"). 다음 보드에서 "의견 반영" 이름표와 ⓘ 카드로 보인다.
-3. 의견 때문에 화면에 **새 묶음이 생기거나 버튼이 다른 묶음으로 옮겨지면** screens.json에 항목을 추가하고, 그 버튼을 쓰는 흐름 step·갈래의 `region`도 옮긴다. `ids.js`.
+2. 반영: `화면 S 메모: …`가 규칙(정책)에 대한 말이면 그 화면의 `policy`를 고친다(화면 조각은 그대로). `화면 S · … [경로]` 줄은 그 화면의 경로 요소를 고칠 대상으로(answer-parsing §1-1) / 첫 줄의 분위기·글자 크기·버튼 색 확정(`board.theme`, `board.toggles.type`, `board.toggles.swatch`) / `확인:` → 구조 반영 / `화면 S … 빼기` → 요소·조각 블록 제거 / `화면 N 빼기` → 화면 제거 + 흐름을 **끊김 없게** 다시 잇기(끊기면 흐름을 쪼갬) / `추가:` → 새 화면(+ 필요하면 새 흐름·갈래) / `메모:` → 전역 힌트.
+2-1. 반영한 화면마다 `board.focus`에 slug, `board.changes`에 `{ slug, said: "남긴 의견 한 줄", did: "바뀐 점 한 줄" }`(규칙만 바꿨으면 "규칙: …"), 의견 한 줄마다 `board.feedback`에 해석 기록(answer-parsing §2). 다음 보드에서 "의견 반영" 이름표와 ⓘ 카드로 보인다.
+3. 의견 때문에 화면에 **새 묶음이 생기거나 버튼이 다른 묶음으로 옮겨지면** 그 화면의 `rest`에 블록(`key`)을 더하고, 그 버튼을 쓰는 흐름 step·갈래의 `region`도 옮긴다. `ids.js`.
 4. 재작성: 문구·아이콘·요소 교체처럼 단순한 수정은 haiku, 배치를 다시 짜는 수정은 sonnet(`MODE=revise`, 1~2개씩 병렬), 새 화면도 sonnet.
 5. `lint.js && build.js --mode final` → `out/index.html`과 `out/screens/NN-slug.html`(화면마다 하나).
 6. 검수는 **실제 클릭**(chrome-devtools `click`, 스크립트 `.click()`으로 대신하지 않는다)으로: 사용 흐름(처음 열림) 구역 보드의 화면 수 = 화면 수 · 정책 상자 · 조건 화살표 / 화면을 누르면 크게 다가감 / 화면 전체 탭의 대지 수 = 화면 수(주소가 index.html에 머무는지) / 완성본 페이지에서 흐름 버튼·왼쪽 메뉴를 누르면 해당 페이지 / 콘솔 에러 0. **index.html에 다른 파일로 가는 링크를 넣지 않는다**(macOS Chrome 폴더 권한 문제로 '파일 액세스 거부됨'). → 헤드리스 종료 → `build.js --mode final --open`.

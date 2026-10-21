@@ -198,8 +198,6 @@
       body.scrollTop = 0; P.paintRowSel();
     };
     P.paintRowSel = function () { Object.keys(P.rows).forEach(function (k) { P.rows[k].classList.toggle("hx-sel", k === B.sel.key); }); };
-    P.rowHover = function (key, on) { if (P.rows[key]) P.rows[key].classList.toggle("hx-on", on); };
-    P.scrollToRow = function (key) { var r = P.rows[key]; if (r) r.scrollIntoView({ block: "nearest" }); };
     HX.on("board-change", paintSummary);
     return P;
   };

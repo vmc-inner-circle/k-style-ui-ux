@@ -2,7 +2,8 @@
  * looks.js — 분위기(look)와 버튼 색(swatch)을 CSS 토큰으로 바꾼다. build.js·lint.js가 함께 쓰고, 시안 보드에서도 그대로 돈다(직접 고른 색을 바로 칠하려고).
  *
  * 고를 수 있는 분위기 = screens.json looks(PRD 맞춤 1개) + 고정 스타일(packages/core/tokens/presets.json presets — 토스 느낌·당근 느낌…)
- *   + 직접 고른 색(screens.json "custom": { "hex": "#C8553D", "name": "테라코타", "base": "white|warm|dark" } → id "custom")
+ *   + 직접 고른 색(screens.json "custom": { "hex": "#C8553D", "name": "테라코타", "base": "white|warm|dark", "font"?: "<FONTS id>" } → id "custom")
+ *     (프리셋이 있으면 scripts/screens.js가 preset → custom으로 잇는다)
  * screens.json:
  *   "looks": [
  *     { "id": "cream", "name": "따뜻한 크림", "why": "가족이 함께 보는 화면이라 포근한 톤",
@@ -17,6 +18,9 @@
  * 디자이너 기준으로 자동 보정한다(사용자 선택지를 늘리지 않는다):
  *   - 본문 글자는 순수 검정·순수 흰색이 아니게: 바탕과의 대비가 글꼴 세트의 inkMax를 넘으면 바탕 쪽으로 섞어 눌러 준다(#000 → #2E2E2E 수준)
  *   - 버튼 색은 형광처럼 쨍하지 않게: OKLCH 채도(chroma)를 상한까지 낮춘다(밝기·색상은 그대로) — exact면 그대로
+ *   - 흐린 글자(--c-text-2·--c-text-muted)는 판과 바탕 둘 다에 대비 4.5가 될 때까지 글자 쪽으로 진하게
+ *   - 버튼 위 글자(--c-primary-fg)는 흰색·어두운색 중 대비가 큰 쪽 — exact여도 같다
+ *   - 강조색을 글자로 쓸 때(큰 숫자·링크·선택된 탭)는 --c-primary-text: 색상은 두고 밝기만 바꿔 판·바탕 둘 다에 4.5
  *   - 상태색(완료·주의·오류·안내)도 원색 대신 차분한 색(흙빛 빨강 등)을 바탕에 맞춰 섞는다
  */
 (function () {
@@ -101,6 +105,21 @@ function softInk(ink, bg, max) {
   for (let i = 0; i < 24; i++) { const t = (lo + hi) / 2; if (contrast(mix(ink, bg, t), bg) > max) lo = t; else hi = t; }
   return mix(ink, bg, hi);
 }
+const READ = 4.5;   // 글자가 읽히는 최소 대비 (WCAG AA)
+/** 흐린 글자: 본문 글자와 바탕을 t만큼 섞되, 뒤에 깔리는 색(unders) 모두에 4.5가 안 되면 글자 쪽으로 진하게. 실제로 쓴 섞는 비율을 돌려준다 */
+function readableT(ink, bg, t, unders) {
+  while (t > 0 && Math.min(...unders.map((u) => contrast(mix(ink, bg, t), u))) < READ) t = Math.max(0, t - 0.02);
+  return t;
+}
+/** 판(카드) 색 — 흐린 글자 · 강조 글자가 이 위에서도 읽혀야 한다 */
+const surfaceOf = (L) => (L.mode === "dark" ? mix(L.bg, "#FFFFFF", 0.04) : mix(L.bg, "#FFFFFF", 0.75));
+/** 강조색을 글자로 쓸 때: 색상은 두고 밝기만 바꿔 뒤에 깔리는 색 모두에 4.5가 되게 (밝은 분위기는 진하게, 어두운 분위기는 밝게) */
+function readableTint(p, unders, dark) {
+  const [L0, C, H] = hex2oklch(p), ok = (h) => Math.min(...unders.map((u) => contrast(h, u))) >= READ;
+  if (ok(p)) return p;
+  for (let L = L0; L >= 0 && L <= 1; L += dark ? 0.01 : -0.01) { const h = oklch2hex([L, C, H]); if (ok(h)) return h; }
+  return dark ? "#FFFFFF" : "#000000";
+}
 
 // 상태색 — 원색 대신 차분한 색. 연한 바탕은 그 분위기의 바탕에 섞어 만든다
 const STATUS_HEX = {
@@ -139,15 +158,18 @@ function inkOf(L) { return softInk(L.ink, L.bg, L.mode === "dark" ? Math.min(fon
 /** 배경·글자·모양·글꼴 → 바탕 토큰 */
 function lookTokens(L) {
   const dark = L.mode === "dark", bg = L.bg, ink = inkOf(L);
+  // 흐린 글자 두 단계: 흐린 글자를 먼저 맞추고, 흐린 글자 2는 그보다 늘 한 단계(0.12) 진하게 — 둘이 같은 색이 되지 않게
+  const surface = surfaceOf(L), [t2, tm] = dark ? [0.3, 0.52] : [0.36, 0.54];
+  const mutedT = readableT(ink, bg, tm, [surface, bg]), muted = mix(ink, bg, mutedT), text2 = mix(ink, bg, readableT(ink, bg, Math.min(t2, mutedT - 0.12), [surface, bg]));
   const t = dark ? {
-    "--c-bg": bg, "--c-surface": mix(bg, "#FFFFFF", 0.04), "--c-surface-2": mix(bg, "#FFFFFF", 0.08), "--c-surface-3": mix(bg, "#FFFFFF", 0.12),
+    "--c-bg": bg, "--c-surface": surface, "--c-surface-2": mix(bg, "#FFFFFF", 0.08), "--c-surface-3": mix(bg, "#FFFFFF", 0.12),
     "--c-border": mix(bg, "#FFFFFF", 0.14), "--c-border-strong": mix(bg, "#FFFFFF", 0.22),
-    "--c-text": ink, "--c-text-2": mix(ink, bg, 0.3), "--c-text-muted": mix(ink, bg, 0.52), "--c-text-inverse": bg,
+    "--c-text": ink, "--c-text-2": text2, "--c-text-muted": muted, "--c-text-inverse": bg,
     "--c-overlay": "rgba(0, 0, 0, .6)", "--c-skeleton": mix(bg, "#FFFFFF", 0.12),
   } : {
-    "--c-bg": bg, "--c-surface": mix(bg, "#FFFFFF", 0.75), "--c-surface-2": mix(bg, ink, 0.035), "--c-surface-3": mix(bg, ink, 0.07),
+    "--c-bg": bg, "--c-surface": surface, "--c-surface-2": mix(bg, ink, 0.035), "--c-surface-3": mix(bg, ink, 0.07),
     "--c-border": mix(bg, ink, 0.11), "--c-border-strong": mix(bg, ink, 0.2),
-    "--c-text": ink, "--c-text-2": mix(ink, bg, 0.36), "--c-text-muted": mix(ink, bg, 0.54), "--c-text-inverse": "#FFFFFF",
+    "--c-text": ink, "--c-text-2": text2, "--c-text-muted": muted, "--c-text-inverse": "#FFFFFF",
     "--c-overlay": "rgba(17, 24, 39, .45)", "--c-skeleton": mix(bg, ink, 0.07),
   };
   return Object.assign(t, statusTokens(bg, dark), SHAPE[L.shape] || SHAPE.soft, fontTokens(L));
@@ -155,10 +177,13 @@ function lookTokens(L) {
 /** 버튼 색 → 강조 토큰 (눌림·연한 배경·위 글자색까지) */
 function swatchTokens(L, sw) {
   const dark = L.mode === "dark", p = primaryHex(L, sw);
-  // 버튼 위 글자: 흰색이 대비 3 이상이면 흰색. 그 앱의 색 그대로인 분위기(exact)는 앱들처럼 굵은 흰 글자를 조금 더 허용한다(당근 주황·배민 민트)
-  const fg = contrast(p, "#FFFFFF") >= (L.exact ? 2.2 : 3) ? "#FFFFFF" : (dark ? L.bg : "#111827");
+  // 버튼 위 글자: 흰색과 어두운색 중 대비가 큰 쪽 (고른 색 그대로인 분위기(exact)도 같다 — 머스타드에 흰 글자는 안 읽힌다)
+  //   둘 다 4.5가 안 되는 중간 밝기 색(청록 등)은 순수 검정까지 쓴다 — 흰색·검정 중 하나는 늘 4.5를 넘는다
+  const deep = dark ? L.bg : "#111827", pick = (d) => (contrast(p, "#FFFFFF") >= contrast(p, d) ? "#FFFFFF" : d);
+  const fg = contrast(p, pick(deep)) >= READ ? pick(deep) : pick("#000000");
   return {
     "--c-primary": p,
+    "--c-primary-text": readableTint(p, [surfaceOf(L), L.bg], dark),
     "--c-primary-hover": dark ? mix(p, "#FFFFFF", 0.16) : mix(p, "#000000", 0.12),
     "--c-primary-active": dark ? mix(p, "#000000", 0.12) : mix(p, "#000000", 0.24),
     "--c-primary-fg": fg,
@@ -177,9 +202,9 @@ function looksCss(looks) {
   }
   return out.join("\n");
 }
-/** 직접 고른 색 → 분위기 하나 (id "custom"). c = { hex, name, from?, base?, bgHex? }
+/** 직접 고른 색 → 분위기 하나 (id "custom"). c = { hex, name, from?, base?, bgHex?, font? }
  *  from = 고르기 전의 스타일(고정 스타일·PRD 맞춤) — 그 스타일의 바탕·모양·글꼴은 그대로 두고 버튼 색만 바꾼다
- *  (사용자: "직접 고르기를 하면 스타일이 사라지니까"). base·bgHex를 고르면 바탕만 바꾼다. own = PRD 맞춤 looks */
+ *  (사용자: "직접 고르기를 하면 스타일이 사라지니까"). base·bgHex를 고르면 바탕만 바꾼다. font = 프리셋 글꼴(없으면 바탕 · 스타일 글꼴). own = PRD 맞춤 looks */
 function customLook(c, own) {
   if (!c || !c.hex) return null;
   const pool = (own || []).concat(PRESETS), F = c.from ? pool.find((l) => l.id === c.from) : null;
@@ -192,7 +217,7 @@ function customLook(c, own) {
     const dark = lum(c.bgHex) < 0.2;
     B = { id: "other", name: "고른 바탕 " + String(c.bgHex).toUpperCase(), mode: dark ? "dark" : "light", bg: String(c.bgHex).toUpperCase(), ink: dark ? "#ECEDEF" : "#1B1D22", shape: (FB || B).shape || "soft", font: (FB || B).font || "pretendard" };
   }
-  return { id: "custom", name: F ? F.name + " + 고른 색" : "직접 고른 색", why: (c.name || String(c.hex).toUpperCase()) + " · " + (B.name || "바탕"), mode: B.mode, bg: B.bg, ink: B.ink, shape: B.shape, font: B.font,
+  return { id: "custom", name: F ? F.name + " + 고른 색" : "직접 고른 색", why: (c.name || String(c.hex).toUpperCase()) + " · " + (B.name || "바탕"), mode: B.mode, bg: B.bg, ink: B.ink, shape: B.shape, font: FONTS[c.font] ? c.font : B.font,
     exact: true, custom: true, base: B.id, swatches: [{ id: "custom", name: c.name || "고른 색", hex: String(c.hex).toUpperCase() }] };
 }
 /** 고를 수 있는 분위기 전부: PRD 맞춤(S.looks) → 고정 스타일 → 직접 고른 색(S.custom) */

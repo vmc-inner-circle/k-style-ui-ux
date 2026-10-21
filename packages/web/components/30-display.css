@@ -107,7 +107,7 @@ button.chip, a.chip { cursor: pointer; }
   white-space: nowrap; cursor: pointer;
 }
 .tab:hover { color: var(--c-text); }
-.tab.active { color: var(--c-primary); border-bottom-color: var(--c-primary); }
+.tab.active { color: var(--c-primary-text); border-bottom-color: var(--c-primary); }
 .tab .badge { margin-left: calc(var(--sp-1) * -1); }
 /* 알약형 탭 (세그먼트와 비슷하지만 콘텐츠 전환용) */
 .tabs-pill { border-bottom: 0; gap: var(--sp-2); }
@@ -125,8 +125,10 @@ button.chip, a.chip { cursor: pointer; }
 .breadcrumb [aria-current="page"] { color: var(--c-text); font-weight: var(--fw-medium); }
 
 /* ---- progress ---- */
-.progress { width: 100%; height: var(--sp-2); border-radius: var(--r-pill); background: var(--c-surface-3); overflow: hidden; }
-.progress-bar { height: 100%; border-radius: inherit; background: var(--c-primary); }
+.progress { flex: none; width: 100%; height: var(--sp-2); border-radius: var(--r-pill); background: var(--c-surface-3); overflow: hidden; }
+/* 막대 높이는 부모 높이(100%)에 기대지 않는다 — .progress 없이 막대만 놓여도, 늘어나는 판(flex·grid) 안이어도 판 높이로 커지지 않게 */
+.progress-bar { flex: none; align-self: flex-start; height: var(--sp-2); border-radius: var(--r-pill); background: var(--c-primary); }
+.progress > .progress-bar { height: 100%; border-radius: inherit; }
 .progress-sm { height: var(--sp-1); }
 .progress-lg { height: var(--sp-3); }
 .progress-success .progress-bar { background: var(--c-success); }
@@ -287,3 +289,10 @@ button.chip, a.chip { cursor: pointer; }
 .illust { display: block; width: 100%; height: 100%; object-fit: contain; }
 .app .empty-icon:has(> .illust) { width: 88px; height: 88px; background: none; border: 0; }
 .app .list-icon:has(> .illust) { background: var(--c-surface-2); padding: 6px; }
+
+/* ---- 1순위 문장 — 화면의 답(answer.say)을 가장 크게, 화면에 하나 (scripts/pack.js가 지시) ---- */
+.lead-say { font-family: var(--font-head, inherit); font-size: var(--fs-say, var(--fs-2xl)); font-weight: var(--w-head, var(--fw-head));
+  line-height: 1.25; letter-spacing: -0.02em; color: var(--c-text); margin: var(--sp-1, 4px) 0 var(--sp-3, 12px); }
+
+/* ---- 끊으면 안 되는 묶음 — 날짜·시간처럼 줄이 바뀌어도 한 덩어리로 ("11월 14일(토)" · "오전 7시") ---- */
+.nowrap { white-space: nowrap; }

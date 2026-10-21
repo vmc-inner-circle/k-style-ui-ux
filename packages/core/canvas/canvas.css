@@ -102,8 +102,7 @@ html[data-mode] body { background: var(--hxc-bg); color: var(--hxc-text); }
 }
 .hx-bbox > .hx-badge { position: absolute; left: -8px; top: -8px; }
 .hx-bbox.hx-on, .hx-bbox.hx-hover { border-color: var(--hx-badge-bg, #FF3B30); background: rgba(255, 59, 48, .16); box-shadow: 0 0 0 3px rgba(255, 59, 48, .25); }
-.hx-frame-nobadge .hx-overlay, .hx-hide-badges .hx-overlay .hx-bbox:not(.hx-spot-on) { visibility: hidden; }
-.hx-hide-badges .hx-overlay .hx-badge { visibility: hidden; }
+.hx-frame-nobadge .hx-overlay { visibility: hidden; }
 /* 스포트라이트: 해당 bbox 밖을 큰 그림자로 어둡게 */
 .hx-frame.hx-spot .hx-bbox { opacity: 0; }
 .hx-frame.hx-spot .hx-bbox.hx-spot-on {

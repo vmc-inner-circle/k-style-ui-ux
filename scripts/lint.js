@@ -33,7 +33,7 @@ const iconsPath = path.join(runDir, "icons.json");
 if (!exists(screensPath)) { console.error(`[FAIL] ${screensPath} 없음`); process.exit(1); }
 if (!exists(flowPath)) { console.error(`[FAIL] ${flowPath} 없음`); process.exit(1); }
 
-const S = readJSON(screensPath);
+const S = require("./screens.js").loadScreens(runDir);
 const F = readJSON(flowPath);
 const projectIcons = exists(iconsPath) ? readJSON(iconsPath) : {};
 const platform = S.platform || "web";
@@ -64,8 +64,8 @@ if (!S.toggles || !["normal", "large"].includes(S.toggles.type)) fail(`toggles.t
 {
   const LK = require("./looks.js");
   // 고를 수 있는 분위기 = PRD 맞춤(S.looks, 1개) + 고정 스타일(presets.json — 토스 느낌…) + 직접 고른 색(S.custom). 검사는 메인이 만든 것만
-  if (!Array.isArray(S.looks) || !S.looks.length) warn(`looks 없음 — 고정 스타일만 보인다. PRD에 맞춘 분위기 1개와 버튼 색 5개를 만든다 (prd-to-screens §6)`);
-  else if (S.looks.length !== 1) warn(`PRD 맞춤 분위기는 1개 (지금 ${S.looks.length}개) — 나머지는 고정 스타일(토스 느낌·당근 느낌…)이 채운다`);
+  if ((!Array.isArray(S.looks) || !S.looks.length) && !S.preset) warn(`looks 없음 — 고정 스타일만 보인다. PRD에 맞춘 분위기 1개와 버튼 색 5개를 만든다 (prd-to-screens §6)`);
+  else if (!S.preset && S.looks.length !== 1) warn(`PRD 맞춤 분위기는 1개 (지금 ${S.looks.length}개) — 나머지는 고정 스타일(토스 느낌·당근 느낌…)이 채운다`);
   const looks = LK.getLooks(S);
   const lookIds = new Set(looks.map((l) => l.id));
   const ownIds = new Set();
@@ -74,6 +74,7 @@ if (!S.toggles || !["normal", "large"].includes(S.toggles.type)) fail(`toggles.t
     try { LK.hex2rgb(S.custom && S.custom.hex); } catch (e) { fail(`custom.hex는 #RRGGBB (직접 고른 색)`); }
     if (S.custom && S.custom.base && !LK.BASES.some((b) => b.id === S.custom.base)) fail(`custom.base는 ${LK.BASES.map((b) => b.id).join("|")}`);
     if (S.custom && S.custom.bgHex !== undefined && !/^#[0-9a-f]{6}$/i.test(S.custom.bgHex)) fail(`custom.bgHex는 #RRGGBB (그 밖의 바탕)`);
+    if (S.custom && S.custom.font !== undefined && !LK.FONTS[S.custom.font]) fail(`custom.font는 ${Object.keys(LK.FONTS).join("|")}`);
   }
   for (const L of S.looks || []) {
     const ld = `분위기 '${L.name || L.id}'`;
@@ -173,6 +174,11 @@ function mobileChecks(desc, s, html) {
   const ctas = (html.match(/class=["'][^"']*\bbottom-cta\b/g) || []).length;
   if (ctas > 1) warn(`${desc}: 맨 아래 주 버튼 묶음(.bottom-cta)이 ${ctas}개 — 하나만`);
   else if (ctas === 1 && !/<div class=["'][^"']*\bbottom-cta\b[^]*?<\/div>\s*<\/main>/.test(html)) warn(`${desc}: .bottom-cta는 main.content의 마지막에`);
+  // 큰 글자(.big-num)가 길면 390px에서 날짜·시간 가운데가 끊긴다 — .nowrap으로 묶은 조각은 세지 않는다
+  for (const m of html.matchAll(/<(p|div|span)\b[^>]*class=["'][^"']*\bbig-num\b[^>]*>((?:(?!<\/\1>)[^])*)<\/\1>/g)) {
+    const text = m[2].replace(/<span\b[^>]*class=["'][^"']*\bnowrap\b[^>]*>[^]*?<\/span>/g, "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    if (text.length > 12) warn(`${desc}: 큰 글자(.big-num) "${text.slice(0, 14)}…" ${text.length}자 — 12자 이내로. 날짜·시간은 .nowrap으로 묶거나 줄을 나눠라`);
+  }
   if (!s.overlayOf) {
     const app = /<div\s+class=["']([^"']*\bapp\b[^"']*)["']/.exec(html);
     if (app && !/\bapp-mobile\b/.test(app[1])) warn(`${desc}: .app에 app-mobile 없음 — node scripts/expand.js --reshell`);
@@ -204,8 +210,9 @@ for (const s of S.screens || []) {
   if (Number.isInteger(s.id) && s.id > 100) warn(`${desc}: 화면 번호 ${s.id} — 화면은 1, 2, 3…으로 (node scripts/ids.js가 발급)`);
 
   const regions = s.regions || [];
+  const nBlocks = regions.filter((r) => r.key !== "action").length;   // 주 버튼(action)은 세지 않는다
   if (regions.length === 0) warn(`${desc}: 영역이 0개 — 사용자가 가리킬 곳이 없음`);
-  if (regions.length > 6) fail(`${desc}: 영역 ${regions.length}개 (최대 6)`);
+  if (nBlocks > 6) fail(`${desc}: 영역 ${regions.length}개 (최대 6)`);
   const keys = new Set();
   for (const r of regions) {
     const rd = `${s.slug} / ${r.key || "(key 없음)"}`;
@@ -532,7 +539,8 @@ if (F.branches !== undefined && !Array.isArray(F.branches)) fail(`flow.json bran
   else if (!trig.has(b.trigger)) fail(`${bd}: trigger '${b.trigger}'가 '${b.from}' 조각에 data-trigger로 없음`);
   else if (b.region && trig.get(b.trigger) !== b.region) warn(`${bd}: trigger '${b.trigger}'가 region '${b.region}' 안에 있지 않음 (실제: ${trig.get(b.trigger) || "영역 밖"})`);
   const k = b.from + "|" + b.trigger;
-  if (stepTo.has(k)) fail(`${bd}: trigger '${b.trigger}'는 이미 흐름 단계에 있음 — 갈래에서 뺀다`);
+  // 조건(when)이 있고 가는 곳이 다르면 같은 버튼에서 갈라지는 화살표 — 허용 (예: 성공 → 다음 화면 / 오류면 → 오류 화면)
+  if (stepTo.has(k) && !(b.when && stepTo.get(k) !== b.to)) fail(`${bd}: trigger '${b.trigger}'는 이미 흐름 단계에 있음 — 갈래에서 뺀다 (조건이 갈리는 거면 갈래에 when을 쓰고 to를 다르게)`);
   if (branchTo.has(k)) fail(`${bd}: trigger '${b.trigger}' 갈래 중복`);
   branchTo.set(k, b.to);
   reached.add(b.from); reached.add(b.to);

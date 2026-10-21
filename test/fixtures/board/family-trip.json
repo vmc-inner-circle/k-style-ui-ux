@@ -1,0 +1,486 @@
+{
+  "$comment": "보드 · 시안 · 의견 기록 예시 — 실제 실행(가족여행, 3턴까지)의 실행 상태를 test/fixtures/project/family-trip 화면 이름에 맞춰 옮긴 것. 24-board가 그 프로젝트 위에 얹어 검사한다",
+  "brand": "함께여행",
+  "brandIcon": "plane",
+  "looks": [
+    {
+      "id": "warm-paper",
+      "name": "따뜻한 종이",
+      "why": "가족이 같이 보는 여행 수첩 같은 포근한 느낌이에요",
+      "mode": "light",
+      "bg": "#FBF7F0",
+      "ink": "#22201C",
+      "shape": "round",
+      "font": "nanum-square-round",
+      "swatches": [
+        {
+          "id": "sea-blue",
+          "name": "바다 파랑",
+          "hex": "#2F6FD6"
+        },
+        {
+          "id": "teal",
+          "name": "청록",
+          "hex": "#1F8A84"
+        },
+        {
+          "id": "ink",
+          "name": "먹색",
+          "hex": "#33363D"
+        },
+        {
+          "id": "terracotta",
+          "name": "테라코타",
+          "hex": "#C8553D"
+        },
+        {
+          "id": "forest",
+          "name": "숲 초록",
+          "hex": "#3A7D44"
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "key": "start",
+      "name": "처음 시작하기",
+      "desc": "자녀가 여행을 만들고 첫 일정을 적어요"
+    },
+    {
+      "key": "home",
+      "name": "여행 홈",
+      "desc": "자녀가 출발까지 남은 일과 바뀐 점을 한눈에 봐요"
+    },
+    {
+      "key": "plan",
+      "name": "일정 짜기",
+      "desc": "자녀가 날짜별 일정을 적고 확정과 후보를 나눠요"
+    },
+    {
+      "key": "share",
+      "name": "가족에게 알리기",
+      "desc": "바뀐 점을 모아 정해진 때에 한 번에 보내요"
+    },
+    {
+      "key": "prepare",
+      "name": "준비물 나누기",
+      "desc": "누가 무엇을 챙길지 나누고 가족을 초대해요"
+    },
+    {
+      "key": "family",
+      "name": "가족이 함께 보기",
+      "desc": "부모님과 가족이 묻지 않고 큰 흐름과 내 준비물을 봐요"
+    }
+  ],
+  "concepts": [
+    {
+      "id": "a",
+      "level": 1,
+      "name": "날짜별로 쭉 내려 보기",
+      "why": "여행 날짜 순서 그대로라 처음 봐도 헷갈리지 않아요",
+      "layout": "timeline",
+      "shell": "tabbar",
+      "home": "출발까지 남은 날 한 줄 + 날짜별 일정 목록",
+      "density": "보통",
+      "traits": [
+        "익숙한 배치"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "plain",
+        "cards": "base",
+        "head": "normal",
+        "radius": "base",
+        "space": "normal",
+        "font": "base",
+        "icons": "line",
+        "tone": "neutral",
+        "grad": "none"
+      }
+    },
+    {
+      "id": "b",
+      "level": 2,
+      "name": "오늘 할 일부터 보기",
+      "why": "출발 전 챙길 것이 가장 먼저 보여요",
+      "layout": "today-todo",
+      "shell": "tabbar",
+      "home": "오늘 할 일 체크 목록 + 진행 막대",
+      "density": "보통",
+      "traits": [
+        "할 일 중심"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "tint",
+        "cards": "base",
+        "head": "normal",
+        "radius": "round",
+        "space": "normal",
+        "font": "pretendard",
+        "icons": "line",
+        "tone": "soft",
+        "grad": "none"
+      }
+    },
+    {
+      "id": "c",
+      "level": 3,
+      "name": "달력 한 장으로 보기",
+      "why": "여행 날짜가 달력에서 한눈에 들어와요",
+      "layout": "calendar-month",
+      "shell": "top",
+      "home": "11월 달력 + 고른 날 일정",
+      "density": "보통",
+      "traits": [
+        "달력"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "plain",
+        "cards": "boxed",
+        "head": "big",
+        "radius": "base",
+        "space": "normal",
+        "font": "base",
+        "icons": "line",
+        "tone": "bold",
+        "grad": "fade"
+      }
+    },
+    {
+      "id": "d",
+      "level": 4,
+      "name": "확정과 후보를 나눠 보기",
+      "why": "정해진 것과 정하는 중인 것이 위에서 갈라져요",
+      "layout": "tabs-split",
+      "mix": "summary-cards",
+      "shell": "tabbar",
+      "home": "확정 · 후보 나눠 보기 + 숫자 요약 두 칸",
+      "density": "촘촘",
+      "traits": [
+        "확정 구분"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "dark",
+        "cards": "base",
+        "head": "normal",
+        "radius": "soft",
+        "space": "airy",
+        "font": "ibm-plex",
+        "icons": "line",
+        "tone": "neutral",
+        "grad": "sunset"
+      }
+    },
+    {
+      "id": "e",
+      "level": 5,
+      "name": "하루씩 시간표로 보기",
+      "why": "그날 몇 시에 어디 있어야 하는지가 먼저예요",
+      "layout": "week-schedule",
+      "mix": "list-detail",
+      "shell": "top",
+      "home": "날짜 띠 + 그날 시간 순서",
+      "density": "보통",
+      "traits": [
+        "시간표"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "glow",
+        "cards": "line",
+        "head": "normal",
+        "radius": "pill",
+        "space": "tight",
+        "font": "nanum-square-round",
+        "icons": "line",
+        "tone": "neutral",
+        "grad": "aurora"
+      }
+    },
+    {
+      "id": "f",
+      "level": 6,
+      "name": "출발까지 남은 날부터",
+      "why": "D-24 큰 숫자가 여행 기분을 먼저 알려요",
+      "layout": "big-number",
+      "mix": "feed",
+      "shell": "tabbar",
+      "home": "D-24 큰 숫자 + 아래로 이어지는 소식",
+      "density": "여유",
+      "traits": [
+        "큰 숫자"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "dots",
+        "cards": "outline",
+        "head": "huge",
+        "radius": "base",
+        "space": "extra",
+        "font": "suit",
+        "icons": "fluent",
+        "tone": "neutral",
+        "grad": "none"
+      }
+    },
+    {
+      "id": "g",
+      "level": 7,
+      "name": "여행 표지 위에 일정 겹치기",
+      "why": "여행 수첩 표지처럼 설레는 첫 화면이에요",
+      "layout": "hero-overlap",
+      "mix": "steps",
+      "shell": "none",
+      "home": "큰 색 머리(후쿠오카 · 11월 14일) 위에 다음 할 일 판",
+      "density": "여유",
+      "traits": [
+        "표지"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "mesh",
+        "cards": "float",
+        "head": "huge",
+        "radius": "pill",
+        "space": "airy",
+        "font": "serif-title",
+        "icons": "line",
+        "tone": "neutral",
+        "grad": "aurora"
+      }
+    },
+    {
+      "id": "h",
+      "level": 8,
+      "name": "크기가 다른 칸으로 한눈에",
+      "why": "남은 날·할 일·소식이 한 화면에 칸으로 모여요",
+      "layout": "bento",
+      "mix": "card-grid",
+      "shell": "tabbar",
+      "home": "큰 칸 남은 날 + 작은 칸 할 일·소식·가족",
+      "density": "촘촘",
+      "traits": [
+        "바둑판"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "band",
+        "cards": "flat",
+        "head": "huge",
+        "radius": "sharp",
+        "space": "extra",
+        "font": "serif-title",
+        "icons": "fluent",
+        "tone": "soft",
+        "grad": "aurora"
+      }
+    },
+    {
+      "id": "i",
+      "level": 9,
+      "name": "가족 얼굴과 소식부터",
+      "why": "누가 무엇을 했는지 사람 중심으로 보여요",
+      "layout": "stories",
+      "mix": "feed",
+      "shell": "top",
+      "home": "가족 얼굴 줄 + 바뀐 소식 이어 보기",
+      "density": "보통",
+      "traits": [
+        "사람 중심"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "dark",
+        "cards": "outline",
+        "head": "huge",
+        "radius": "pill",
+        "space": "tight",
+        "font": "pretendard",
+        "icons": "fluent",
+        "tone": "bold",
+        "grad": "fade"
+      }
+    },
+    {
+      "id": "j",
+      "level": 10,
+      "name": "큰 글자 한 장으로 말하기",
+      "why": "부모님도 한 번에 읽는 아주 큰 글자예요",
+      "layout": "poster",
+      "mix": "carousel-cards",
+      "shell": "none",
+      "home": "'11월 14일 아침 7시 인천공항' 큰 글자 + 옆으로 넘기는 날짜 판",
+      "density": "여유",
+      "traits": [
+        "큰 글자"
+      ],
+      "screens": [
+        "plan",
+        "item-edit",
+        "parent-home",
+        "todos"
+      ],
+      "dress": {
+        "bg": "dark",
+        "cards": "outline",
+        "head": "huge",
+        "radius": "soft",
+        "space": "extra",
+        "font": "suit",
+        "icons": "fluent",
+        "tone": "bold",
+        "grad": "sunset"
+      }
+    }
+  ],
+  "nextScreenId": 6,
+  "nextRegionId": 120,
+  "board": {
+    "round": 2,
+    "concept": "a",
+    "theme": "custom",
+    "toggles": {
+      "type": "normal",
+      "swatch": "custom"
+    },
+    "custom": {
+      "hex": "#23317A",
+      "name": "남색",
+      "from": "warm-paper"
+    },
+    "dress": {
+      "bg": "plain",
+      "cards": "base",
+      "head": "normal",
+      "radius": "base",
+      "space": "normal",
+      "font": "base",
+      "icons": "line",
+      "tone": "neutral",
+      "grad": "none"
+    },
+    "recommend": {
+      "theme": "warm-paper",
+      "themeWhy": "부모님과 함께 보는 여행이라 따뜻하고 읽기 편한 바탕이 어울려요",
+      "type": "normal",
+      "typeWhy": "계획하는 자녀 화면은 정보가 많아 보통 크기, 가족 화면은 따로 크게 보여요",
+      "swatch": "sea-blue",
+      "swatchWhy": "확정 초록·후보 회색·변경 주황과 겹치지 않는 차분한 파랑이에요"
+    },
+    "ask": [
+      {
+        "id": "family-start",
+        "text": "부모님 화면은 어디서 시작할까요?",
+        "options": [
+          "다음 일정 한 장 (추천)",
+          "날짜별 전체 흐름"
+        ],
+        "recommended": 0
+      },
+      {
+        "id": "task-split",
+        "text": "할 일은 어떻게 나눌까요?",
+        "options": [
+          "사람별 (추천)",
+          "날짜별"
+        ],
+        "recommended": 0
+      }
+    ],
+    "locked": [
+      "concept",
+      "dress",
+      "theme",
+      "toggles"
+    ],
+    "focus": [
+      "parent-home",
+      "plan"
+    ],
+    "changes": [
+      {
+        "slug": "parent-home",
+        "said": "모이는 시간과 장소를 훨씬 크게",
+        "did": "맨 위에 11월 14일(토) 오전 7시를 가장 큰 글자로, 장소를 그 아래"
+      },
+      {
+        "slug": "plan",
+        "said": "다가오는 일정이 너무 길어요",
+        "did": "가까운 날(11월 14일) 3줄만 남기고 나머지는 전체 보기로"
+      }
+    ],
+    "feedback": [
+      {
+        "said": "맨 위 다음에 할 일에서 모이는 시간과 장소를 훨씬 크게",
+        "scope": "region",
+        "screen": "parent-home",
+        "region": "meet",
+        "entry": "F03",
+        "measured": "모이는 시간 15px · 화면 제목 22px — 시간이 제목보다 작다",
+        "fix": "모이는 시간을 화면에서 가장 큰 글자로, 장소를 그 아래 — 화면 제목은 한 단계 낮춤",
+        "rule": "body-size-min",
+        "keep": false
+      },
+      {
+        "said": "다가오는 일정이 너무 길어요",
+        "scope": "region",
+        "screen": "plan",
+        "region": "days",
+        "entry": null,
+        "measured": "날짜별 흐름 8줄 — 첫 화면에 다 안 들어온다",
+        "fix": "가까운 날 3줄만 남기고 나머지는 전체 보기로",
+        "rule": null,
+        "keep": false
+      }
+    ]
+  }
+}

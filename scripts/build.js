@@ -52,7 +52,7 @@ const exists = (p) => fs.existsSync(p);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 // ---------- 입력 ----------
-const S = readJSON(path.join(runDir, "screens.json"));
+const S = require("./screens.js").loadScreens(runDir);
 const F = readJSON(path.join(runDir, "flow.json"));
 const platform = S.platform || "web";
 const looks = LOOKS.getLooks(S);
@@ -250,7 +250,7 @@ const data = {
     const da = {}; for (const m of DRESS.attrs(c.dress).matchAll(/data-([a-z]+)="([^"]*)"/g)) da[m[1]] = m[2];
     return { id: c.id, name: c.name || c.id, why: c.why || "", shell: c.shell || "sidebar", density: c.density || (L && L.density) || "", level: c.level || null,
       layout: L ? { id: L.id, name: L.name, used: L.used } : null, mix: M ? { id: M.id, name: M.name, used: M.used } : null,
-      dress: Object.assign({}, DRESS.BASE, c.dress || {}), dressAttrs: da, dressWords: DRESS.words(c.dress), traits: c.traits || [], screens: c.screens || [] };
+      dress: DRESS.full(c.dress), dressAttrs: da, dressWords: DRESS.words(c.dress), traits: c.traits || [], screens: c.screens || [] };
   }) : [],
   board: mode === "board" ? (S.board || {}) : null,
   // 꾸밈 카테고리(시안 보드의 꾸밈 다듬기가 값을 바꿔 본다) — scripts/dress.js
@@ -356,9 +356,9 @@ if (mode === "final") {
     for (const b of F.branches || []) if (from.includes(b.from) && b.trigger && files[b.to] && !links[b.trigger]) links[b.trigger] = { href: files[b.to], action: b.action || "" };
     // 되돌아가기(data-back): 뜨는 창이면 뒷 화면으로, 아니면 브라우저 뒤로
     const backHref = s.overlayOf && files[s.overlayOf] ? files[s.overlayOf] : "";
-    // 왼쪽 메뉴(roles[].nav)도 실제 화면 페이지로 — 메뉴 글자로 찾는다
-    const navMap = {};
-    for (const r of S.roles || []) for (const n of r.nav || []) if (files[n.slug] && !navMap[n.label]) navMap[n.label] = files[n.slug];
+    // 메뉴(roles[].nav)도 실제 화면 페이지로 — 이 화면의 역할 메뉴에서만 글자로 찾는다 (두 역할에 같은 글자가 있어도 각자 자기 화면으로)
+    const navMap = {}, myRole = (S.roles || []).find((r) => r.key === s.role) || (S.roles || [])[0] || { nav: [] };
+    for (const n of myRole.nav || []) if (files[n.slug] && !navMap[n.label]) navMap[n.label] = files[n.slug];
     const icons = new Set([...frag.matchAll(/#i-([a-z0-9-]+)/g)].map((m) => m[1]).concat(["chevron-left", "chevron-right", "layout-grid", "circle-check", "circle-alert", "info", "triangle-alert"]));
     const fIcons = new Set([...frag.matchAll(/#f-([a-z0-9-]+)/g)].map((m) => m[1]).concat(iconSet === "fluent" ? TOAST_ICONS : []));
     const pdefs = [...icons].filter((n) => symbols.has(n)).sort().map((n) => `<symbol id="i-${n}"${symbols.get(n).attrs}>${symbols.get(n).body.trim()}</symbol>`).join("\n")

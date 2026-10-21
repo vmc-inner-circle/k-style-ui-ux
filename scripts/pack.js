@@ -9,7 +9,8 @@
  *
  * 담는 것: 할 일 · 규칙 요약 · 부품 표(05-parts.md) · 쓸 수 있는 클래스 · 자주 쓰는 HTML 몇 개 · 아이콘 목록 ·
  *          화면마다(이름·목적·배치 힌트·상태·영역·눌러야 하는 버튼과 그 문구·나머지 버튼 규칙).
- * DOMAIN(더미 데이터)과 화면별 메모는 메인이 프롬프트에 직접 쓴다.
+ *          화면마다 그 역할의 사람 · 쓰는 사실의 실제 값 · 숨길 상태와 대신 문구 · policy(최상위 facts · states · roles가 있을 때).
+ * 화면별 메모는 메인이 프롬프트에 직접 쓴다.
  */
 const fs = require("fs");
 const path = require("path");
@@ -19,7 +20,7 @@ const runDir = args.find((a) => !a.startsWith("--"));
 const opt = (n) => { const i = args.indexOf("--" + n); return i >= 0 ? args[i + 1] : null; };
 if (!runDir || !opt("screens")) { console.error("usage: node scripts/pack.js runs/<p> --screens a,b,c [--concept id] [--name name]"); process.exit(2); }
 const read = (p) => fs.readFileSync(p, "utf8");
-const S = JSON.parse(read(path.join(runDir, "screens.json")));
+const S = require("./screens.js").loadScreens(runDir);
 const F = JSON.parse(read(path.join(runDir, "flow.json")));
 const slugs = opt("screens").split(",").map((x) => x.trim()).filter(Boolean);
 const concept = opt("concept");
@@ -33,7 +34,7 @@ const RULES = `
 3. **영역**: 화면의 영역 key마다 그 덩어리를 감싸는 요소 하나에 \`data-region="<key>"\`(정확히 한 번씩, 빠짐·남김 없이). 부품에도 붙일 수 있다(\`<x-section data-region="…">\`).
 4. **눌러야 하는 버튼**(아래 화면별 목록): 그 영역 안의 버튼 하나에 \`data-trigger="<key>"\`, 버튼 글자는 적힌 문구 그대로.
 5. **글자가 있는 나머지 .btn**은 셋 중 하나: 이전 화면으로(취소·닫기·'~로') = \`data-back\` / 그 자리에서 바뀜(삭제·필터·다시 보내기) = \`data-stay="바뀐 뒤 안내 한 문장(해요체)"\` / 같은 일을 하는 버튼이 여러 행에 있으면 첫 행에만 data-trigger, 나머지는 **글자만 똑같이**.
-6. 문구는 전부 실제 문구(DOMAIN 값). "버튼"·"텍스트"·Lorem 금지. 목록은 3~5행. 사람을 높여 부를 땐 "님".
+6. 문구는 전부 실제 문구(아래 '쓰는 사실' 줄 값). "버튼"·"텍스트"·Lorem 금지. 목록은 3~5행. 사람을 높여 부를 땐 "님".
 7. 상태 표시는 배지로 통일(같은 뜻 = 같은 색). 화면당 primary 버튼은 1개 이하. 진행 막대 폭은 \`<div class="progress-bar w-60">\`(.w-10~.w-100, 10% 단위 — 인라인 style 대신).
 8. \`state: first-run·empty\` 화면은 \`<x-empty>\`로 비워 둔다(숫자·목록 금지, primary 버튼 하나). \`state: input\`은 입력칸에 예시 값.
 9. 체크 목록·출석처럼 "보고 체크"하는 것은 체크박스 대신 아이콘: 한 것 \`<x-icon name="square-check" tone="success"/>\`, 안 한 것 \`<x-icon name="square" tone="muted"/>\`.
@@ -94,6 +95,7 @@ const MOBILE_EXAMPLES = `
 <div class="day-strip"><button class="day active"><span class="day-name">수</span><span class="day-num">14</span></button>…</div>
 <x-item title="…" sub="…" badge="확정 필요" badge-tone="warning"><x-icon name="chevron-right" size="sm"/></x-item>   ← 눌러서 들어가는 줄
 <div class="bottom-cta" data-region="…"><x-btn variant="primary" data-trigger="…">예약 확정</x-btn></div>   ← 본문 맨 마지막, 화면당 하나
+<x-btn data-out="휴대폰 설정 › 알림 › 허용">설정 열기</x-btn>   ← 앱 밖으로 나가는 버튼은 x-btn에 data-out (일반 button으로 바꿔 쓰지 않는다)
 \`\`\`
 - 쓰지 않는다: .split · .table · .week-grid · .grid-3 · .grid-4 · .form-actions · .page-actions의 primary (모바일 규칙 참고).`;
 
@@ -156,6 +158,38 @@ function mobileShell(s) {
   if (s.shell === "none" || s.pattern === "onboarding" || (C && C.shell === "none")) return "메뉴 없는 한 장";
   return isTab && s.shell !== "back" ? "탭 화면(아래 탭이 붙는다 — 큰 제목으로 시작)" : "아래 화면(위에 뒤로 · 화면 이름 줄이 붙는다 — 화면 이름을 본문에 다시 쓰지 않고 eyebrow + 대상 이름으로 시작)";
 }
+// 답 하나 · 나머지 화면 — 모양별 부품과 '보일 줄'을 그대로 넘긴다(글을 바꾸지 않는다)
+const FORM_PART = {
+  hero: "<x-section> 안 1순위 문장(.lead-say) + 사실 줄", list: "<x-list> + <x-item> 한 줄씩", table: ".table-wrap > table (첫 줄 = 머리글, 칸은 ' | ')",
+  timeline: ".timeline > .timeline-item(.timeline-dot · .timeline-content) 한 줄씩", form: ".field(라벨 + 입력칸) 한 줄씩 — 예시 값을 채운다",
+  "stat-row": ".stat-row > <x-stat> 한 줄씩", cards: ".grid-2 > <x-card> 한 줄씩", split: ".split(왼쪽 목록 · 오른쪽 자세히)", calendar: ".calendar(달력)",
+};
+function answerLines(s) {
+  const a = s.answer, rest = s.rest || [];
+  const lines = (r) => (r.items || []).map((x) => `      - ${x}`).join("\n");
+  return [
+    `- **답(1순위) \`${a.key}\` — ${a.label}** · 모양 \`${a.form}\` → ${FORM_PART[a.form] || a.form}`,
+    `    - 1순위 문장(가장 크게, \`<p class="lead-say">\` — 이 화면에 하나, 답 블록 맨 위): **${a.say}**`,
+    `    - 보일 줄(글을 바꾸지 않는다):\n${lines(a)}`,
+    `- 나머지 — 읽는 순서대로, 모두 같은 크기(큰 글자 · 큰 숫자 금지):`,
+    ...rest.map((r, i) => `  ${i + 1}. \`${r.key}\` — ${r.label} · 모양 \`${r.form}\` → ${FORM_PART[r.form] || r.form}\n    - 보일 줄:\n${lines(r)}`),
+    s.action ? `- **주 버튼 하나**: '${s.action.label}' — \`data-region="action"\` 줄에 primary 하나(${MOBILE ? "모바일은 본문 끝 .bottom-cta" : "본문 끝 오른쪽"})` : "",
+    `- 영역마다 \`data-region="<key>"\`를 붙인다(${s.regions.map((r) => r.key).join(" · ")}). 순위 표시(data-level)는 코드가 붙인다 — 쓰지 않는다.`,
+  ];
+}
+// 화면을 쓰는 사람이 알아야 하는 것 — 이 화면의 사람 · 쓰는 사실의 실제 값 · 이 역할에게 숨길 상태 · 화면 규칙(policy). 칸이 없으면 줄도 없다
+function contextLines(s) {
+  const role = (S.roles || []).find((r) => r.key === s.role);
+  const u = role && role.user;
+  const hidden = (S.states || []).filter((st) => st.show && s.role && !st.show.includes(s.role));
+  const facts = S.facts || {};
+  return [
+    u ? `- 이 화면의 사람: **${u.name}**${u.initials ? ` (${u.initials})` : ""} — 화면 속 이름 · 인사말은 이 사람으로 쓴다(다른 사람 이름으로 바꾸지 않는다)` : "",
+    ...(s.data && s.data.length ? [`- 쓰는 사실(실제 값 — 글을 바꾸지 않고 그대로, 없는 사실을 지어내지 않는다):`, ...s.data.map((k) => `  - \`${k}\`: ${k in facts ? facts[k] : "(facts에 없음 — 메인에게 알린다)"}`)] : []),
+    ...hidden.map((st) => `- 숨길 상태: '${st.label}'는 이 역할에게 안 보인다 — ${st.hide === "state" ? `기록 이름은 보이고 상태 자리만 '${st.hidden}'로` : `그 기록 전체를 '${st.hidden}' 한 줄로`} 쓴다(이 사람 본인의 기록은 숨기지 않는다). '${st.label}'라는 글자는 화면에 쓰지 않는다`),
+    ...(s.policy || []).map((b) => `- 이 화면의 규칙 — ${b.title}:\n${b.items.map((x) => `    - ${x}`).join("\n")}`),
+  ];
+}
 const quote = (a) => ((a || "").match(/'([^']+)'/) || [])[1] || "";
 const blocks = slugs.map((slug) => {
   const s = bySlug.get(slug);
@@ -168,15 +202,17 @@ const blocks = slugs.map((slug) => {
   });
   // 1턴(시안 단계)만 concepts/<id>/에 쓴다. 2턴부터 --concept는 시안의 메뉴 구조·첫 화면·밀도를 담기 위한 것 — 화면은 screens/로
   const file = concept && S.stage === "concept" ? `concepts/${concept}/${slug}.html` : s.file || `screens/${slug}.html`;
+  const layoutLine = s.overlayOf ? `- **뜨는 창**: 파일 전체가 \`<x-modal title="…">본문 <div class="modal-footer">버튼</div></x-modal>\` 하나. 완료 버튼도 창을 닫으면 data-back(흐름에 있으면 data-trigger).${MOBILE ? " 모바일은 아래에서 올라오는 창으로 펼쳐진다 — 제목은 질문·결과 한 문장, desc 회색 1~2줄, 바닥줄 = primary 하나 + 돌아가기(data-back)." : ""}`
+      : MOBILE ? `- 배치 힌트(${s.pattern || "-"}): ${mobileShell(s)} · ${LAYOUT_MOBILE[s.pattern] || "x-page-header + x-section 판들"}`
+      : `- 배치 힌트(${s.pattern || "-"}): ${LAYOUT[s.pattern] || "page-header + x-section들"}`;
+  // 답 하나 · 나머지 화면은 내용(답 → 나머지)을 먼저, 배치(레이아웃 구성)를 뒤에. 옛 화면(regions 직접)은 예전 순서
   return [
     `### ${s.name} — \`${slug}\` → RUN/${file}`,
     `- 누가: ${((S.roles || []).find((r) => r.key === s.role) || {}).label || s.role || "모두"} · 목적: ${s.purpose || ""}`,
-    s.overlayOf ? `- **뜨는 창**: 파일 전체가 \`<x-modal title="…">본문 <div class="modal-footer">버튼</div></x-modal>\` 하나. 완료 버튼도 창을 닫으면 data-back(흐름에 있으면 data-trigger).${MOBILE ? " 모바일은 아래에서 올라오는 창으로 펼쳐진다 — 제목은 질문·결과 한 문장, desc 회색 1~2줄, 바닥줄 = primary 하나 + 돌아가기(data-back)." : ""}`
-      : MOBILE ? `- 배치 힌트(${s.pattern || "-"}): ${mobileShell(s)} · ${LAYOUT_MOBILE[s.pattern] || "x-page-header + x-section 판들"}`
-      : `- 배치 힌트(${s.pattern || "-"}): ${LAYOUT[s.pattern] || "page-header + x-section들"}`,
+    ...contextLines(s),
+    ...(s.answer ? [...answerLines(s), layoutLine] : [layoutLine]),
     s.state ? `- 상태: ${STATE[s.state] || s.state}${s.variantOf ? ` (원래 화면: ${(bySlug.get(s.variantOf) || {}).name || s.variantOf})` : ""}` : "",
-    `- 영역(${(s.regions || []).length}개, 모두 한 번씩):`,
-    ...(s.regions || []).map((r) => `  - \`${r.key}\` — ${r.label}: ${r.why || ""}`),
+    ...(s.answer ? [] : [`- 영역(${(s.regions || []).length}개, 모두 한 번씩):`, ...(s.regions || []).map((r) => `  - \`${r.key}\` — ${r.label}: ${r.why || ""}`)]),
     trig.length ? `- 눌러야 하는 버튼:\n${trig.join("\n")}` : `- 눌러야 하는 버튼: 없음(글자 버튼은 data-back·data-stay)`,
   ].filter(Boolean).join("\n");
 });

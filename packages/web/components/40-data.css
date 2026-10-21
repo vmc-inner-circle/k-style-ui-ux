@@ -129,9 +129,9 @@ a.list-item:hover, button.list-item:hover { background: var(--c-surface-2); }
 .step.done .step-num { background: var(--c-primary); border-color: var(--c-primary); color: var(--c-primary-fg); }
 .step.done::before { background: var(--c-primary); }
 .step.current { color: var(--c-text); }
-.step.current .step-num { border-color: var(--c-primary); color: var(--c-primary); box-shadow: 0 0 0 var(--sp-1) var(--c-primary-soft); }
+.step.current .step-num { border-color: var(--c-primary); color: var(--c-primary-text); box-shadow: 0 0 0 var(--sp-1) var(--c-primary-soft); }
 .step.current::before { background: var(--c-primary); }
-.step.current .step-label { color: var(--c-primary); }
+.step.current .step-label { color: var(--c-primary-text); }
 /* 세로 스텝 (사이드 진행 표시) */
 .steps-vertical { flex-direction: column; align-items: stretch; gap: 0; }
 .steps-vertical .step { flex-direction: row; align-items: flex-start; text-align: left; gap: var(--sp-3); padding-bottom: var(--sp-5); }
@@ -165,7 +165,7 @@ a.list-item:hover, button.list-item:hover { background: var(--c-surface-2); }
 }
 .calendar-day:hover { background: var(--c-surface-2); }
 .calendar-day.is-other-month { color: var(--c-text-muted); }
-.calendar-day.today { font-weight: var(--fw-bold); color: var(--c-primary); box-shadow: inset 0 0 0 1px var(--c-primary); }
+.calendar-day.today { font-weight: var(--fw-bold); color: var(--c-primary-text); box-shadow: inset 0 0 0 1px var(--c-primary); }
 .calendar-day.selected { background: var(--c-primary); color: var(--c-primary-fg); box-shadow: none; }
 .calendar-day.has-event::after {
   content: ""; position: absolute; left: 50%; bottom: var(--sp-1); transform: translateX(-50%);
@@ -214,7 +214,7 @@ a.list-item:hover, button.list-item:hover { background: var(--c-surface-2); }
 .day-name { font-size: var(--fs-xs); color: var(--c-text-muted); }
 .day-num { font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--c-text); font-variant-numeric: tabular-nums; }
 .day-dot { width: calc(var(--sp-1) * 1.5); height: calc(var(--sp-1) * 1.5); border-radius: 50%; background: var(--c-primary); }
-.day.today .day-num { color: var(--c-primary); }
+.day.today .day-num { color: var(--c-primary-text); }
 .day.active { background: var(--c-primary); border-color: var(--c-primary); }
 .day.active .day-name, .day.active .day-num { color: var(--c-primary-fg); }
 .day.active .day-dot { background: var(--c-primary-fg); }

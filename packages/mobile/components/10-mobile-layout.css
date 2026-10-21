@@ -95,8 +95,9 @@
   font-weight: var(--fw-bold);
   line-height: var(--lh-tight);
   letter-spacing: var(--ls-head);
-  color: var(--c-primary);
+  color: var(--c-primary-text);
   font-variant-numeric: tabular-nums;
+  text-wrap: balance;   /* 줄이 나뉘어도 단어 덩어리로 (끊으면 안 되는 곳은 .nowrap) */
 }
 .big-num small { font-size: inherit; font-weight: inherit; color: var(--c-text); }
 .big-num + .text-sm, .big-num + p { margin-top: var(--sp-1); }

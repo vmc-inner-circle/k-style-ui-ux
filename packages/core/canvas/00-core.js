@@ -117,36 +117,6 @@
     });
     return list;
   };
-  HX.bfsOrder = function () {
-    var adj = {}, order = [], seen = {};
-    data.screens.forEach(function (s) { adj[s.slug] = []; });
-    data.flows.forEach(function (f) { (f.steps || []).forEach(function (st) { if (adj[st.from] && adj[st.to] !== undefined) adj[st.from].push(st.to); }); });
-    function bfs(start) {
-      if (seen[start] || !adj[start]) return;
-      var q = [start]; seen[start] = true;
-      while (q.length) { var cur = q.shift(); order.push(cur); adj[cur].forEach(function (n) { if (!seen[n]) { seen[n] = true; q.push(n); } }); }
-    }
-    var first = data.flows[0] && data.flows[0].steps && data.flows[0].steps[0];
-    if (first) bfs(first.from);
-    data.flows.forEach(function (f) { (f.steps || []).forEach(function (st) { bfs(st.from); bfs(st.to); }); });
-    data.screens.forEach(function (s) { bfs(s.slug); });
-    return order;
-  };
-
-  // ---------- 배지 토글 ----------
-  HX.badgesOn = true;
-  HX.setBadges = function (on) {
-    HX.badgesOn = !!on; root.classList.toggle("hx-hide-badges", !HX.badgesOn); HX.emit("badges", HX.badgesOn);
-  };
-  HX.badgeToggle = function () {
-    var b = HX.btn("번호", { cls: "hx-on", title: "화면 위 빨간 번호 보이기/숨기기", onclick: function () { HX.setBadges(!HX.badgesOn); } });
-    function sync(on) {
-      b.classList.toggle("hx-on", on); b.setAttribute("aria-pressed", on ? "true" : "false");
-      var old = b.querySelector("svg"); if (old) old.remove();
-      b.insertBefore(HX.icon(on ? "#i-eye" : "#i-eye-off"), b.firstChild);
-    }
-    HX.on("badges", sync); sync(HX.badgesOn); return b;
-  };
 })();
 
 /* ---- 프레임 · relayout · 모달 ---- */
@@ -266,16 +236,10 @@
       if (opts.onRegionClick) b.addEventListener("click", function (e) { e.stopPropagation(); opts.onRegionClick(r); });
       overlay.appendChild(b); f.boxes[r.key] = { el: b, region: r, rect: null };
     });
-    f.setScale = function (s) { f.fit = null; f.scale = s; applySize(f); HX.relayout(); };
     f.layout = function () { layoutFrame(f); };
     f.highlight = function (key, on) { var b = f.boxes[key]; if (b) b.el.classList.toggle("hx-on", !!on); };
-    f.spotlight = function (key, trigger) { f.spot = key || null; f.spotTrig = trigger || null; applySpot(f); };
-    f.regionRect = function (key) { return f.boxes[key] ? f.boxes[key].rect : null; };
-    f.triggerRect = function (key) { return f.tboxes[key] ? f.tboxes[key].rect : null; };
-    f.highlightTrigger = function (key, on) { var t = f.tboxes[key]; if (t) t.el.classList.toggle("hx-active", !!on); };
     /* fullHeight 프레임을 기본 높이로 되돌린다 (글자 크기 등이 바뀐 뒤 다시 늘리기 위해) */
     f.resetHeight = function () { f.h = HX.frame.h; section.style.removeProperty("--frame-h"); applySize(f); };
-    f.destroy = function () { var i = frames.indexOf(f); if (i >= 0) frames.splice(i, 1); if (el.parentNode) el.parentNode.removeChild(el); };
     applySize(f); frames.push(f);
     if (container) container.appendChild(el);
     HX.relayout();

@@ -8,7 +8,6 @@
   var HX = window.HX, FINAL = HX.final;
   if (!FINAL) return;
   function roleName(role) { var l = HX.roleLabel(role).replace(/\(.*\)/, ""); return l === "부모" ? "부모님" : l; }
-  FINAL.pageOf = function (slug) { return (HX.data.pages || {})[slug] || null; };
 
   var MOBILE = HX.platform === "mobile";
   var COLS = MOBILE ? 8 : 4, GX = MOBILE ? 80 : 200, GY = MOBILE ? 140 : 260, SEC = MOBILE ? 200 : 360, PAD = MOBILE ? 120 : 200;

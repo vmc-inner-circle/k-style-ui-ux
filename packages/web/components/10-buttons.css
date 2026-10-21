@@ -142,7 +142,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--c-primary);
+  color: var(--c-primary-text);
   font-size: inherit;
   font-weight: var(--fw-medium);
   cursor: pointer;

@@ -216,10 +216,18 @@ function progressFill(html) {
     return pct ? m.replace(`class="${cls}"`, `class="${cls} w-${pct}"`) : m;
   });
 }
+// 영역 순위 · 읽는 순서 — screens.json(답 하나 · 나머지)에서 derive가 계산한 regions[].level · pos를 data-level · data-pos로.
+// CSS(위계 층)가 1순위 판 강조 · 나머지 셋째부터 덜 무겁게를 여기서 읽는다. 순위 칸이 없는 옛 화면은 그대로.
+function markLevels(s, html) {
+  const by = new Map((s.regions || []).filter((r) => r.level).map((r) => [r.key, r]));
+  if (!by.size) return html;
+  return html.replace(/(\sdata-region\s*=\s*["']([^"']+)["'])(\s+data-level\s*=\s*["'][^"']*["'])?(\s+data-pos\s*=\s*["'][^"']*["'])?/g,
+    (m, a, k) => (by.has(k) ? `${a} data-level="${by.get(k).level}" data-pos="${by.get(k).pos}"` : m));
+}
 function expandFragment(S, s, html, o = {}) {
   const mobile = S.platform === "mobile";
   platformNow = mobile ? "mobile" : "web";
-  let out = progressFill(expandParts(html));
+  let out = markLevels(s, progressFill(expandParts(html)));
   const trimmed = out.trim();
   if (s.overlayOf || /^<div\s+class=["'][^"']*\bmodal-backdrop\b/.test(trimmed)) return (mobile ? toSheet(trimmed) : trimmed) + "\n";
   const wrap = mobile ? wrapMobile : wrapShell;
@@ -234,7 +242,7 @@ module.exports = { expandFragment, expandParts, warnings };
 if (require.main === module) {
   const args = process.argv.slice(2), runDir = args.find((x) => !x.startsWith("--")), reshell = args.includes("--reshell");
   if (!runDir) { console.error("usage: node scripts/expand.js runs/<project> [--reshell]"); process.exit(2); }
-  const S = JSON.parse(fs.readFileSync(path.join(runDir, "screens.json"), "utf8"));
+  const S = require("./screens.js").loadScreens(runDir);
   const bySlug = new Map((S.screens || []).map((s) => [s.slug, s]));
   const jobs = [];
   for (const s of S.screens || []) jobs.push({ file: path.join(runDir, s.file || `screens/${s.slug}.html`), s });

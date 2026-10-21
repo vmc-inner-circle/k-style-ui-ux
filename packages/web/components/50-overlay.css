@@ -103,7 +103,7 @@
 .dropdown-item.is-danger > .icon-sm, .dropdown-item.is-danger > .icon { color: var(--c-danger); }
 .dropdown-item.active > .icon-sm { color: var(--c-primary-soft-fg); }
 .dropdown-item .kbd, .dropdown-shortcut { margin-left: auto; padding-left: var(--sp-3); font-size: var(--fs-xs); color: var(--c-text-muted); }
-.dropdown-item .check { margin-left: auto; color: var(--c-primary); }
+.dropdown-item .check { margin-left: auto; color: var(--c-primary-text); }
 .dropdown-divider { height: 1px; margin: var(--sp-1) 0; background: var(--c-border); }
 .dropdown-label { padding: var(--sp-2) var(--sp-3) var(--sp-1); font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--c-text-muted); }
 /* 트리거 옆에 붙여 열린 것처럼 보이기: 트리거를 .dropdown-anchor로 감싼다 */

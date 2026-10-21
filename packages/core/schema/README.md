@@ -1,61 +1,15 @@
 # 데이터 형식 — screens.json · flow.json · icons.json
 
-정본은 `docs/harness-design.md` §6. 여기는 복사해서 시작할 **최소 예시**다. (실행 중에는 다른 `runs/` 폴더를 참고하지 않는다 — 형식은 이 문서와 계약 문서로 충분하다.)
+**정본은 `schema.json`**(이 폴더) — 칸 이름 · 필수 · 값 범위 · 어느 걸음에 쓰는지(`x-stage`)는 거기에만 있다. 검사는 `node scripts/schema.js runs/<p> --step intent|list|full`. 쓰는 방법과 예시는 `docs/harness-design.md` §6. (실행 중에는 다른 `runs/` 폴더를 참고하지 않는다 — 형식은 스키마와 계약 문서로 충분하다.)
 
 ## screens.json
 
-```json
-{
-  "project": "sample",
-  "title": "샘플 서비스",
-  "platform": "web",
-  "round": 1,
-  "theme": "a",
-  "toggles": { "type": "normal", "accent": "calm", "toast": { "at": "top", "icon": "on", "tone": "light", "size": "normal" } },   // toast(안내 문구 모양)는 없으면 이 기본값
-  "roles": [
-    { "key": "owner", "label": "관리자" },
-    { "key": "member", "label": "구성원" }
-  ],
-  "board": {
-    "recommend": {
-      "theme": "a", "themeWhy": "업무용이라 중립 톤을 추천해요",
-      "type": "normal", "typeWhy": "표가 많아 보통 크기가 알맞아요",
-      "accent": "calm", "accentWhy": "상태 색이 눈에 띄도록 강조는 차분하게"
-    },
-    "ask": [
-      { "id": "nav", "text": "왼쪽 메뉴는 어떻게 둘까요?", "options": ["항상 펼침 (추천)", "아이콘만"], "recommended": 0 }
-    ],
-    "locked": [],
-    "focus": []
-  },
-  "nextScreenId": 1, "nextRegionId": 101,
-  "sections": [ { "key": "start", "name": "처음 시작하기", "desc": "가입하고 첫 모임을 만들어요" }, { "key": "home", "name": "홈", "desc": "다가오는 모임을 한눈에 봐요" } ],   // name = 하는 일 · desc = 띠에 보이는 한 줄(필수)
-  "screens": [
-    {
-      "slug": "home",
-      "name": "홈",
-      "role": "owner",
-      "section": "home",
-      "step": "오늘 보기",
-      "purpose": "오늘 할 일과 최근 변경을 한눈에 본다",
-      "pattern": "dashboard",
-      "file": "screens/home.html",
-      "policy": [ { "title": "기본 정의", "items": ["오늘 할 일을 마감이 가까운 순으로", "변경은 최근 7일 것만"] } ],
-      "regions": [
-        { "key": "summary", "label": "오늘 요약", "why": "§2-1 큰 흐름 파악" },
-        { "key": "recent",  "label": "최근 변경 목록" },
-        { "key": "new",     "label": "새로 만들기 버튼 영역" }
-      ]
-    }
-  ]
-}
-```
+짧은 예시('동네 독서 모임' — 유저스토리 · 역할 · 상태 · 사실 · 화면 하나(답 · 나머지 · 뺀 것) · 프리셋 · 보드)는 `docs/harness-design.md` §6.1 하나에만 둔다. 여기에 다시 적지 않는다(두 벌이면 어긋난다).
 
-- `id`는 적지 않아도 된다 → `node scripts/ids.js runs/<p>`가 채운다. 화면은 1부터(screens.json 순서), 항목은 101부터 따로. 한 번 발급된 번호는 바뀌지 않는다.
-- `roles[].user`(선택): `{ "name": "김지영", "initials": "김지" }` — 셸 오른쪽 위·사이드바 아래 사용자 표시. `brand`·`brandIcon`(선택): 상단바 서비스 이름·아이콘(없으면 `title`·layout-dashboard). 셸은 `scripts/expand.js`가 붙인다. 화면마다 `shell: "none"`(메뉴 없는 한 장)·`navActive: "<nav slug>"`(메뉴에 없는 화면에서 켤 항목)로 바꿀 수 있다.
-- `sections`·`section`·`step`·`policy`(필수): 사용 흐름 = 구역 보드. 큰 구역 → 단계 이름표 → 화면 나란히, 화면 아래 정책 메모(상태 변형은 policy 선택). 규칙은 `references/prd-to-screens.md` §5-2.
-- `state`(선택): `first-run` · `empty` · `input` · `error` · `success`. 오류·완료는 `variantOf`(원래 화면) 필수 — 원래 화면 옆에 놓인다. 입력 화면이 있으면 오류 1개 이상, 완료 1개 이상(lint).
-- `overlayOf`(선택): 뜨는 창 화면 — 조각에는 `.modal-backdrop`만, 뒷 화면은 build가 합친다. 이름은 '~ 창'.
+- `id`는 적지 않아도 된다 → `node scripts/ids.js runs/<p>`가 채운다. 화면은 1부터(screens.json 순서). 한 번 발급된 번호는 바뀌지 않는다.
+- `roles[].user`(선택): `{ "name": "김지영", "initials": "김지" }` — 셸 오른쪽 위·사이드바 아래 사용자 표시. `brand`·`brandIcon`(선택): 상단바 서비스 이름·아이콘(없으면 `title`·layout-dashboard). 셸은 `scripts/expand.js`가 붙인다. 화면마다 `navActive: "<nav slug>"`(메뉴에 없는 화면에서 켤 항목)로 바꿀 수 있다.
+- 블록(`answer` · `rest`)의 `key`와 주 버튼 `action`이 조각의 `data-region`이 된다. 영역 목록 · 목적 · 강조는 `scripts/screens.js`가 derive.js로 계산한다 — 손으로 쓰지 않는다.
+- `board.toggles.toast`(안내 문구 모양)는 없으면 build.js `TOAST_DEFAULT`(위쪽 · 아이콘 있음 · 흰 바탕 · 보통 글자).
 - `board.locked`: 2라운드부터 `["theme","toggles","ask"]`. `board.focus`: 지난 라운드에 고친 화면 slug — 보드 맨 위에 먼저 나온다.
 
 ## flow.json
