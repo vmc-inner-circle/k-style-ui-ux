@@ -19,7 +19,9 @@
     if (B.stage === "concept") {
       var C = B.concept(st.concept);   // 시안 단계의 추천은 형식상 첫 시안일 뿐이라 '추천 그대로'를 붙이지 않는다
       groups.push({ title: "고른 시안", items: [(C ? "시안 " + C.id.toUpperCase() + " · " + C.name : "") + " — 직접 고름"] });
-      if (st.theme !== B.REC.theme || st.accent !== B.fixSwatch(st.theme, B.REC.accent) || B.customChanged()) groups.push({ title: "고른 테마 · 컬러", items: [B.lookLine()] });
+      // 복사 글의 테마 줄 · 꾸밈 font 줄과 하나씩 맞춘다(20-board.js lookPicked · fontPicked) — 1차안의 처음 값이 된다
+      if (B.lookPicked()) groups.push({ title: "고른 테마 · 컬러 · 글자 크기", items: [B.lookLine(true)] });
+      if (B.fontPicked()) groups.push({ title: "고른 폰트", items: [B.fontName(st.font) + " — 시안 글꼴 대신 모든 화면에"] });
       var cm = B.conceptMemos().map(function (m) { return "시안 " + m.c.id.toUpperCase() + "(" + m.c.name + "): " + m.text; });
       if (cm.length) groups.push({ title: "시안에 남긴 말", items: cm });
       var more0 = [];
@@ -31,7 +33,7 @@
     // 1) 테마 · 컬러 · 폰트
     var look = B.lookLine();
     var same = st.theme === B.REC.theme && st.type === B.REC.type && st.accent === B.fixSwatch(st.theme, B.REC.accent) && st.font === B.REC.font;
-    var fontPicked = st.font !== B.REC.font;   // 컬러가 정해졌어도 글꼴은 따로 고를 수 있다(폰트 창)
+    var fontPicked = B.fontPicked();   // 컬러가 정해졌어도 글꼴은 따로 고를 수 있다(폰트 창)
     groups.push({ title: "테마 · 컬러 · 폰트", items: [look + (locked.indexOf("theme") >= 0 ? (fontPicked ? " — 컬러는 이미 정해짐, 폰트만 직접 고름" : " (이미 정해짐)") : same ? " — 추천 그대로" : " — 직접 고름")] });
     // 2) 확인 질문 중 추천과 다르게 고른 것
     var asks = [];

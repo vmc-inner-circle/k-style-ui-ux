@@ -60,7 +60,7 @@ const chromeDom = (file, hash = "", size = null) => {
 // 폭 잘림 재기 — 입구(index.html)를 #ds로 열어 상단바(.hx-bar) · 디자인 시스템 탭(.hx-ds) 안의 보이는 요소 중
 // 오른쪽 끝이 창 폭을 넘는 것을 센다. 가로로 미는 줄(overflow-x auto · overflow-y hidden) 안은 밀어서 볼 수 있으니 세지 않는다.
 // 위 탭 글자가 두 줄로 꺾인 것도 센다(좁은 폭에서 "사용/흐름"처럼 찌그러짐).
-// sel = 잴 요소 선택자(기본 상단바 · 디자인 시스템 탭). 돌려주는 것: { width, cut: 잘린 개수, seen: 잰 개수, samples: 잘린 것 앞 10개, tabWrap: 두 줄로 꺾인 탭 수, statWrap: 두 줄로 꺾인 숫자 칸 글자 수, cols: 묶음(unit · color · parts)의 왼쪽 x }
+// sel = 잴 요소 선택자(기본 상단바 · 디자인 시스템 탭). 돌려주는 것: { width, cut: 잘린 개수, seen: 잰 개수, samples: 잘린 것 앞 10개, tabWrap: 두 줄로 꺾인 탭 수, statWrap: 두 줄로 꺾인 숫자 칸 글자 수, cols: 묶음(unit · color · parts) · 열린 컬러 창 단(main · more · base)의 왼쪽 x }
 function cutScan(sel) {
   var W = innerWidth, cut = [], seen = 0;
   function slid(e) {
@@ -102,6 +102,8 @@ function cutScan(sel) {
   }).length;
   var cols = {};
   document.querySelectorAll(".hx-ds-sec").forEach(function (s) { cols[s.dataset.ds] = Math.round(s.getBoundingClientRect().left); });
+  // 컬러 창의 단(picker.js .hxp-col data-col: main · more · base) — 열린 창만
+  document.querySelectorAll(".hxp-panel:not([hidden]) .hxp-col").forEach(function (s) { if (s.checkVisibility()) cols[s.dataset.col] = Math.round(s.getBoundingClientRect().left); });
   return { width: W, cut: cut.length, seen: seen, samples: cut.slice(0, 10), tabWrap: tabWrap, statWrap: statWrap, cols: cols };
 }
 // 헤드리스 Chrome은 창 폭을 500 아래로 줄이지 못한다(390을 주면 500으로 그리고 사진만 390에서 자른다) →
@@ -127,4 +129,56 @@ const measureCut = (html, width, height = 844, shot = null, sel = DS_SEL) => {
   } finally { fs.rmSync(inner, { force: true }); fs.rmSync(outer, { force: true }); }
 };
 
-module.exports = { ROOT, UPDATE, run, workCopy, suite, walk, stageOn, CHROME, chromeDom, measureCut };
+// 페이지 사본에 단추 누르기를 끼워 넣는다 — 다 그린 뒤(1.2초, measureCut이 재기 전) picks = [[선택자, 글자 앞부분], …]를 차례로 누르고
+// 0.3초 뒤 { missing: 못 찾은 단추, report: report(함수 본문 글)가 돌려준 값 }을 <script type="application/json" id="hx-clicked">에 적는다.
+// 돌려주는 것: 사본 경로(같은 폴더, -clicked.html) — chromeDom · measureCut에 그대로 넘긴다. 읽기는 clicked(dom)
+const withClicks = (file, picks, report = "return null;") => {
+  const out = file.replace(/\.html$/, "") + "-clicked.html";
+  const js = "<script>addEventListener('load',function(){setTimeout(function(){var missing=[];" + JSON.stringify(picks)
+    + ".forEach(function(p){var n=[].filter.call(document.querySelectorAll(p[0]),function(e){return e.textContent.trim().indexOf(p[1])===0;})[0];if(n)n.click();else missing.push(p.join(' '));});"
+    + "setTimeout(function(){var o=document.createElement('script');o.type='application/json';o.id='hx-clicked';o.textContent=JSON.stringify({missing:missing,report:(function(){" + report + "})()});document.body.appendChild(o);},300);},1200);});</script>";
+  fs.writeFileSync(out, fs.readFileSync(file, "utf8").replace(/<\/body>(?![\s\S]*<\/body>)/, js + "</body>"));
+  return out;
+};
+const clicked = (dom) => { const m = /<script type="application\/json" id="hx-clicked">([\s\S]*?)<\/script>/.exec(dom || ""); return m ? JSON.parse(m[1]) : null; };
+
+// 브라우저 없이 보드 · 색 창 스크립트를 띄우는 가짜 DOM — 그 스크립트들이 쓰는 만큼만(속성 · 자식 · 글자 · 누르기).
+// 부를 때마다 새 문서: { Node, text, doc, html, head, body }. 단추.click()은 pointerdown → click을 위로 올리고 문서 click까지 보낸다
+const fakeDom = () => {
+  class Node {
+    constructor(tag) { this.tagName = String(tag).toUpperCase(); this.attrs = {}; this.children = []; this.parent = null; this.on = {}; this.style = {}; this.text = ""; this.value = ""; }
+    setAttribute(k, v) { this.attrs[k] = String(v); if (k === "value") this.value = String(v); }
+    getAttribute(k) { return k in this.attrs ? this.attrs[k] : null; }
+    removeAttribute(k) { delete this.attrs[k]; }
+    hasAttribute(k) { return k in this.attrs; }
+    appendChild(c) { if (c.parent) c.parent.removeChild(c); c.parent = this; this.children.push(c); return c; }
+    removeChild(c) { this.children = this.children.filter((x) => x !== c); c.parent = null; return c; }
+    get firstChild() { return this.children[0] || null; }
+    get textContent() { return this.tagName === "#TEXT" ? this.text : this.text + this.children.map((c) => c.textContent).join(""); }
+    set textContent(v) { this.children.forEach((c) => (c.parent = null)); this.children = []; this.text = String(v); }
+    addEventListener(type, fn) { (this.on[type] = this.on[type] || []).push(fn); }
+    contains(n) { for (let x = n; x; x = x.parent) if (x === this) return true; return false; }
+    all() { return this.children.flatMap((c) => [c].concat(c.all())); }
+    get classList() { const n = this; return { contains: (c) => (n.attrs.class || "").split(/\s+/).includes(c) }; }
+    click() {
+      const path = []; for (let x = this; x; x = x.parent) path.push(x);
+      const ev = { target: this, stopPropagation() { this.stop = true; }, composedPath: () => path };
+      for (const x of path) { (x.on.pointerdown || []).forEach((f) => f(ev)); }
+      for (const x of path) { (x.on.click || []).forEach((f) => f(ev)); if (ev.stop) return; }
+      (doc.on.click || []).forEach((f) => f(ev));
+    }
+  }
+  const text = (s) => Object.assign(new Node("#text"), { text: s });
+  const html = new Node("html"), head = html.appendChild(new Node("head")), body = html.appendChild(new Node("body"));
+  const doc = new Node("#document");
+  Object.assign(doc, {
+    documentElement: html, head, body,
+    createElement: (tag) => new Node(tag), createTextNode: text,
+    getElementById: (id) => html.all().find((n) => n.attrs.id === id) || null,
+    querySelector: (q) => { const m = /^link\[href="(.*)"\]$/.exec(q); return m ? html.all().find((n) => n.tagName === "LINK" && n.attrs.href === m[1]) || null : html.all().find((n) => n.tagName === q.toUpperCase()) || null; },
+    querySelectorAll: (q) => html.all().filter((n) => n.tagName === q.toUpperCase()),
+  });
+  return { Node, text, doc, html, head, body };
+};
+
+module.exports = { ROOT, UPDATE, run, workCopy, suite, walk, stageOn, CHROME, chromeDom, measureCut, withClicks, clicked, fakeDom };

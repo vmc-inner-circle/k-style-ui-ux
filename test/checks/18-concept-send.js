@@ -12,7 +12,7 @@ const B = {
   stage: "concept", REC: { concept: "a", theme: "light", accent: "x" },
   state: { concept: "a", theme: "light", accent: "x", add: "", memo: "" },
   concept: (id) => CS.filter((c) => c.id === id)[0],
-  fixSwatch: (_, a) => a, lookLine: () => "", conceptMemos: () => [], customChanged: () => false,
+  fixSwatch: (_, a) => a, lookLine: () => "", conceptMemos: () => [], lookPicked: () => false, fontPicked: () => false,
 };
 const window = { HX: { board: B, data: { board: {} } } };
 new Function("window", "document", src("23-board-send.js"))(window, {});

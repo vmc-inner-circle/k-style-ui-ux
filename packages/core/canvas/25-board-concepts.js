@@ -6,10 +6,10 @@
      시안마다 한 줄 = 시안 띠(시안 X · 단계 · 이름 · 이유 · 화면 구성 · 꾸밈 · '이 안으로 할게요') → 화면 이름표 → 메인 화면 5~6장 나란히(화면 전체 길이, 보기만).
      화면 안 스크롤·밀기는 넣지 않는다 — 사용자: "스크롤이나 이런 거 그냥 없애자, 화면만 봐도 될 듯". 끌기·휠은 언제나 캔버스 이동, ↑↓ = 이전·다음 시안 줄.
      끌어서 이동 · ⌘/Ctrl+휠 확대 · 위쪽 도구 = 시안 바로가기(시안마다 하나 — A~D) · 축소/확대 · 전체 보기. 화면 이름 옆 '크게 보기'.
-   맨 위 고정 상단바 = 제목 · 테마 · 컬러 · 폰트(packages/core/color/picker.js — 고르면 모든 시안이 그 색으로) · 보내기.
+   맨 위 고정 상단바 = 제목 · 테마 · 컬러 · 폰트(packages/core/color/picker.js — 고르면 모든 시안이 그 색 · 글꼴 · 글자 크기로) · 보내기.
    고른 뒤 흐름: 그 안 + 색 → 2턴 전체 화면 1차안 → 3턴 의견 반영 최종.
    다른 시안의 화면은 build.js가 "<시안 id>~<slug>" 섹션으로 싣고, 꾸밈은 화면 상자의 data-*(dress.css)로 입힌다.
-   복사 글: "시안 <id>(이름)" + (색을 바꿨으면) "테마 …" (20-board.js) */
+   복사 글: "시안 <id>(이름)" + (테마 · 컬러 · 글자 크기를 바꿨으면) "테마 …" + (글꼴을 골랐으면) "꾸밈 font=…" (20-board.js) */
 (function () {
   "use strict";
   var HX = window.HX, B = HX.board, doc = document;
@@ -20,9 +20,14 @@
 
   function frameKey(c, slug) { return B.stage !== "concept" && c.id === B.mainConcept ? slug : c.id + "~" + slug; }
   function full(d) { var o = {}; KEYS.forEach(function (k) { o[k] = (d && d[k]) || DC.base[k]; }); return o; }
-  /* 지금 고른 색이 레퍼런스 프리셋이면 판 모양 · 모서리 두 칸만 프리셋 값으로(나머지는 시안 그대로).
-     판 모양이 잠근 모서리(dress.js NOTE.cards[].radius)와 부딪혀도 프리셋이 이긴다 — 사람이 고른 것 */
-  function withPreset(d) { var p = B.presetDress(); return p ? Object.assign({}, d, { cards: p.cards, radius: p.radius }) : d; }
+  /* 상단에서 고른 것을 시안 꾸밈 위에 덮는다(나머지 칸은 시안 그대로) — 1차안도 같은 값으로 칠해진다(answer-parsing §1)
+     · 레퍼런스 프리셋이면 판 모양 · 모서리 두 칸만 프리셋 값으로. 판 모양이 잠근 모서리(dress.js NOTE.cards[].radius)와 부딪혀도 프리셋이 이긴다 — 사람이 고른 것
+     · 폰트 창에서 글꼴을 골랐으면 글꼴 칸을 그 글꼴로(상자에 시안 글꼴 data-font가 있으면 <html data-font>와 둘 다 맞아 CSS 순서로 갈리므로 상자에 직접) */
+  function withPicks(d) {
+    var p = B.presetDress(), o = p ? Object.assign({}, d, { cards: p.cards, radius: p.radius }) : Object.assign({}, d);
+    if (B.fontPicked()) o.font = B.state.font;
+    return o;
+  }
   /* 꾸밈 → 화면 상자의 data-* (dress.css) + 아이콘(선 ↔ 입체: 스프라이트의 #i- ↔ #f-) */
   function dressBox(box, d) {
     KEYS.forEach(function (k) { if (k === "icons") return; if (d[k] && d[k] !== DC.base[k]) box.setAttribute("data-" + k, d[k]); else box.removeAttribute("data-" + k); });
@@ -47,7 +52,7 @@
     function done() { m.remove(); doc.removeEventListener("keydown", key); doc.body.style.overflow = ""; }
     doc.body.appendChild(m); doc.addEventListener("keydown", key); doc.body.style.overflow = "hidden";
     HX.mountFrame(frameKey(c, slug), box, { scale: 1, fullHeight: true, badges: false });
-    dressBox(box, withPreset(full(c.dress)));
+    dressBox(box, withPicks(full(c.dress)));
     close.focus();
   }
 
@@ -184,14 +189,15 @@
       });
     }
     HX.on("board-change", paint);
-    // 색을 바꾸면(22-board-canvas.js B.mountColor) 실린 상자들을 다시 입힌다
-    B.redress = function () { rows.forEach(function (R) { R.boards.forEach(function (b) { if (b.frame) dressBox(b.box, withPreset(b.d)); }); }); };
+    // 테마 · 컬러 · 폰트를 바꾸면(22-board-canvas.js B.mountColor) 실린 상자들을 다시 입힌다
+    //   글꼴 · 글자 크기가 바뀌면 화면 길이도 달라진다 → 늘린 높이를 되돌리고 다음 relayout에서 다시 늘린다
+    B.redress = function () { rows.forEach(function (R) { R.boards.forEach(function (b) { if (b.frame) { b.frame.resetHeight(); dressBox(b.box, withPicks(b.d)); } }); }); HX.relayout(); };
     HX.on("layout", function () { if (mounted && vp.clientWidth) layout(); });
     // 붙인 뒤에 화면을 싣고 배치 (화면 전체 길이를 재야 줄 높이가 정해진다)
     requestAnimationFrame(function () {
       rows.forEach(function (R) { R.boards.forEach(function (b) {
         b.frame = HX.mountFrame(frameKey(R.c, b.slug), b.box, { scale: 1, fullHeight: true, badges: false });   // 화면 전체 길이 — 보기만
-        dressBox(b.box, withPreset(b.d));
+        dressBox(b.box, withPicks(b.d));
       }); });
       mounted = true;
       requestAnimationFrame(function () { HX.relayout(); requestAnimationFrame(function () { layout(); fit(false); }); });

@@ -1,49 +1,19 @@
 // 상단 버튼 셋 테마 · 컬러 · 폰트(설계 schema-on-pr27 9절 U1 · U2 · U4) — 버튼이 곧 탭, 누르면 그 내용만 담긴 창이 그 버튼 아래로.
-// 테마 칸 = 맞춤 1 + 근거 있는 8, 컬러는 접기 없이 버튼 색 + 팔레트 24 + 바탕 3, 당근 느낌을 고르면 테마 · 판 모양 · 폰트가 같이 바뀐다.
+// 테마 칸 = 맞춤 1 + 근거 있는 8, 당근 느낌을 고르면 테마 · 판 모양 · 폰트가 같이 바뀐다.
+// 컬러는 접기 없이 PR 27만큼(C3): 왼쪽 단 버튼 색 · 자주 쓰는 색 24 / 오른쪽 단 색 바둑판 72 · 어울리는 배색 5 · 그 밖의 색 / 아래 바탕 12.
 // 브라우저 없이 picker.js를 가짜 DOM(아래 Node)으로 띄워 단추를 직접 누른다. 색 계산은 진짜 scripts/looks.js.
+// Chrome이 있으면 진짜 브라우저에서 컬러 창 크기를 잰다(8).
 const fs = require("fs");
 const path = require("path");
-const { ROOT, suite } = require("../lib.js");
+const { ROOT, suite, fakeDom, run, workCopy, CHROME, chromeDom, measureCut, withClicks, clicked } = require("../lib.js");
 
 const t = suite("43 테마 · 컬러 · 폰트 창");
 const src = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
 const LK = require(path.join(ROOT, "scripts/looks.js"));
 const DRESS = require(path.join(ROOT, "scripts/dress.js"));
 
-// ---------- 가짜 DOM: picker.js가 쓰는 만큼만 ----------
-class Node {
-  constructor(tag) { this.tagName = String(tag).toUpperCase(); this.attrs = {}; this.children = []; this.parent = null; this.on = {}; this.style = {}; this.text = ""; this.value = ""; }
-  setAttribute(k, v) { this.attrs[k] = String(v); if (k === "value") this.value = String(v); }
-  getAttribute(k) { return k in this.attrs ? this.attrs[k] : null; }
-  removeAttribute(k) { delete this.attrs[k]; }
-  hasAttribute(k) { return k in this.attrs; }
-  appendChild(c) { if (c.parent) c.parent.removeChild(c); c.parent = this; this.children.push(c); return c; }
-  removeChild(c) { this.children = this.children.filter((x) => x !== c); c.parent = null; return c; }
-  get firstChild() { return this.children[0] || null; }
-  get textContent() { return this.tagName === "#TEXT" ? this.text : this.text + this.children.map((c) => c.textContent).join(""); }
-  set textContent(v) { this.children.forEach((c) => (c.parent = null)); this.children = []; this.text = String(v); }
-  addEventListener(type, fn) { (this.on[type] = this.on[type] || []).push(fn); }
-  contains(n) { for (let x = n; x; x = x.parent) if (x === this) return true; return false; }
-  all() { return this.children.flatMap((c) => [c].concat(c.all())); }
-  get classList() { const n = this; return { contains: (c) => (n.attrs.class || "").split(/\s+/).includes(c) }; }
-  click() {
-    const path = []; for (let x = this; x; x = x.parent) path.push(x);
-    const ev = { target: this, stopPropagation() { this.stop = true; }, composedPath: () => path };
-    for (const x of path) { (x.on.pointerdown || []).forEach((f) => f(ev)); }
-    for (const x of path) { (x.on.click || []).forEach((f) => f(ev)); if (ev.stop) return; }
-    (doc.on.click || []).forEach((f) => f(ev));
-  }
-}
-const text = (s) => Object.assign(new Node("#text"), { text: s });
-const html = new Node("html"), head = html.appendChild(new Node("head")), body = html.appendChild(new Node("body"));
-const doc = new Node("#document");
-Object.assign(doc, {
-  documentElement: html, head, body,
-  createElement: (tag) => new Node(tag), createTextNode: text,
-  getElementById: (id) => html.all().find((n) => n.attrs.id === id) || null,
-  querySelector: (q) => { const m = /^link\[href="(.*)"\]$/.exec(q); return m ? html.all().find((n) => n.tagName === "LINK" && n.attrs.href === m[1]) || null : html.all().find((n) => n.tagName === q.toUpperCase()) || null; },
-  querySelectorAll: (q) => html.all().filter((n) => n.tagName === q.toUpperCase()),
-});
+// ---------- 가짜 DOM: picker.js가 쓰는 만큼만 (test/lib.js fakeDom) ----------
+const { Node, text, doc, html, head, body } = fakeDom();
 
 // 처음 화면: PRD 맞춤 분위기 하나 + 시안 꾸밈(판 모양 float · 모서리 sharp · 명조 제목 글꼴)
 const OWN = [{ id: "warm-paper", name: "따뜻한 종이", why: "기록에 어울려요", mode: "light", bg: "#F7F3EC", ink: "#2B2620", shape: "soft", font: "serif-title",
@@ -94,25 +64,49 @@ button("더 보기") ? t.fail("테마 창에 '더 보기'가 있음") : t.ok("�
 top("테마").click();
 panel.hasAttribute("hidden") && top("테마").attrs["aria-expanded"] === "false" ? t.ok("같은 버튼을 다시 누르면 닫힌다") : t.fail("테마를 다시 눌러도 안 닫힘");
 
-// 3) 컬러: 접기 없이 버튼 색 5 + 팔레트 24 + 바탕 3
+// 3) 컬러: 접기 없이 PR 27만큼 — 왼쪽 단(버튼 색 · 자주 쓰는 색 24) · 오른쪽 단(색 바둑판 · 어울리는 배색 · 그 밖의 색) · 아래 한 줄(바탕 12)
 top("컬러").click();
 opened("컬러") ? t.ok("컬러를 누르면 컬러 창이 그 버튼 아래로 열린다") : t.fail("컬러 창이 안 열림");
-const c0 = cells(), pal = LK.PALETTE.flatMap((g) => g.colors);
-button("더 많은 색") || button("접기") || panel.all().some((n) => cls(n, "hxp-morebtn")) ? t.fail("컬러 창에 접기 단추가 남아 있음") : t.ok("컬러 창에 접기 단추 없음");
+const c0 = cells(), pal = LK.PALETTE.flatMap((g) => g.colors), gridN = LK.swatchGrid().flat().length, harmN = LK.harmonies("#2F6B4F").length;
+button("더 많은 색") || button("더 보기") || button("접기") || panel.all().some((n) => cls(n, "hxp-morebtn") || cls(n, "hxp-fold")) ? t.fail("컬러 창에 접기 단추가 남아 있음") : t.ok("컬러 창에 접기 · 더 보기 단추 없음");
 c0.some((n) => cls(n, "hxp-ref") || cls(n, "hxp-font")) ? t.fail("컬러 창에 다른 창 칸이 보임") : t.ok("컬러 창엔 컬러 칸만");
 const palShown = pal.filter((c) => c0.some((n) => n.attrs.title === c.name && (n.children[0].attrs.style || "").includes(c.hex))).length;
-const basesShown = c0.filter((n) => ["흰색", "미색", "어두운"].includes(n.attrs.title)).length;
-c0.length === 5 + 24 + 3 && pal.length === 24 && palShown === 24 && basesShown === 3
-  ? t.ok(`컬러 칸 ${c0.length} = 버튼 색 5 + 팔레트 ${palShown} + 바탕 ${basesShown}`) : t.fail(`컬러 칸 ${c0.length} (팔레트 ${palShown}/${pal.length} · 바탕 ${basesShown})`);
-c0.some((n) => cls(n, "hxp-chip") || cls(n, "hxp-hcard") || n.tagName === "INPUT") ? t.fail("색 바둑판 · 배색 · 그 밖의 색이 보임") : t.ok("색 바둑판 · 어울리는 배색 · 그 밖의 색 · 나머지 바탕은 그리지 않는다");
-typeof LK.swatchGrid === "function" && typeof LK.harmonies === "function" && LK.BASES.length > 3 ? t.ok("looks.js swatchGrid · harmonies · 바탕 데이터는 남아 있다") : t.fail("looks.js 함수 · 바탕 데이터가 사라짐");
+const basesShown = LK.BASES.filter((bs) => c0.some((n) => cls(n, "hxp-dot") && n.attrs.title === bs.name)).length;
+const kind = (c) => c0.filter((n) => cls(n, c)).length, inputs = c0.filter((n) => n.tagName === "INPUT").length;
+const want0 = 5 + pal.length + gridN + harmN + 1 + LK.BASES.length;
+c0.length === want0 && pal.length === 24 && palShown === 24 && gridN === 72 && kind("hxp-chip") === 72 && harmN === 5 && kind("hxp-hcard") === 5 && inputs === 1 && LK.BASES.length === 12 && basesShown === 12
+  ? t.ok(`컬러 칸 ${c0.length} = 버튼 색 5 + 자주 쓰는 색 ${palShown} + 색 바둑판 ${kind("hxp-chip")} + 어울리는 배색 ${kind("hxp-hcard")} + 그 밖의 색 ${inputs} + 바탕 ${basesShown}`)
+  : t.fail(`컬러 칸 ${c0.length}/${want0} (자주 쓰는 색 ${palShown}/${pal.length} · 바둑판 ${kind("hxp-chip")}/${gridN} · 배색 ${kind("hxp-hcard")}/${harmN} · 입력 ${inputs} · 바탕 ${basesShown}/${LK.BASES.length})`);
+// 묶음 제목: 단마다 차례대로, 묶음 하나에 작은 제목 하나
+const colorPane = panel.children.find((n) => cls(n, "hxp-pane") && shown(n));
+const subsOf = (id) => colorPane.all().filter((n) => n.attrs["data-col"] === id).flatMap((c) => c.all()).filter((n) => cls(n, "hxp-sub")).map((n) => n.textContent);
+const COLS = { main: ["버튼 색", "자주 쓰는 색"], more: ["색 바둑판", "어울리는 배색", "그 밖의 색"], base: ["바탕"] };
+const subsAll = colorPane.all().filter((n) => cls(n, "hxp-sub")).length;
+Object.keys(COLS).every((k) => JSON.stringify(subsOf(k)) === JSON.stringify(COLS[k])) && subsAll === 6
+  ? t.ok("묶음 제목 6: 왼쪽 단 버튼 색 · 자주 쓰는 색 / 오른쪽 단 색 바둑판 · 어울리는 배색 · 그 밖의 색 / 아래 바탕")
+  : t.fail(`묶음 제목: ${Object.keys(COLS).map((k) => k + " " + subsOf(k).join(" · ")).join(" / ")} (모두 ${subsAll})`);
+// 바둑판은 밝기 줄 순(looks.js swatchGrid 그대로) — 첫 칸 = 가장 밝은 줄 첫 색
+const chips = c0.filter((n) => cls(n, "hxp-chip")).map((n) => n.attrs.title);
+JSON.stringify(chips) === JSON.stringify(LK.swatchGrid().flat()) ? t.ok("색 바둑판 = 밝기 줄 순(swatchGrid 차례 그대로)") : t.fail("색 바둑판 차례가 swatchGrid와 다름");
 
 // 팔레트 색을 누르면 직접 고른 색 — 버튼 색 줄은 그 색 하나
 const coral = c0.find((n) => n.attrs.title === "코랄");
 coral.click();
 const sel1 = ctl.get();
 html.getAttribute("data-theme") === "custom" && sel1.custom.hex === "#FF6F61" && sel1.custom.from === "warm-paper" ? t.ok("팔레트 코랄 → 직접 고른 색(테마 따뜻한 종이 위)") : t.fail(`코랄 → ${html.getAttribute("data-theme")} ${JSON.stringify(sel1.custom)}`);
-cells().length === 1 + 24 + 3 ? t.ok("직접 고른 뒤 컬러 칸 = 고른 색 1 + 24 + 3") : t.fail(`직접 고른 뒤 컬러 칸 ${cells().length}`);
+cells().length === want0 - 4 ? t.ok(`직접 고른 뒤 컬러 칸 ${cells().length} = 버튼 색 줄이 고른 색 1로`) : t.fail(`직접 고른 뒤 컬러 칸 ${cells().length} (${want0 - 4}이어야 함)`);
+// 어울리는 배색은 고른 색에서 다시 계산된다 — 배색을 누르면 버튼 · 바탕이 같이
+const harm = cells().find((n) => cls(n, "hxp-hcard"));
+harm && harm.attrs.title.includes(LK.harmonies("#FF6F61")[0].hex) ? t.ok("어울리는 배색 = 고른 색(코랄)에서 다시 계산") : t.fail(`어울리는 배색이 코랄에서 다시 안 그려짐: ${harm && harm.attrs.title}`);
+harm.click();
+ctl.get().custom.bgHex === LK.harmonies("#FF6F61")[0].bgHex.toUpperCase() ? t.ok("배색을 누르면 바탕(bgHex)까지 바뀐다") : t.fail(`배색 → ${JSON.stringify(ctl.get().custom)}`);
+// 바둑판 칸 · 그 밖의 색 입력
+const chip = cells().find((n) => cls(n, "hxp-chip"));
+chip.click();
+ctl.get().custom.hex === chip.attrs.title.toUpperCase() && chip.attrs["aria-checked"] === "true" ? t.ok("바둑판 칸 → 직접 고른 색 · 고름 표시") : t.fail(`바둑판 → ${JSON.stringify(ctl.get().custom)}`);
+const otherIn = cells().find((n) => n.tagName === "INPUT");
+otherIn.value = "#123456"; (otherIn.on.input || []).forEach((f) => f({ target: otherIn }));
+ctl.get().custom.hex === "#123456" ? t.ok("그 밖의 색 입력 → 직접 고른 색") : t.fail(`그 밖의 색 → ${JSON.stringify(ctl.get().custom)}`);
 !panel.hasAttribute("hidden") ? t.ok("창 안을 눌러도 창은 열려 있다") : t.fail("색을 고르자 창이 닫힘");
 
 // 4) 당근 느낌 → 테마 · 판 모양 · 모서리 · 폰트가 같이
@@ -172,6 +166,40 @@ const s22 = src("packages/core/canvas/22-board-canvas.js");
       win2.HXColor.mount({ project: "t2", onChange: () => {} });
       const refs2 = body2.all().filter((n) => n.tagName === "BUTTON" && cls(n, "hxp-ref"));
       refs2.length === 9 && refs2[0].children[1].textContent === "이 서비스 맞춤" ? t.ok("새 형식 테마 창 = 9칸(맞춤 1 맨 앞 + 근거 8)") : t.fail(`새 형식 테마 칸 ${refs2.length}: ${refs2.map((n) => n.children[1].textContent).join(" · ")}`);
+    }
+  } finally { w.done(); }
+}
+
+// 8) 진짜 브라우저: 완성본 입구 · 초안 보드에서 '컬러'를 눌러 연 창 — 1440×900은 스크롤 없이 화면 안 · 두 단, 390은 한 단 · 잘림 0
+//    (사진은 runs/_c3/shot.js가 같은 단추를 눌러 찍는다)
+if (!CHROME) t.skip("Chrome이 없어 컬러 창 크기는 건너뜀 (CHROME=<경로>)");
+else {
+  const w = workCopy();
+  try {
+    run("ids.js", w.run); run("expand.js", w.run);
+    // 열린 창의 자리 · 크기 · 안쪽 스크롤 · 단 왼쪽 x · 상단바 아래 끝
+    const REPORT = "var p=document.querySelector('.hxp-panel:not([hidden])');if(!p)return null;var r=p.getBoundingClientRect(),bar=document.querySelector('.hx-bar'),cols={};"
+      + "p.querySelectorAll('.hxp-col').forEach(function(c){cols[c.dataset.col]=Math.round(c.getBoundingClientRect().left);});"
+      + "return{label:p.getAttribute('aria-label'),vw:innerWidth,vh:innerHeight,barBottom:bar?Math.round(bar.getBoundingClientRect().bottom):0,top:Math.round(r.top),bottom:Math.round(r.bottom),left:Math.round(r.left),right:Math.round(r.right),h:Math.round(r.height),sh:p.scrollHeight,ch:p.clientHeight,sw:p.scrollWidth,cw:p.clientWidth,cols:cols};";
+    for (const [mode, name, what] of [["final", "index", "완성본 입구"], ["board", "board", "초안 보드"]]) {
+      const b = run("build.js", w.run, "--mode", mode);
+      if (b.code !== 0) { t.fail(`${what}: build 실패\n${b.out}`); continue; }
+      const page = withClicks(path.join(w.run, "out", name + ".html"), [[".hxp-btn", "컬러"]], REPORT);
+      const got = clicked(chromeDom(page, "", [1440, 900])), p = got && got.report;
+      if (!p || p.label !== "컬러") { t.fail(`${what} 1440: 컬러 창을 못 열었음 ${JSON.stringify(got)}`); continue; }
+      // 창은 버튼 바로 아래(8px)에서 열려 상단바 아래 선에 조금 겹친다 — 위 끝은 보지 않고 높이 · 아래 끝 · 양옆만
+      p.h <= p.vh - p.barBottom && p.bottom <= p.vh && p.left >= 0 && p.right <= p.vw
+        ? t.ok(`${what} 1440×900: 컬러 창 높이 ${p.h} ≤ 화면 ${p.vh} - 상단바 ${p.barBottom} · 화면 안(${p.left}~${p.right} × ${p.top}~${p.bottom})`)
+        : t.fail(`${what} 1440×900: 컬러 창이 화면 밖 또는 너무 큼 — ${JSON.stringify(p)}`);
+      p.sh <= p.ch && p.sw <= p.cw ? t.ok(`${what} 1440: 창 안 스크롤 없음(세로 ${p.sh}/${p.ch} · 가로 ${p.sw}/${p.cw})`) : t.fail(`${what} 1440: 창 안 스크롤 — 세로 ${p.sh}/${p.ch} · 가로 ${p.sw}/${p.cw}`);
+      const c = p.cols;
+      c.main < c.more && c.main === c.base ? t.ok(`${what} 1440: 두 단(왼쪽 x ${c.main} · 오른쪽 x ${c.more}) + 아래 바탕 줄`) : t.fail(`${what} 1440: 두 단이 아님 ${JSON.stringify(c)}`);
+      if (mode === "final") {
+        const m = measureCut(page, 390, 844, null, ".hxp-panel:not([hidden]), .hxp-panel:not([hidden]) *"), k = m && m.cols;
+        !m ? t.fail("390: 재지 못함")
+          : m.width === 390 && m.cut === 0 && k.main >= 0 && k.main === k.more && k.main === k.base ? t.ok(`390: 컬러 창 한 단으로 쌓임(x ${k.main}) · 잘림 0 (잰 요소 ${m.seen})`)
+          : t.fail(`390: 잘림 ${m.cut} · 단 ${JSON.stringify(k)} — ${m.samples.join(" | ")}`);
+      }
     }
   } finally { w.done(); }
 }

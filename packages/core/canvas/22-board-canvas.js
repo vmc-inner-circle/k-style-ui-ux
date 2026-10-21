@@ -8,14 +8,13 @@
   // ---------- 상단바 컨트롤 ----------
   /* 버튼 셋 테마 · 컬러 · 폰트(packages/core/color/picker.js — 버튼이 곧 탭, 그 아래로 창) — 고르면 보드 상태(의견 보내기 첫 줄 · 꾸밈 font 줄)에도 담긴다.
      글자 크기는 폰트 창에 있다. 색이 확정돼도 폰트(글꼴 · 글자 크기)가 열려 있으면 띄운다.
-     시안 단계는 글꼴을 시안 꾸밈이 정하고 글자 크기는 보내지 않으므로 폰트 창은 안내만.
-     꾸밈은 화면 상자가 입으므로 html은 건드리지 않게(dress: false) — 프리셋을 고르면 상자들을 다시 입힌다(B.redress, 25-board-concepts.js) */
+     시안 단계도 폰트 창을 그대로 연다 — 글꼴을 고르면 시안 꾸밈 글꼴을 덮고, 고른 셋은 의견 보내기 줄로 1차안까지 간다(사람 의견 2026-10-21).
+     꾸밈은 화면 상자가 입으므로 html은 건드리지 않게(dress: false) — 프리셋 · 글꼴을 고르면 상자들을 다시 입힌다(B.redress, 25-board-concepts.js) */
   B.mountColor = function (anchor, o) {
     if (!window.HXColor || (B.isLocked("theme") && B.isLocked("font") && B.isLocked("type"))) return;
-    var st = B.state;
+    var st = B.state, recType = (B.data.recommend || {}).type || B.REC.type;   // '· 추천' 표시는 1턴 추천 그대로(처음 값이 이미 고른 값이어도)
     window.HXColor.mount({ project: HX.meta.project, anchor: anchor, inline: !!(o && o.inline), dress: false,
-      colorLocked: B.isLocked("theme"), fontLocked: B.isLocked("font"), typeLocked: B.isLocked("type"), rec: { type: B.REC.type },
-      textNote: B.stage === "concept" ? "글꼴 · 글자 크기는 시안을 고른 뒤 초안에서 바꿀 수 있어요" : null,
+      colorLocked: B.isLocked("theme"), fontLocked: B.isLocked("font"), typeLocked: B.isLocked("type"), rec: { type: recType },
       initial: { theme: st.theme, swatch: st.accent, custom: st.custom || null, font: st.font, type: st.type }, onChange: function (sel) {
       st.custom = sel.theme === "custom" ? sel.custom : null;
       if (st.custom) B.putCustom(st.custom);

@@ -28,7 +28,7 @@ load(null).presetDress({ theme: "toss" }) === null ? t.ok("HX_PRESET_DRESS가 �
 
 // 보드: html은 건드리지 않고(dress: false) 화면 상자가 입는다 · 복사 글 꼬리
 /dress: false/.test(src("canvas/22-board-canvas.js")) && /B\.redress\(\)/.test(src("canvas/22-board-canvas.js")) ? t.ok("보드 색 바꾸기: dress: false + 고르면 상자 다시 입힘") : t.fail("22-board-canvas.js: mountColor에 dress: false · B.redress()가 있어야 함");
-/withPreset\(b\.d\)/.test(src("canvas/25-board-concepts.js")) ? t.ok("시안 상자가 프리셋 꾸밈을 입는다") : t.fail("25-board-concepts.js: 상자를 withPreset으로 입혀야 함");
+/withPicks\(b\.d\)/.test(src("canvas/25-board-concepts.js")) ? t.ok("시안 상자가 프리셋 꾸밈을 입는다") : t.fail("25-board-concepts.js: 상자를 withPicks(프리셋 · 고른 글꼴)로 입혀야 함");
 src("canvas/20-board.js").includes("판 모양 · 모서리: 프리셋 따라감") ? t.ok("복사 글 꼬리 '판 모양 · 모서리: 프리셋 따라감'") : t.fail("20-board.js: 테마 줄에 프리셋 꼬리가 없음");
 
 t.end();
