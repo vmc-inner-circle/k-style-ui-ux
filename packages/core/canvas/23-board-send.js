@@ -1,0 +1,131 @@
+/* 23-board-send.js — "의견 보내기": 복사하기 전에 무엇이 전달되는지 사람이 읽는 말로 먼저 보여준다.
+   실제로 복사되는 글은 B.answer()(형식 고정, answer-parsing.md가 읽음)이고, 이 창은 그것을 풀어서 보여줄 뿐이다. */
+(function () {
+  "use strict";
+  var HX = window.HX, B = HX.board, doc = document;
+  if (!B) return;
+
+  function one(s) { return String(s || "").replace(/\s*\n+\s*/g, " ").trim(); }
+  function screenOf(regionId) {
+    var hit = null;
+    HX.data.screens.forEach(function (s) { s.regions.forEach(function (r) { if (r.id === regionId) hit = s; }); });
+    return hit;
+  }
+
+  /* 사람이 읽는 요약: [{title, items:[문장]}] */
+  B.summary = function () {
+    var st = B.state, board = HX.data.board || {}, groups = [];
+    var locked = Array.isArray(board.locked) ? board.locked : [];
+    if (B.stage === "concept") {
+      var C = B.concept(st.concept);   // 시안 단계의 추천은 형식상 첫 시안일 뿐이라 '추천 그대로'를 붙이지 않는다
+      groups.push({ title: "고른 시안", items: [(C ? "시안 " + C.id.toUpperCase() + " · " + C.name : "") + " — 직접 고름"] });
+      // 복사 글의 테마 줄 · 꾸밈 font 줄과 하나씩 맞춘다(20-board.js lookPicked · fontPicked) — 1차안의 처음 값이 된다
+      if (B.lookPicked()) groups.push({ title: "고른 테마 · 컬러 · 글자 크기", items: [B.lookLine(true)] });
+      if (B.fontPicked()) groups.push({ title: "고른 폰트", items: [B.fontName(st.font) + " — 시안 글꼴 대신 모든 화면에"] });
+      var cm = B.conceptMemos().map(function (m) { return "시안 " + m.c.id.toUpperCase() + "(" + m.c.name + "): " + m.text; });
+      if (cm.length) groups.push({ title: "시안에 남긴 말", items: cm });
+      // 자세히 보기에서 바로 고친 것 — 고른 시안 것은 완성본에 그대로, 다른 시안 것은 가져올 요소로(20-board.js B.conceptEdits)
+      var ce = B.conceptEdits ? B.conceptEdits() : { picked: [], other: [] };
+      var ced = ce.picked.map(function (x) { return "'" + x.name + "' 화면 — " + x.say; }).concat(ce.other.map(function (x) {
+        return "시안 " + String(x.concept).toUpperCase() + " '" + x.name + "' 화면 — " + x.say + " (가져올 요소로 전달)";
+      }));
+      if (ced.length) groups.push({ title: "화면에서 바로 고친 것", items: ced });
+      var more0 = [];
+      if (one(st.add)) more0.push("추가로 필요한 것: " + one(st.add));
+      if (one(st.memo)) more0.push("그 밖의 메모: " + one(st.memo));
+      if (more0.length) groups.push({ title: "더 필요한 것", items: more0 });
+      return groups;
+    }
+    // 1) 테마 · 컬러 · 폰트
+    var look = B.lookLine();
+    var same = st.theme === B.REC.theme && st.type === B.REC.type && st.accent === B.fixSwatch(st.theme, B.REC.accent) && st.font === B.REC.font;
+    var fontPicked = B.fontPicked();   // 컬러가 정해졌어도 글꼴은 따로 고를 수 있다(폰트 창)
+    groups.push({ title: "테마 · 컬러 · 폰트", items: [look + (locked.indexOf("theme") >= 0 ? (fontPicked ? " — 컬러는 이미 정해짐, 폰트만 직접 고름" : " (이미 정해짐)") : same ? (B.isFinal ? " — 완성본 그대로" : " — 추천 그대로") : " — 직접 고름")] });
+    // 2) 확인 질문 중 추천과 다르게 고른 것
+    var asks = [];
+    if (locked.indexOf("ask") < 0) (board.ask || []).forEach(function (q) {
+      var ri = typeof q.recommended === "number" ? q.recommended : 0, v = st.ask[q.id];
+      if (typeof v === "number" && v !== ri && q.options[v] != null) asks.push(q.text + " → " + String(q.options[v]).replace(/\s*\(추천\)/, ""));
+    });
+    if (asks.length) groups.push({ title: "다르게 고른 질문", items: asks });
+    // 3) 번호별 의견
+    var regs = [];
+    Object.keys(st.regions).map(Number).sort(function (a, b) { return a - b; }).forEach(function (id) {
+      var r = st.regions[id], s = screenOf(id); if (!r || !s) return;
+      var reg = s.regions.filter(function (x) { return x.id === id; })[0];
+      var where = "'" + s.name + "' 화면의 " + id + "번 " + (reg ? reg.label : "");
+      if (r.v === "change") regs.push(where + " — 바꿔 주세요" + (one(r.memo) ? ": " + one(r.memo) : ""));
+      else if (r.v === "remove") regs.push(where + " — 빼 주세요");
+    });
+    Object.keys(st.pins || {}).map(Number).sort(function (a, b) { return a - b; }).forEach(function (id) {
+      var p = st.pins[id], s = p && HX.bySlug[p.slug]; if (!s || p.concept || (p.v !== "change" && p.v !== "remove")) return;
+      regs.push("'" + s.name + "' 화면의 " + p.desc + (p.where ? " ('" + p.where + "' 안)" : "") + (p.v === "change" && p.icon ? " — 아이콘을 " + p.icon.to + "(으)로 바꿔 주세요" + (one(p.memo) ? " · " + one(p.memo) : "") : p.v === "change" ? " — 바꿔 주세요" + (one(p.memo) ? ": " + one(p.memo) : "") : " — 빼 주세요"));
+    });
+    if (regs.length) groups.push({ title: "고쳐 달라고 한 곳", items: regs });
+    // 3-1) 화면에서 바로 고친 것(26-board-edit.js) — ✕로 뺀 곳은 위 '빼 주세요'에 이미 있다
+    var eds = (st.edits || []).filter(function (e) { return B.placeOf(e).s && !e.concept; }).map(function (e) { var at = B.placeOf(e); return "'" + at.s.name + "' 화면 — " + (B.editSay ? B.editSay(Object.assign({}, e, { slug: at.slug })) : B.editLine(e)); });
+    if (eds.length) groups.push({ title: "화면에서 바로 고친 것", items: eds });
+    // 4) 화면 단위
+    var scr = [];
+    HX.data.screens.forEach(function (s) {
+      var x = st.screens[s.id]; if (!x) return;
+      if (x.remove) scr.push("'" + s.name + "' 화면을 빼 주세요");
+      if (one(x.memo)) scr.push("'" + s.name + "' 화면: " + one(x.memo));
+    });
+    if (scr.length) groups.push({ title: "화면 전체에 대한 의견", items: scr });
+    // 5) 더 필요한 것
+    var more = [];
+    if (one(st.add)) more.push("추가로 필요한 것: " + one(st.add));
+    if (one(st.memo)) more.push("그 밖의 메모: " + one(st.memo));
+    if (more.length) groups.push({ title: "더 필요한 것", items: more });
+    return groups;
+  };
+
+  B.openSend = function () {
+    var text = B.answer(), groups = B.summary(), n = B.diffCount();
+    var close = HX.btn("닫기", { onclick: function () { done(); } });
+    var copy = HX.btn("복사하기", { cls: "hx-primary", icon: HX.icon("#i-copy"), onclick: function () {
+      HX.copyText(text).then(function (ok) {
+        if (ok) { done(); HX.toast("복사했어요. 채팅창에 붙여넣어 주세요."); return; }
+        raw.open = true; ta.focus(); ta.select();
+        HX.toast("자동 복사가 안 됐어요. 아래 글을 직접 복사해 주세요.");
+      });
+    } });
+    var ta = HX.el("textarea", { class: "hx-ta hx-copy-box", readonly: true, rows: "6" }); ta.value = text;
+    var raw = HX.el("details", { class: "hx-send-raw" }, [HX.el("summary", { text: "실제로 복사되는 글 보기" }), ta]);
+    var lead = B.isFinal ? (n ? "아래 " + n + "가지를 전달해요. 나머지는 지금 완성본 그대로예요." : "아직 남긴 의견이 없어요. 완성본을 그대로 쓰면 보내지 않아도 돼요.")
+      : n ? "아래 " + n + "가지를 전달해요. 나머지는 모두 추천대로 진행해요." : "아직 고친 곳이 없어요. 이대로 보내면 모두 추천대로 진행해요.";
+    var body = HX.el("div", { class: "hx-send-body" }, [HX.el("p", { class: "hx-send-lead", text: lead })]);
+    groups.forEach(function (g) {
+      body.appendChild(HX.el("div", { class: "hx-send-group" }, [HX.el("h3", { text: g.title }),
+        HX.el("ul", {}, g.items.map(function (t) { return HX.el("li", { text: t }); }))]));
+    });
+    body.appendChild(raw);
+    var esc = function (e) { if (e.key === "Escape") done(); };
+    var m = HX.el("div", { class: "hx-modal hx-app" }, [HX.el("div", { class: "hx-modal-backdrop", onclick: function () { done(); } }),
+      HX.el("div", { class: "hx-modal-panel hx-send", role: "dialog", "aria-modal": "true", "aria-label": "의견 보내기" }, [
+        HX.el("div", { class: "hx-modal-head" }, [HX.el("h2", { text: "이렇게 전달돼요" }), HX.el("span", { class: "hx-bar-spacer" })]),
+        body,
+        HX.el("div", { class: "hx-send-foot" }, [HX.el("span", { class: "hx-send-hint", text: B.isFinal ? "복사한 뒤 채팅창에 붙여넣으면 완성본에 한 번 더 반영돼요" : "복사한 뒤 채팅창에 붙여넣으면 다음 초안에 반영돼요" }), HX.el("span", { class: "hx-bar-spacer" }), close, copy])])]);
+    function done() { if (m.isConnected) m.remove(); doc.removeEventListener("keydown", esc); }
+    doc.body.appendChild(m); doc.addEventListener("keydown", esc); copy.focus();
+  };
+
+  /* 상단바 오른쪽 '의견 보내기' 단추 — 보드(22-board-canvas.js)와 완성본 입구(10-final.js)가 같이 쓴다.
+     남긴 의견 수를 따라 글이 바뀌고, ⌘/Ctrl+Shift+C로도 연다 */
+  B.sendButton = function () {
+    var btn = HX.btn("", { cls: "hx-primary hx-bd-copy", icon: HX.icon("#i-send"), title: "무엇이 전달되는지 확인하고 복사해요 (⌘/Ctrl+Shift+C)", onclick: function () { B.openSend(); } });
+    var label = HX.el("span"); btn.appendChild(label);
+    function paint() {
+      var n = B.diffCount();
+      label.textContent = "의견 보내기" + (n ? " · " + n + "개" : "");
+      btn.title = n ? "지금까지 남긴 의견 " + n + "개 (추천과 다르게 고른 것 포함) — 눌러서 무엇이 전달되는지 확인해요"
+        : B.isFinal ? "아직 남긴 의견이 없어요 — 화면 디자인 탭에서 고치고 싶은 곳을 눌러 남겨요" : "아직 남긴 의견이 없어요 — 이대로 보내면 모두 추천대로 진행해요";
+    }
+    HX.on("board-change", paint); paint();
+    doc.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "c") { e.preventDefault(); B.openSend(); }
+    });
+    return btn;
+  };
+})();

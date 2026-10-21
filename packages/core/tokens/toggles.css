@@ -1,0 +1,27 @@
+/* 토글 — 분위기와 독립. 폰트 창(상단 버튼 셋 테마 · 컬러 · 폰트)에서 고른다.
+   data-type: normal | large   (글자 크기 · 컨트롤 높이 · 터치 타깃)
+   분위기 셀렉터보다 뒤에 로드되어야 한다.
+   (옛 data-accent calm|vivid와 테마 a·b·c용 값은 쓰는 곳이 없어 지웠다 — DS2, 2026-10-18) */
+
+/* ---- 글자 크기 ---- */
+[data-type="normal"] {}
+
+[data-type="large"] {
+  --fs-xs: 13px;
+  --fs-sm: 15px;
+  --fs-md: 17px;
+  --fs-lg: 20px;
+  --fs-xl: 24px;
+  --fs-2xl: 32px;
+  --fs-3xl: 40px;
+
+  --ctl-sm: 36px;
+  --ctl-md: 48px;
+  --ctl-lg: 56px;
+  --icon-sm: 18px;
+  --icon-md: 22px;
+  --icon-lg: 28px;
+
+  --topnav-h: 68px;
+  --sidebar-w: 264px;
+}

@@ -1,0 +1,1554 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema.json",
+  "title": "디자인 하네스 메인 스키마 — 객체와 관계",
+  "description": "객체 하나 = $defs 하나. 데이터 파일 둘이 따른다: screens.json(project, AI) · flow.json(flowFile, AI). x-ref = id로 가리키는 관계(scripts/schema.js가 검사). 값(색 · 그림자 숫자)은 scripts/looks.js 계산과 packages/core/tokens/dress.css에만 — AI가 쓰는 객체에는 id만. x-stage = AI가 한 번에 쓰는 걸음(I 의도 · L 화면 목록 · S 화면 하나 · C 시안 · P 프리셋 · F 흐름) — 칸에 없으면 위 칸을 따르고, 맨 위까지 없으면 걸음과 상관없이 늘 본다. x-steps = schema.js --step 이름 → 그 걸음까지 채우는 x-stage. 그 밖 칸은 필수 · 관계를 보지 않는다. x-writer = 누가 쓰나(ai = AI가 판단해서 · harness = 사람이 보드에서 고른 것을 하네스가 옮겨 적거나 스크립트가 채움) — harness 칸도 형식 · 관계는 본다.",
+  "x-version": "1",
+  "x-steps": {
+    "intent": [
+      "I"
+    ],
+    "list": [
+      "I",
+      "L"
+    ],
+    "full": [
+      "I",
+      "L",
+      "S",
+      "C",
+      "P",
+      "F"
+    ]
+  },
+  "$defs": {
+    "project": {
+      "type": "object",
+      "required": [
+        "project",
+        "platform",
+        "stories",
+        "roles",
+        "states",
+        "facts",
+        "preset",
+        "screens"
+      ],
+      "description": "screens.json의 뿌리. 최상위 칸은 모두 여기 있다 — 없는 칸을 쓰면 FAIL(스키마 밖에서 손으로 쓴 칸 0). 하네스 실행 상태(고른 시안 · 색 · 꾸밈 · 잠금 · 의견 기록)는 board 하나에 모은다.",
+      "properties": {
+        "project": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-stage": "I"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "x-stage": "I"
+        },
+        "brand": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "상단바 서비스 이름 — 없으면 title",
+          "x-stage": "I"
+        },
+        "brandIcon": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "상단바 아이콘 lucide 이름 — 없으면 layout-dashboard",
+          "x-stage": "I"
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "web",
+            "mobile"
+          ],
+          "x-stage": "I"
+        },
+        "stories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/story"
+          },
+          "x-stage": "I",
+          "description": "PRD에서 옮긴 유저스토리 · 기능 · 조건. 화면이 story id로 가리킨다"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/$defs/role"
+          },
+          "x-stage": "I"
+        },
+        "states": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/state"
+          },
+          "x-stage": "I",
+          "description": "이 서비스의 상태 어휘(예: 확정 · 후보 · 바뀜)와 그 상태를 볼 수 있는 역할. 모든 화면이 이 목록 하나로 상태를 표시하고, 보이면 안 되는 역할의 화면에는 대신 문구를 쓴다"
+        },
+        "say": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
+          "x-stage": "I",
+          "description": "화면 말 사전 — 화면에 쓸 말 → 쓰지 않을 말(예: '알리기' → '푸시 발송')"
+        },
+        "facts": {
+          "type": "object",
+          "x-stage": "I",
+          "description": "공통 사실 — 이름표: 실제 값. 사실이 사는 유일한 곳"
+        },
+        "preset": {
+          "$ref": "#/$defs/preset",
+          "x-stage": "P"
+        },
+        "looks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/look"
+          },
+          "x-stage": "P",
+          "description": "PRD 맞춤 분위기(1개). preset이 있으면 screens.js가 계산하므로 비운다"
+        },
+        "screens": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/screen"
+          },
+          "x-stage": "L"
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/section"
+          },
+          "x-stage": "L",
+          "description": "사용 흐름의 큰 구역 — screen.section이 key로 가리킨다"
+        },
+        "concepts": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/$defs/concept"
+          },
+          "x-stage": "C",
+          "description": "시안 = 과감함 단계(concept.level 목록)마다 하나 — 서로 다른지는 lint가 본다(레이아웃 · 계열 · 꾸밈 · 메뉴 구조)"
+        },
+        "board": {
+          "$ref": "#/$defs/board",
+          "x-stage": "C"
+        },
+        "nextScreenId": {
+          "type": "integer",
+          "minimum": 1,
+          "x-writer": "harness",
+          "x-stage": "L",
+          "description": "scripts/ids.js가 쓰는 다음 화면 번호"
+        },
+        "nextRegionId": {
+          "type": "integer",
+          "minimum": 101,
+          "x-writer": "harness",
+          "x-stage": "L",
+          "description": "scripts/ids.js가 쓰는 다음 영역 번호"
+        }
+      },
+      "additionalProperties": false
+    },
+    "story": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "text",
+        "prd"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "목록 안에서 하나"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "story",
+            "feature",
+            "condition",
+            "conflict"
+          ],
+          "description": "story = 유저스토리(누가 무엇을) · feature = 기능 요구 · condition = 지켜야 할 조건 · conflict = PRD가 풀라고 한 갈등"
+        },
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "roles.key",
+          "description": "story면 누구의 이야기인지(필수). feature · condition · conflict는 비워도 된다"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 4,
+          "description": "PRD 원문을 한 문장으로 줄인 것(뜻은 바꾸지 않는다)"
+        },
+        "prd": {
+          "type": "string",
+          "minLength": 1,
+          "description": "PRD 위치(예: §2-1)"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "show",
+        "tone",
+        "icon"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "목록 안에서 하나"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12,
+          "description": "화면에 보이는 말(예: 후보)"
+        },
+        "show": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "x-ref": "roles.key",
+          "description": "이 상태를 볼 수 있는 역할"
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "neutral",
+            "primary",
+            "success",
+            "warning",
+            "danger",
+            "info"
+          ],
+          "description": "배지 색 — 같은 상태 = 같은 색"
+        },
+        "icon": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "allowlist 아이콘 lucide 이름(예: circle-dashed)"
+        },
+        "hide": {
+          "type": "string",
+          "enum": [
+            "record",
+            "state"
+          ],
+          "description": "show에 없는 역할에게 숨기는 범위. record(기본) = 그 상태의 기록 전체를 hidden 문구 한 줄로 · state = 기록 이름은 보이고 상태 자리만 hidden 문구. 어느 쪽이든 그 사람 본인의 기록은 숨기지 않는다"
+        },
+        "hidden": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "show에 없는 역할의 화면에 대신 보일 문구(예: 정하는 중이에요). show가 모든 역할이 아니면 필수"
+        },
+        "means": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "이 상태가 뜻하는 것 한 줄(보드 · 정책 메모용)"
+        },
+        "kinds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "이 상태를 쓰는 기록 종류(예: ['할 일']). 비우면 모든 종류"
+        }
+      }
+    },
+    "role": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "goal"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 80,
+          "description": "이 역할이 이루려는 것 한 문장"
+        },
+        "inclusion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "나이 · 기기 · 읽는 상황"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "large"
+          ],
+          "description": "이 역할 화면만의 글자 크기 — inclusion에서 나온다"
+        },
+        "user": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "initials": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4
+            }
+          },
+          "description": "셸 오른쪽 위 · 사이드바 아래에 보일 사람. 없으면 label 앞 두 글자"
+        },
+        "nav": {
+          "type": "array",
+          "x-stage": "L",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "slug",
+              "label"
+            ],
+            "properties": {
+              "slug": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$",
+                "x-ref": "screens.slug"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 12
+              },
+              "icon": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$",
+                "description": "allowlist 아이콘 lucide 이름"
+              }
+            }
+          },
+          "description": "메뉴 — 화면 목록을 정할 때 채운다"
+        }
+      }
+    },
+    "preset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "keywords",
+        "tone",
+        "brand",
+        "font",
+        "size",
+        "density",
+        "why"
+      ],
+      "description": "서비스 하나에 하나. AI가 PRD로 고른 판단 기록 — 값은 scripts/screens.js가 PR 27 칸으로 잇는다(tone → custom.base · brand → custom.hex · 기준어 → custom.name · font → custom.font · size → toggles.type, 계산은 looks.js customLook). 판 모양 · 그림자는 시안 꾸밈(dress.js)이 맡는다. 보드에서 사람이 바꾼다(다시 생성 없이).",
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/keyword"
+          },
+          "description": "성격 — 기준어 셋"
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "white",
+            "paper",
+            "tint",
+            "color",
+            "dark"
+          ],
+          "description": "바탕 톤"
+        },
+        "brand": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "대표색 — 나머지 색 · 대비는 계산"
+        },
+        "font": {
+          "type": "string",
+          "enum": [
+            "pretendard",
+            "suit",
+            "nanum-square-round",
+            "ibm-plex",
+            "serif-title"
+          ],
+          "x-ref": "scripts/looks.js FONTS"
+        },
+        "size": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "large"
+          ],
+          "description": "본문 KRDS 17 · 크게 19"
+        },
+        "density": {
+          "type": "string",
+          "enum": [
+            "compact",
+            "normal",
+            "airy"
+          ]
+        },
+        "why": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/why"
+          }
+        }
+      }
+    },
+    "keyword": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "word",
+        "not",
+        "from"
+      ],
+      "properties": {
+        "word": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10
+        },
+        "not": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10,
+          "description": "하지만 이것은 아님"
+        },
+        "from": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "roles.key 또는 facts 이름표"
+        }
+      }
+    },
+    "why": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pick",
+        "keyword",
+        "text"
+      ],
+      "properties": {
+        "pick": {
+          "type": "string",
+          "enum": [
+            "tone",
+            "brand",
+            "font",
+            "size",
+            "density"
+          ]
+        },
+        "keyword": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2,
+          "x-ref": "preset.keywords 번호"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 60
+        }
+      }
+    },
+    "screen": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slug",
+        "name",
+        "role",
+        "pattern",
+        "goal",
+        "problem",
+        "answer",
+        "rest",
+        "later"
+      ],
+      "properties": {
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-stage": "L"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30,
+          "x-stage": "L"
+        },
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "roles.key",
+          "x-stage": "L"
+        },
+        "story": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "stories.id",
+          "description": "이 화면이 푸는 유저스토리 · 기능",
+          "x-stage": "L"
+        },
+        "pattern": {
+          "type": "string",
+          "enum": [
+            "입력폼",
+            "목록 탐색",
+            "상세 정보 확인",
+            "확인",
+            "오류",
+            "도움",
+            "동의",
+            "필터링·정렬",
+            "사용자 피드백",
+            "첨부파일",
+            "개인 식별 정보 입력",
+            "방문",
+            "검색",
+            "로그인",
+            "신청",
+            "정책 정보 확인",
+            "처음 시작"
+          ],
+          "x-ref": "KRDS 패턴 이름",
+          "x-stage": "L"
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 60,
+          "description": "이 화면에서 이루는 것",
+          "x-stage": "S"
+        },
+        "problem": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 80,
+          "description": "이 화면에서 겪는 문제",
+          "x-stage": "S"
+        },
+        "answer": {
+          "$ref": "#/$defs/answer",
+          "x-stage": "S"
+        },
+        "rest": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/block"
+          },
+          "description": "같은 등급 · 배열 = 읽는 순서",
+          "x-stage": "S"
+        },
+        "later": {
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/later"
+          },
+          "x-stage": "S"
+        },
+        "action": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "label"
+          ],
+          "properties": {
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16,
+              "description": "주 버튼 하나의 글"
+            }
+          },
+          "description": "주 버튼 — 흐름이 region 'action'으로 가리킨다",
+          "x-stage": "S"
+        },
+        "id": {
+          "type": "integer",
+          "x-stage": "L"
+        },
+        "file": {
+          "type": "string",
+          "x-stage": "L"
+        },
+        "state": {
+          "type": "string",
+          "x-stage": "L"
+        },
+        "when": {
+          "type": "string",
+          "x-stage": "L"
+        },
+        "variantOf": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-stage": "L"
+        },
+        "overlayOf": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-stage": "L"
+        },
+        "navActive": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-stage": "L"
+        },
+        "section": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-stage": "L"
+        },
+        "step": {
+          "type": "string",
+          "x-stage": "L"
+        },
+        "policy": {
+          "type": "array",
+          "x-stage": "S"
+        },
+        "cases": {
+          "type": "array",
+          "x-stage": "S"
+        },
+        "motion": {
+          "type": "array",
+          "x-stage": "S"
+        },
+        "dark": {
+          "type": "boolean",
+          "x-stage": "S"
+        }
+      }
+    },
+    "answer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "why",
+        "say",
+        "form",
+        "items",
+        "facts"
+      ],
+      "description": "1순위 블록 — 화면에 하나(구조로 보장)",
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "화면 안에서 하나 — 조각의 data-region"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "사용자에게 보이는 이름"
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "왜 있나 · 어떻게 동작하나 — 화면에 그대로 나오지 않는다"
+        },
+        "form": {
+          "type": "string",
+          "enum": [
+            "hero",
+            "list",
+            "table",
+            "calendar",
+            "form",
+            "timeline",
+            "cards",
+            "stat-row",
+            "split"
+          ],
+          "x-ref": "모양 id ↔ packages/*/snippets 부품",
+          "description": "내용을 놓는 모양"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "description": "화면에 그대로 나오는 줄 — 실제 값으로. 동작 설명은 why에. table은 칸을 ' | '로(첫 줄 머리글), form은 줄 하나 = 입력 칸 이름"
+        },
+        "facts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "x-ref": "project.facts의 이름표",
+          "description": "이 블록이 쓰는 공통 사실 — 이름표만"
+        },
+        "say": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 40,
+          "description": "1순위 문장 — 답을 사실 값으로 한 줄"
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "why",
+        "form",
+        "items",
+        "facts"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "화면 안에서 하나 — 조각의 data-region"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "사용자에게 보이는 이름"
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "왜 있나 · 어떻게 동작하나 — 화면에 그대로 나오지 않는다"
+        },
+        "form": {
+          "type": "string",
+          "enum": [
+            "hero",
+            "list",
+            "table",
+            "calendar",
+            "form",
+            "timeline",
+            "cards",
+            "stat-row",
+            "split"
+          ],
+          "x-ref": "모양 id ↔ packages/*/snippets 부품",
+          "description": "내용을 놓는 모양"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "description": "화면에 그대로 나오는 줄 — 실제 값으로. 동작 설명은 why에. table은 칸을 ' | '로(첫 줄 머리글), form은 줄 하나 = 입력 칸 이름"
+        },
+        "facts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "x-ref": "project.facts의 이름표",
+          "description": "이 블록이 쓰는 공통 사실 — 이름표만"
+        }
+      }
+    },
+    "later": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "what",
+        "why"
+      ],
+      "properties": {
+        "what": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        }
+      }
+    },
+    "look": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "mode",
+        "bg",
+        "ink",
+        "swatches"
+      ],
+      "description": "분위기 하나 — 대비 · 이름 말투 · 버튼 색 개수는 lint가 scripts/looks.js로 잰다",
+      "x-ref": "scripts/looks.js",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "mode": {
+          "type": "string",
+          "description": "light | dark (lint)"
+        },
+        "bg": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "ink": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "shape": {
+          "type": "string",
+          "description": "판 모서리 (lint)"
+        },
+        "font": {
+          "type": "string",
+          "x-ref": "scripts/looks.js FONTS"
+        },
+        "swatches": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "hex"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]+$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 12
+              },
+              "hex": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              }
+            }
+          },
+          "description": "버튼 색 — 첫 번째가 추천"
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": [
+        "key",
+        "name",
+        "desc"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "하는 일"
+        },
+        "desc": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60,
+          "description": "구역 띠에 보이는 한 줄"
+        }
+      }
+    },
+    "concept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "level",
+        "name",
+        "why",
+        "layout",
+        "shell",
+        "screens"
+      ],
+      "x-writer": "ai",
+      "description": "시안 하나 — 레이아웃만 다르고 색은 따로 고른다. dress는 scripts/dress.js가 level로 채운다(바꾸고 싶은 시안만 AI가)",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]$",
+          "description": "a~d — 목록 안에서 하나"
+        },
+        "level": {
+          "type": "integer",
+          "enum": [
+            1,
+            4,
+            7,
+            10
+          ],
+          "description": "과감함 단계(1 무난 … 10 과감) — 시안마다 하나씩. 이 목록이 시안 수를 정한다(lint · scripts/dress.js가 여기서 읽는다)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30,
+          "description": "무엇이 먼저 보이는지 일상어로(예: 오늘 할 일부터 보기)"
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "누구에게 왜 좋은지 한 문장"
+        },
+        "layout": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "packages/core/layouts/layouts.json id"
+        },
+        "mix": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "packages/core/layouts/layouts.json id",
+          "description": "섞은 패턴 — layout과 다르게"
+        },
+        "shell": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "scripts/expand.js 메뉴 구조(platform마다 — lint)"
+        },
+        "home": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "첫 화면 구성 한 줄"
+        },
+        "density": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10
+        },
+        "traits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20
+          }
+        },
+        "screens": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "x-ref": "screens.slug",
+          "description": "시안 보드에 보여줄 메인 화면"
+        },
+        "dress": {
+          "type": "object",
+          "x-ref": "scripts/dress.js",
+          "x-writer": "harness",
+          "description": "꾸밈 — 값 검사는 dress.js check(lint)"
+        }
+      }
+    },
+    "board": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-writer": "harness",
+      "description": "하네스 실행 상태 — 사람이 보드에서 고른 것 · 확정 · 고친 기록. 형식 · 관계(시안 id · 화면 slug · 사전 줄 id)만 본다. 읽을 때 scripts/screens.js가 round · stage · concept · theme · toggles · custom · dress를 최상위로 꺼내 준다(build · lint · pack이 그 자리를 읽는다)",
+      "properties": {
+        "round": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "초안 라운드 — 1부터"
+        },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "concept"
+          ],
+          "description": "concept = 1턴 시안 보드. 2턴에 지운다(없으면 초안)"
+        },
+        "concept": {
+          "type": "string",
+          "pattern": "^[a-z]$",
+          "x-ref": "concepts.id",
+          "description": "고른 시안(1턴에는 추천 시안)"
+        },
+        "theme": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "x-ref": "looks.id · presets.json id · custom (lint)",
+          "description": "고른 분위기"
+        },
+        "toggles": {
+          "$ref": "#/$defs/toggles"
+        },
+        "custom": {
+          "$ref": "#/$defs/custom"
+        },
+        "dress": {
+          "type": "object",
+          "x-ref": "scripts/dress.js",
+          "description": "모든 화면에 입히는 꾸밈 — 고른 시안의 dress, 꾸밈 줄이 있으면 그 값"
+        },
+        "hero": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "screens.slug",
+          "description": "보드 맨 앞 화면"
+        },
+        "recommend": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "추천값과 이유 — theme · themeWhy · type · typeWhy · swatch · swatchWhy"
+        },
+        "ask": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "text",
+              "options",
+              "recommended"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "options": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              },
+              "recommended": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "options 번호"
+              }
+            }
+          },
+          "description": "보드 안 구조 질문 — 최대 3개, 모두 추천값"
+        },
+        "locked": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "concept",
+              "dress",
+              "theme",
+              "toggles",
+              "type",
+              "swatch",
+              "ask",
+              "toast"
+            ]
+          },
+          "description": "확정 — 다시 묻지 않는다"
+        },
+        "focus": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "x-ref": "screens.slug",
+          "description": "지난 라운드에 고친 화면 — 보드 맨 위에"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "slug",
+              "said",
+              "did"
+            ],
+            "properties": {
+              "slug": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$",
+                "x-ref": "screens.slug"
+              },
+              "said": {
+                "type": "string",
+                "minLength": 1,
+                "description": "남긴 의견 한 줄"
+              },
+              "did": {
+                "type": "string",
+                "minLength": 1,
+                "description": "바뀐 점 한 줄(규칙만 바꿨으면 '규칙: …')"
+              }
+            }
+          },
+          "description": "보드의 '의견 반영' 표시 — 화면마다 한 줄"
+        },
+        "feedback": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/feedback"
+          },
+          "description": "붙여넣은 의견 한 줄 = 한 기록"
+        }
+      }
+    },
+    "toggles": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "large"
+          ],
+          "description": "글자 크기"
+        },
+        "swatch": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "버튼 색 id(고른 분위기의 swatches 또는 custom)"
+        },
+        "accent": {
+          "type": "string",
+          "description": "예전 이름(swatch)"
+        },
+        "icons": {
+          "type": "string",
+          "enum": [
+            "lucide",
+            "fluent"
+          ]
+        },
+        "toast": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "안내 문구 모양 — 없으면 build.js 기본값",
+          "properties": {
+            "at": {
+              "type": "string",
+              "enum": [
+                "top",
+                "bottom"
+              ]
+            },
+            "icon": {
+              "type": "string",
+              "enum": [
+                "on",
+                "off"
+              ]
+            },
+            "tone": {
+              "type": "string",
+              "enum": [
+                "light",
+                "dark",
+                "color"
+              ]
+            },
+            "size": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "large"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "custom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hex"
+      ],
+      "description": "'색 바꾸기'에서 직접 고른 색 — 표면 · 테두리 · 눌림색은 scripts/looks.js customLook이 계산",
+      "properties": {
+        "hex": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12
+        },
+        "base": {
+          "type": "string",
+          "pattern": "^[a-z]+$",
+          "x-ref": "packages/core/tokens/presets.json bases (lint)"
+        },
+        "bgHex": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "그 밖의 바탕"
+        },
+        "from": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "바탕 · 모양 · 글꼴을 가져온 분위기 id"
+        }
+      }
+    },
+    "feedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "said",
+        "scope",
+        "entry",
+        "keep"
+      ],
+      "x-writer": "ai",
+      "description": "의견 한 줄의 해석 · 반영 — references/answer-parsing.md §2 순서 6단계를 따라 쓴다",
+      "properties": {
+        "said": {
+          "type": "string",
+          "minLength": 1,
+          "description": "원문 그대로"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "element",
+            "region",
+            "screen",
+            "all"
+          ],
+          "x-ref": "packages/core/feedback/glossary.json scope",
+          "description": "고칠 범위 — element 요소 하나 · region 영역 · screen 화면 · all 판 전체"
+        },
+        "screen": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "screens.slug"
+        },
+        "region": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "screen 화면의 블록 key 또는 action"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "요소 경로(예: @meet > div > strong) — 의견 줄의 [경로] 그대로"
+        },
+        "entry": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^F[0-9]{2}$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ],
+          "x-ref": "glossary.entries.id",
+          "description": "사전 줄 id — node scripts/feedback.js로 찾는다. 맞는 줄이 없으면 null"
+        },
+        "measured": {
+          "type": "string",
+          "minLength": 1,
+          "description": "먼저 잰 것과 값(예: 시간 15px · 제목 22px)"
+        },
+        "fix": {
+          "type": "string",
+          "minLength": 1,
+          "description": "고친 것 한 줄"
+        },
+        "rule": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ],
+          "description": "같은 기준의 lint 규칙 id — 없으면 null"
+        },
+        "keep": {
+          "type": "boolean",
+          "description": "true = 좋다는 의견 — 그 곳은 고치지 않는다(지킬 것)"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "enum": [
+                  "element",
+                  "region",
+                  "screen"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "screen"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "enum": [
+                  "element",
+                  "region"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "region"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "const": "element"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "path"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "keep": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "measured",
+              "fix"
+            ]
+          }
+        }
+      ]
+    },
+    "flowFile": {
+      "type": "object",
+      "required": [
+        "flows"
+      ],
+      "properties": {
+        "flows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/flow"
+          },
+          "x-stage": "F"
+        },
+        "branches": {
+          "type": "array",
+          "x-stage": "F"
+        }
+      }
+    },
+    "flow": {
+      "type": "object",
+      "required": [
+        "key",
+        "role",
+        "steps"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "roles.key"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "required": [
+        "from",
+        "region",
+        "trigger"
+      ],
+      "properties": {
+        "from": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "screens.slug"
+        },
+        "to": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "screens.slug"
+        },
+        "region": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "x-ref": "from 화면의 블록 key 또는 action"
+        },
+        "trigger": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "action": {
+          "type": "string"
+        },
+        "when": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

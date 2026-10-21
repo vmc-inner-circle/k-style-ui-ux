@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "preset.schema.json",
+  "title": "레퍼런스 프리셋 v2 — 디자인 시스템 계약의 입력값 묶음",
+  "description": "docs/design-system.md §4. 레퍼런스 하나 = 이 그릇에 넣는 값. 나머지 역할 토큰은 scripts/looks.js가 계산하고 대비 바닥선을 지킨다. presets.json의 presets[] 항목 하나가 이 모양이다.",
+  "x-version": "2.0-draft",
+  "type": "object",
+  "required": ["id", "name", "why", "group", "mode", "exact", "bg", "ink", "brand", "swatches", "font", "body", "radius", "card", "source"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "#/definitions/key" },
+    "name": { "type": "string", "pattern": "느낌$", "description": "카드에 보이는 이름 — '~ 느낌'(앱 이름은 이름표로만, 화면 안에 로고 · 앱 이름 금지)" },
+    "why": { "type": "string", "description": "한 문장 — 무엇이 보이고 어떤 서비스에 어울리는지" },
+    "group": { "type": "string", "enum": ["국내", "공공", "해외"] },
+    "mode": { "type": "string", "enum": ["light", "dark"] },
+    "exact": { "type": "boolean", "description": "true = 그 시스템의 색 그대로(채도 낮추지 않음 · 버튼 글자 바닥선 3, 채움을 깊게). false = 우리가 만든 분위기(바닥선 4.5)" },
+    "bg": { "$ref": "#/definitions/hex", "description": "화면 바탕" },
+    "ink": { "$ref": "#/definitions/hex", "description": "기본 글자" },
+    "brand": { "$ref": "#/definitions/hex", "description": "순수 브랜드 색 — --c-brand. 보정하지 않는다" },
+    "swatches": {
+      "type": "array", "minItems": 5,
+      "description": "사람이 '색' 탭에서 고르는 버튼 색 5개, 첫째가 추천(대개 brand와 같음)",
+      "items": {
+        "type": "object", "required": ["id", "name", "hex"], "additionalProperties": false,
+        "properties": { "id": { "$ref": "#/definitions/key" }, "name": { "type": "string" }, "hex": { "$ref": "#/definitions/hex" } }
+      }
+    },
+    "font": { "type": "string", "enum": ["pretendard", "suit", "nanum-square-round", "ibm-plex", "serif-title"], "description": "scripts/looks.js FONTS 중 그 시스템 글꼴에 가장 가까운 것" },
+    "body": { "type": "integer", "enum": [15, 16, 17], "description": "본문 글자 크기 px — KRDS는 17" },
+    "radius": {
+      "type": "object", "required": ["control", "card"], "additionalProperties": false,
+      "properties": {
+        "control": { "$ref": "#/definitions/radius", "description": "버튼 · 입력" },
+        "card": { "$ref": "#/definitions/radius", "description": "카드 · 판" },
+        "chip": { "$ref": "#/definitions/radius", "description": "칩 · 배지(없으면 pill)" }
+      }
+    },
+    "card": { "type": "string", "enum": ["fill", "line", "shadow"], "description": "fill = 회색 바탕 위 흰 판(선 · 그림자 없음) · line = 선으로 나눔 · shadow = 그림자" },
+    "weight": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "head": { "type": "integer", "enum": [500, 600, 700, 800] },
+        "button": { "type": "integer", "enum": [500, 600, 700, 800] }
+      }
+    },
+    "status": {
+      "type": "object", "additionalProperties": false,
+      "description": "그 시스템의 상태색. 없는 칸은 공통값",
+      "properties": {
+        "success": { "$ref": "#/definitions/hex" }, "warning": { "$ref": "#/definitions/hex" },
+        "danger": { "$ref": "#/definitions/hex" }, "info": { "$ref": "#/definitions/hex" }
+      }
+    },
+    "shadowTint": { "$ref": "#/definitions/hex", "description": "그림자 색 기운(예: 토스 남색). 없으면 ink에서" },
+    "shape": { "type": "string", "enum": ["flat", "soft", "round", "sharp"], "description": "옛 칸 — 읽을 때만 radius · card로 바꾼다. 새 프리셋에는 쓰지 않는다" },
+    "source": {
+      "description": "근거 파일. null = 근거 없음(보드 카드에 '참고용')",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object", "required": ["repo", "file", "commit", "license"], "additionalProperties": false,
+          "properties": {
+            "repo": { "type": "string" }, "file": { "type": "string" },
+            "commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" }, "license": { "type": "string" }
+          }
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "hex": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+    "radius": { "oneOf": [ { "type": "integer", "minimum": 0, "maximum": 32 }, { "type": "string", "enum": ["pill"] } ] }
+  }
+}
