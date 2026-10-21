@@ -27,14 +27,16 @@
     if (B.isLocked("type")) return HX.el("span", { class: "hx-bd-locked", text: "확정: 글자 크기 " + B.TYPE_LABEL[st.type] });
     return segCtl("글자 크기", "type", ["normal", "large"], ["보통", "크게"], function (v) { st.type = v; B.applyTheme(); });
   }
-  /* '색 바꾸기' — 고르면 보드 상태(의견 보내기 첫 줄)에도 담긴다 */
+  /* '색 바꾸기' — 고르면 보드 상태(의견 보내기 첫 줄)에도 담긴다.
+     꾸밈은 화면 상자가 입으므로 html은 건드리지 않게(dress: false) — 프리셋을 고르면 상자들을 다시 입힌다(B.redress, 25-board-concepts.js) */
   B.mountColor = function (anchor, o) {
     if (!window.HXColor || B.isLocked("theme")) return;
     var st = B.state;
-    window.HXColor.mount({ project: HX.meta.project, anchor: anchor, inline: !!(o && o.inline), initial: { theme: st.theme, swatch: st.accent, custom: st.custom || null }, onChange: function (sel) {
+    window.HXColor.mount({ project: HX.meta.project, anchor: anchor, inline: !!(o && o.inline), dress: false, initial: { theme: st.theme, swatch: st.accent, custom: st.custom || null }, onChange: function (sel) {
       st.custom = sel.theme === "custom" ? sel.custom : null;
       if (st.custom) B.putCustom(st.custom);
       st.theme = sel.theme; st.accent = sel.swatch; B.applyTheme();
+      if (B.redress) B.redress();
     } });
   };
   // ---------- 선택: 사용 흐름에서는 고르지 않는다 — 화면을 누르면 화면 디자인 탭으로 ----------

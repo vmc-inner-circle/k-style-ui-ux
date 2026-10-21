@@ -52,7 +52,8 @@ const exists = (p) => fs.existsSync(p);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 // ---------- 입력 ----------
-const S = require("./screens.js").loadScreens(runDir);
+const { loadScreens, refPreset } = require("./screens.js");
+const S = loadScreens(runDir);   // 레퍼런스 프리셋을 골랐으면 S.dress의 판 모양 · 모서리는 이미 그 프리셋으로 덮여 있다
 const F = readJSON(path.join(runDir, "flow.json"));
 const platform = S.platform || "web";
 const looks = LOOKS.getLooks(S);
@@ -225,7 +226,7 @@ const data = {
     toggles: { type, swatch, toast },
     // kind: own(PRD 맞춤) · preset(고정 스타일 — 토스 느낌…) · custom(직접 고른 색)
     looks: looks.map((l) => ({ id: l.id, name: l.name, why: l.why || "", mode: l.mode, bg: l.bg, ink: LOOKS.inkOf(l), font: LOOKS.fontOf(l).name,
-      kind: l.custom ? "custom" : LOOKS.PRESETS.some((p) => p.id === l.id) && !(S.looks || []).some((o) => o.id === l.id) ? "preset" : "own",
+      kind: l.custom ? "custom" : refPreset(S, l.id) ? "preset" : "own",
       swatches: l.swatches.map((s) => ({ id: s.id, name: s.name, hex: LOOKS.primaryHex(l, s) })) })),
     custom: S.custom || null,
     roles: S.roles || [],
@@ -265,7 +266,10 @@ const canvasJsParts = readDir(path.join(coreDir, "canvas"), ".js");
 if (canvasJsParts.length === 0) console.warn(`[build] WARN packages/core/canvas/*.js 없음`);
 // 보드: 색을 직접 고르면 그 자리에서 칠하도록 색 계산(scripts/looks.js)과 색 데이터(presets.json)를 함께 싣는다
 // '색 바꾸기'(packages/core/color/picker.js)는 보드·최종본 모두 — 사용자 결정 2026-10-14: "색상은 최종 결과물에서 바로바로"
+// 레퍼런스를 고르면 덮을 판 모양 · 모서리(scripts/dress.js presetDress) — 보드에서 레퍼런스를 바꾸면 그 자리에서 입힌다
+const RADIUS_STEPS = DRESS.radiusSteps();
 const COLOR_JS = [`window.HX_LOOKS_DATA = ${JSON.stringify(readJSON(path.join(coreDir, "tokens/presets.json")))};`,
+  `window.HX_PRESET_DRESS = ${JSON.stringify(Object.fromEntries(LOOKS.PRESETS.map((p) => [p.id, DRESS.presetDress(p, RADIUS_STEPS)])))};`,
   `window.HX_OWN_LOOKS = ${JSON.stringify(S.looks || [])};`, read(path.join(ROOT, "scripts/looks.js")), read(path.join(coreDir, "color/picker.js"))];
 const looksJs = COLOR_JS;
 const canvasJs = looksJs.concat([read(path.join(coreDir, "motion/motion.js"))]).concat(canvasJsParts.length ? canvasJsParts : ["console.warn('canvas.js 없음');"]).join("\n\n");

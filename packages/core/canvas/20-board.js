@@ -56,7 +56,7 @@
   B.toastDiff = function () { return TOAST_KEYS.filter(function (k) { return state.toast[k] !== REC.toast[k]; }); };
   // 단계: "concept"(1턴 — 시안만 보여주고 고르게) / "draft"(2턴부터 — 고른 시안으로 만든 전체 화면)
   var STAGE = B.stage = HX.meta.stage === "concept" ? "concept" : "draft";
-  // 시안(concepts): 레퍼런스 조사로 만든 방향 5개. draft 단계의 화면들은 HX.meta.concept(고른 시안)으로 만든 것
+  // 시안(concepts): 과감함 단계마다 하나(지금 4개 — 개수는 받은 데이터를 따른다). draft 단계의 화면들은 HX.meta.concept(고른 시안)으로 만든 것
   var CONCEPTS = B.concepts = (HX.data.concepts || []).filter(function (c) { return c && c.id; });
   B.concept = function (id) { return CONCEPTS.filter(function (c) { return c.id === id; })[0] || CONCEPTS[0] || null; };
   REC.concept = CONCEPTS.length ? (B.concept(HX.meta.concept || rec.concept) || CONCEPTS[0]).id : null;
@@ -113,16 +113,20 @@
     var i = (q.options || []).indexOf(q.recommended); return i < 0 ? 0 : i;
   };
   B.askIndex = function (q) { var v = state.ask[q.id]; return typeof v === "number" ? v : B.recIndex(q); };
+  // 지금 고른 색이 레퍼런스 프리셋이면 그 프리셋의 판 모양 · 모서리 { cards, radius } (picker.js가 판단, 아직 안 실렸으면 null)
+  B.presetDress = function () { return window.HXColor ? window.HXColor.presetDress({ theme: state.theme, custom: state.custom }) : null; };
+  // 프리셋이면 줄 끝에 붙는 말 — 화면 꾸밈의 판 모양 · 모서리가 프리셋을 따라간다(answer-parsing §1, 따로 반영할 것 없음)
+  function presetTail() { return window.HXColor && window.HXColor.presetId({ theme: state.theme, custom: state.custom }) ? " · 판 모양 · 모서리: 프리셋 따라감" : ""; }
   // 사람이 읽는 한 줄 / 복사 글 첫 줄(answer-parsing.md: "테마 <look id>(이름) · 글자 <보통|크게> · 버튼색 <swatch id>(이름)")
   B.lookLine = function () {
     var L = B.look(state.theme), c = L.id === "custom" && state.custom;
-    return "색 " + (c ? "직접 고른 색 " + (state.custom.name || state.custom.hex) : L.name + " · " + B.swatch(state.theme, state.accent).name) + " · 글자 크기 " + (TYPE_LABEL[state.type] || state.type);
+    return "색 " + (c ? "직접 고른 색 " + (state.custom.name || state.custom.hex) : L.name + " · " + B.swatch(state.theme, state.accent).name) + " · 글자 크기 " + (TYPE_LABEL[state.type] || state.type) + presetTail();
   };
   B.themeLine = function () {
     var L = B.look(state.theme), sw = B.swatch(state.theme, state.accent), t = " · 글자 " + (TYPE_LABEL[state.type] || state.type);
     // '색 바꾸기'에서 직접 고른 색: "테마 custom(#C8553D 테라코타 · 바탕 warm) · 글자 …" (answer-parsing §1)
-    if (L.id === "custom" && state.custom) return "테마 custom(" + String(state.custom.hex).toUpperCase() + (state.custom.name ? " " + state.custom.name : "") + (state.custom.from ? " · 스타일 " + state.custom.from : "") + ((state.custom.bgHex || state.custom.base) ? " · 바탕 " + (state.custom.bgHex || state.custom.base) : "") + ")" + t;
-    return "테마 " + L.id + "(" + L.name + ")" + t + " · 버튼색 " + sw.id + "(" + sw.name + ")";
+    if (L.id === "custom" && state.custom) return "테마 custom(" + String(state.custom.hex).toUpperCase() + (state.custom.name ? " " + state.custom.name : "") + (state.custom.from ? " · 스타일 " + state.custom.from : "") + ((state.custom.bgHex || state.custom.base) ? " · 바탕 " + (state.custom.bgHex || state.custom.base) : "") + ")" + t + presetTail();
+    return "테마 " + L.id + "(" + L.name + ")" + t + " · 버튼색 " + sw.id + "(" + sw.name + ")" + presetTail();
   };
   B.one = function (s) { return String(s || "").replace(/\s*\n+\s*/g, " / ").trim(); };
 

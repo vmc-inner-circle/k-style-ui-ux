@@ -50,7 +50,7 @@
   color: var(--c-text);
   white-space: nowrap;
 }
-.topnav-brand .icon { color: var(--c-primary-text); }
+.topnav-brand .icon { color: var(--c-brand); }
 .topnav-title {
   flex: 1 1 auto;
   min-width: 0;

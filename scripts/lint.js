@@ -100,13 +100,26 @@ if (!S.toggles || !["normal", "large"].includes(S.toggles.type)) fail(`toggles.t
       if (!sw.id || !/^[a-z0-9-]+$/.test(sw.id)) fail(`${sd}: id는 영문 소문자`);
       if (swIds.has(sw.id)) fail(`${sd}: id 중복`); swIds.add(sw.id);
       if (!sw.name || /#|[a-z]/i.test(sw.name)) warn(`${sd}: 이름은 한국어 색 이름으로 (예: "테라코타", "바다 파랑")`);
+      // 버튼 위 글자 대비는 아래 대비 바닥선(LK.audit)이 실제로 칠하는 채움으로 본다
       try {
-        const fg = LK.swatchTokens(L, sw)["--c-primary-fg"];
-        const c = LK.contrast(sw.hex, fg);
-        if (c < 3) fail(`${sd}: 버튼 위 글자 대비 ${c.toFixed(1)} (3 이상)`);
+        LK.hex2rgb(sw.hex);
         if (ok && LK.contrast(sw.hex, L.bg) < 1.6) warn(`${sd}: 배경과 너무 비슷해 버튼이 안 보일 수 있음`);
       } catch (e) { fail(`${sd}: hex는 #RRGGBB`); }
     }
+  }
+  // 대비 바닥선 — PRD 맞춤 분위기 + 레퍼런스(고정 스타일) 21개 전부 × 버튼 색, 계산된 토큰으로(docs/preset-review.md P2).
+  // looks.js가 자동 보정하므로 FAIL은 보정이 깨졌을 때만 난다. 경고는 종류별로 한 줄씩 모아 보인다
+  if (LK.audit) {
+    const W = {};   // 경고 종류 → 분위기/버튼 색 목록
+    for (const L of (S.looks || []).concat(LK.PRESETS || [])) for (const sw of L.swatches || []) {
+      let rows; try { rows = LK.audit(L, sw); } catch (e) { continue; }
+      for (const r of rows) {
+        if (r.level === "fail") fail(`대비: '${L.name || L.id}' 버튼 색 '${sw.name || sw.id}' — ${r.pair} ${r.ratio} (${r.min} 이상)`);
+        else if (r.level === "warn") (W[r.pair] = W[r.pair] || new Set()).add(`${L.id}/${sw.id}`);
+      }
+    }
+    const say = { "버튼 글자/버튼": "레퍼런스의 흰 버튼 글자를 3 이상으로 허용", "버튼 채움 깊게": "레퍼런스 버튼 채움을 흰 글자가 되도록 살짝 깊게(브랜드 색은 --c-brand에 그대로)", "버튼 진한 글자": "깊게 하는 한도(0.08) 안에서 흰 글자가 안 돼 진한 글자" };
+    for (const [k, set] of Object.entries(W)) warn(`대비: ${say[k] || k} ${set.size}곳 — ${[...set].slice(0, 6).join(" · ")}${set.size > 6 ? " …" : ""}`);
   }
   if (!lookIds.has(S.theme)) fail(`screens.json theme '${S.theme}'이 looks에 없음`);
   const cur = looks.find((l) => l.id === S.theme);
@@ -593,13 +606,15 @@ if (S.concepts !== undefined) {
   const C = Array.isArray(S.concepts) ? S.concepts : [];
   // 메뉴 구조: web = 왼쪽 메뉴·위쪽 탭·아이콘 메뉴 / mobile = 아래 탭·위쪽 탭·메뉴 없음 (scripts/expand.js)
   const SHELLS = platform === "mobile" ? { tabbar: null, top: "nav-top", none: "no-nav" } : { sidebar: null, top: "nav-top", rail: "nav-rail" };
-  // 시안 10개 = 과감함 1~10단계 (사용자 결정 2026-10-14). 예전 실행물의 5개는 경고만
-  if (C.length !== 10) warn(`시안은 10개 — 과감함 1~10단계 (지금 ${C.length}개)`);
-  const DR = require("./dress.js");
+  // 시안 4개 = 과감함 1 · 4 · 7 · 10단계 (사람 방향 2026-10-21 "시안 10개는 그렇게까지 필요 없다"). 단계 목록은 스키마 concept.level
+  // 시안 단계에서는 FAIL, 예전 실행물(시안 확정 뒤 · 10개 · 5개)은 경고만
+  const must = S.stage === "concept" ? fail : warn;
+  const DR = require("./dress.js"), LV = DR.LEVELS;
   const levels = C.map((c) => c.level).filter((v) => v != null);
-  if (C.length === 10 && (levels.length !== 10 || new Set(levels).size !== 10 || levels.some((v) => !(v >= 1 && v <= 10)))) fail(`시안 10개의 level은 1~10이 한 번씩 (지금: ${levels.join(",") || "없음"})`);
-  // 레이아웃 패턴 목록 — 시안은 여기서 고른 서로 다른 레이아웃 (사용자 결정 2026-10-14: 레퍼런스 조사 대신)
-  const LAYOUT_IDS = new Set((JSON.parse(fs.readFileSync(path.join(__dirname, "../packages/core/layouts/layouts.json"), "utf8")).layouts || []).map((l) => l.id));
+  if (C.length !== LV.length) must(`시안은 ${LV.length}개 — 과감함 ${LV.join(" · ")}단계 (지금 ${C.length}개)`);
+  else if (levels.length !== LV.length || LV.some((v) => !levels.includes(v))) fail(`시안 ${LV.length}개의 level은 ${LV.join(" · ")}이 한 번씩 (지금: ${levels.join(",") || "없음"})`);
+  // 레이아웃 패턴 목록(id → 과감함 계열 bold) — 시안은 여기서 고른 서로 다른 레이아웃 (사용자 결정 2026-10-14: 레퍼런스 조사 대신)
+  const LAYOUTS = new Map((JSON.parse(fs.readFileSync(path.join(__dirname, "../packages/core/layouts/layouts.json"), "utf8")).layouts || []).map((l) => [l.id, l.bold]));
   const cids = new Set();
   for (const c of C) {
     const cd = `시안 ${c.id || "?"}`;
@@ -609,31 +624,34 @@ if (S.concepts !== undefined) {
     else if (/[a-z]{3,}|시안|레이아웃|대시보드형|타입/i.test(c.name)) warn(`${cd}: 이름 "${c.name}" — 무엇이 먼저 보이는지 일상어로 (예: "오늘 할 일부터 보기")`);
     if (!c.why) warn(`${cd}: why 없음 — 이 안이 누구에게 왜 좋은지 한 문장`);
     if (!(c.shell in SHELLS)) fail(`${cd}: shell은 ${Object.keys(SHELLS).join("|")}`);
-    if (!c.layout) (S.stage === "concept" ? fail : warn)(`${cd}: layout 없음 — packages/core/layouts/layouts.json의 id 하나`);   // 예전 실행물(시안 확정 뒤)은 경고만
-    else if (!LAYOUT_IDS.has(c.layout)) fail(`${cd}: layout '${c.layout}'이 레이아웃 목록에 없음 (${[...LAYOUT_IDS].join("|")})`);
-    if (c.mix && !LAYOUT_IDS.has(c.mix)) fail(`${cd}: mix '${c.mix}'이 레이아웃 목록에 없음`);
+    if (!c.layout) must(`${cd}: layout 없음 — packages/core/layouts/layouts.json의 id 하나`);
+    else if (!LAYOUTS.has(c.layout)) fail(`${cd}: layout '${c.layout}'이 레이아웃 목록에 없음 (${[...LAYOUTS.keys()].join("|")})`);
+    if (c.mix && !LAYOUTS.has(c.mix)) fail(`${cd}: mix '${c.mix}'이 레이아웃 목록에 없음`);
     if (c.mix && c.mix === c.layout) warn(`${cd}: mix가 layout과 같음 — 다른 패턴을 섞는다`);
-    if (C.length === 10 && (c.level || 0) >= 4 && !c.mix) warn(`${cd}: ${c.level}단계인데 섞은 패턴(mix) 없음 — 4단계부터는 패턴 두 개를 섞는다`);
-    if (!c.dress) (S.stage === "concept" ? fail : warn)(`${cd}: 꾸밈(dress) 없음 — node scripts/dress.js ${runDir}`);
+    if ((c.level || 0) >= 4 && !c.mix) warn(`${cd}: ${c.level}단계인데 섞은 패턴(mix) 없음 — 4단계부터는 패턴 두 개를 섞는다`);
+    if (!c.dress) must(`${cd}: 꾸밈(dress) 없음 — node scripts/dress.js ${runDir}`);
     else for (const b of DR.check(c.dress)) fail(`${cd}: 꾸밈 ${b}`);
     if (c.look) warn(`${cd}: look은 이제 쓰지 않음 — 시안은 레이아웃만 다르고 색은 시안 보드 위쪽에서 따로 고른다`);
     if (c.refs) warn(`${cd}: refs는 이제 쓰지 않음 — 레퍼런스 조사를 없앴다(레이아웃 목록의 used가 근거)`);
     const scr = Array.isArray(c.screens) ? c.screens : [];
-    if (C.length === 10 && (scr.length < 5 || scr.length > 6)) warn(`${cd}: 시안이 10개면 메인 화면은 5~6장 (지금 ${scr.length}장) — 사용자 결정 2026-10-14`);
-    if (scr.length < 3) warn(`${cd}: 보여줄 메인 화면은 3~6장 (지금 ${scr.length}장) — 역할별 메뉴 화면부터`);
+    if (scr.length < 5) warn(`${cd}: 보여줄 메인 화면은 5~6장 (지금 ${scr.length}장) — 역할별 메뉴 화면부터`);
     if (scr.length > 6) fail(`${cd}: 보여줄 메인 화면은 최대 6장 (지금 ${scr.length}장) — 1턴이 길어지고 비교하기 어렵다`);
     for (const slug of scr) if (!slugs.has(slug)) fail(`${cd}: 화면 '${slug}' 없음`);
   }
   const main = C.find((c) => c.id === S.concept) || C[0];
   if (S.concept && !cids.has(S.concept)) fail(`screens.json concept '${S.concept}'이 concepts에 없음`);
-  if (C.length > 1 && new Set(C.map((c) => c.shell)).size < Math.min(3, C.length))
-    warn(`시안끼리 메뉴 구조(shell)가 ${new Set(C.map((c) => c.shell)).size}가지뿐 — ${Object.keys(SHELLS).join("·")}을 모두 쓴다`);
+  // 다름 검사 — 시안이 적어도 "다 비슷하다"가 돌아오지 않게(2026-10-21): 레이아웃 모두 다름 · 레이아웃 계열(layouts.json bold) 2종 이상 · 꾸밈 칸 4개 이상 다름(두 시안씩 모두) · 메뉴 구조 2종 이상
+  const shells = new Set(C.map((c) => c.shell)).size;
+  if (C.length > 1 && shells < 2) must(`시안이 모두 같은 메뉴 구조(${C[0].shell}) — ${Object.keys(SHELLS).join("·")} 중 2가지 이상`);
+  else if (C.length > 1 && shells < Math.min(3, C.length)) warn(`시안끼리 메뉴 구조(shell)가 ${shells}가지뿐 — ${Object.keys(SHELLS).join("·")}을 모두 쓰면 더 다르게 보인다`);
   const lays = C.map((c) => c.layout).filter(Boolean);
-  if (new Set(lays).size < lays.length) warn(`같은 레이아웃(layout)을 쓰는 시안이 있음 — 시안마다 서로 다른 레이아웃이어야 한다`);
+  if (new Set(lays).size < lays.length) must(`같은 레이아웃(layout)을 쓰는 시안이 있음 — 시안마다 서로 다른 레이아웃이어야 한다`);
+  const bolds = new Set(lays.map((id) => LAYOUTS.get(id)).filter(Boolean));
+  if (lays.length > 1 && bolds.size === 1) must(`시안 레이아웃이 모두 과감함 ${[...bolds][0]} 계열 — layouts.json bold 1 · 2 · 3 중 2종 이상 (단계가 높을수록 bold 높은 패턴)`);
   const used = {}; for (const c of C) for (const id of [c.layout, c.mix].filter(Boolean)) used[id] = (used[id] || 0) + 1;
   for (const [id, n] of Object.entries(used)) if (n > 2) warn(`레이아웃 '${id}'을 시안 ${n}곳에서 씀 — 패턴을 더 고르게 섞는다`);
-  for (let i = 0; i < C.length; i++) for (let j = i + 1; j < C.length; j++) if (C[i].dress && C[j].dress && DR.diff(C[i].dress, C[j].dress) < 3)
-    warn(`시안 ${C[i].id}·${C[j].id}: 꾸밈 카테고리가 ${DR.diff(C[i].dress, C[j].dress)}개만 다름 — 3개 이상 다르게`);
+  for (let i = 0; i < C.length; i++) for (let j = i + 1; j < C.length; j++) if (C[i].dress && C[j].dress && DR.diff(C[i].dress, C[j].dress) < 4)
+    must(`시안 ${C[i].id}·${C[j].id}: 꾸밈 카테고리가 ${DR.diff(C[i].dress, C[j].dress)}개만 다름 — 4개 이상 다르게 (그 시안 dress를 직접 고친다)`);
   const names = C.map((c) => c.home || "").filter(Boolean);
   if (names.length === C.length && new Set(names).size < C.length) warn(`첫 화면 구성(home)이 겹치는 시안이 있음`);
   // 시안의 메인 화면 조각

@@ -4,7 +4,8 @@
    필요한 것: window.HXLooks(scripts/looks.js) · window.HX_LOOKS_DATA(presets.json) · window.HX_OWN_LOOKS(screens.json looks — PRD 맞춤).
    고르는 것: 스타일(맞춤 · 국내 · 해외 고정 스타일) + 그 스타일의 버튼 색 / 직접 고르기(팔레트 24색 + 그 밖의 색 + 바탕 흰·따뜻한·어두운).
    칠하는 법: <html data-theme data-swatch>를 바꾸고, 페이지에 없는 분위기 토큰은 looks.js로 계산해 <style>로 넣는다(글꼴도 불러온다).
-   HXColor.mount({ project, anchor?, inline?, onChange?(sel), persist? }) — inline이면 단추 없이 anchor 안에 창을 펼쳐 둔다(시안 보드 오른쪽 사이드바) — persist면 이 브라우저에 기억(최종본 페이지끼리 함께 바뀐다).
+   HXColor.mount({ project, anchor?, inline?, onChange?(sel), persist?, dress? }) — inline이면 단추 없이 anchor 안에 창을 펼쳐 둔다(시안 보드 오른쪽 사이드바) — persist면 이 브라우저에 기억(최종본 페이지끼리 함께 바뀐다).
+   레퍼런스 프리셋(토스 느낌…)을 고르면 <html data-cards data-radius>(판 모양 · 모서리)도 프리셋 값으로 바뀐다(build.js가 싣는 HX_PRESET_DRESS) — dress: false면 html은 그대로(보드는 화면 상자가 꾸밈을 입는다).
    sel = { theme, swatch, custom: { hex, name, base, bgHex?, font? } | null } — 바탕은 12가지(presets.json bases, tint = 고른 색으로 살짝) + 그 밖의 바탕(bgHex) */
 (function () {
   "use strict";
@@ -44,6 +45,21 @@
     ensure(L);
     root.setAttribute("data-theme", L.id);
     root.setAttribute("data-swatch", L.swatches.some(function (s) { return s.id === sel.swatch; }) ? sel.swatch : L.swatches[0].id);
+    dressRoot(sel);
+  }
+  // ---------- 프리셋 ↔ 꾸밈: 프리셋을 고르면 판 모양 · 모서리 두 칸만 덮는다(바탕 · 제목 · 간격은 시안 그대로) ----------
+  // 프리셋인 때 = 고른 스타일이 프리셋이거나, 직접 고른 색이 프리셋 위에 얹힌 것(custom.from). PRD 맞춤 분위기(OWN)는 아니다
+  function presetId(sel) {
+    var id = sel && (sel.theme === "custom" ? sel.custom && sel.custom.from : sel.theme);
+    return PRE.some(function (p) { return p.id === id; }) ? id : null;
+  }
+  // { cards, radius } — build가 아직 안 실었으면 null(아무것도 바꾸지 않는다)
+  function presetDress(sel) { var id = presetId(sel); return (id && (window.HX_PRESET_DRESS || {})[id]) || null; }
+  var firstDress = null;   // mount 때 html에서 읽은 처음 판 모양 · 모서리 — null이면 html 꾸밈은 건드리지 않는다
+  function dressRoot(sel) {
+    if (!firstDress) return;
+    var d = presetDress(sel) || firstDress;
+    ["cards", "radius"].forEach(function (k) { if (d[k] && d[k] !== "base") root.setAttribute("data-" + k, d[k]); else root.removeAttribute("data-" + k); });
   }
   function hexOf(L, sw) { return LK.primaryHex(L, sw); }
   function nameOf(sel) {
@@ -85,13 +101,14 @@
   ].join("\n");
 
   window.HXColor = {
-    names: nameOf, paint: paint,
+    names: nameOf, paint: paint, presetId: presetId, presetDress: presetDress,
     /* 화면에 "색 바꾸기" 단추와 창을 붙인다. 처음 색 = html의 data-theme/data-swatch (persist면 이 브라우저에 기억한 색) */
     mount: function (o) {
       o = o || {};
       if (!doc.getElementById("hxp-css")) doc.head.appendChild(el("style", { id: "hxp-css", text: CSS }));
       var key = "hx-color:" + (o.project || "project");
       var first = { theme: root.getAttribute("data-theme"), swatch: root.getAttribute("data-swatch"), custom: o.custom || null };
+      if (o.dress !== false) firstDress = { cards: root.getAttribute("data-cards"), radius: root.getAttribute("data-radius") };
       var sel = Object.assign({}, first);
       if (o.initial) sel = Object.assign(sel, o.initial);
       if (o.persist) { try { var saved = JSON.parse(localStorage.getItem(key) || "null"); if (saved && saved.theme) sel = saved; } catch (e) {} }
@@ -129,8 +146,10 @@
         var g = "기본 색";
         if (!groups[g]) { groups[g] = el("div", { class: "hxp-styles" }); stylesBox.appendChild(el("div", { class: "hxp-row" }, [el("span", { text: g }), groups[g]])); }
         var sw = L.swatches[0];
+        // 근거 파일이 없는 레퍼런스(source: null)는 이름표 끝에 '참고용' — docs/design-system.md §4
+        var label = L.name + (L.kind === "preset" && L.source === null ? " · 참고용" : "");
         var b = el("button", { type: "button", class: "hxp-style", role: "radio", title: L.why || L.name, onclick: function () { pickLook(L); } },
-          [el("span", { class: "hxp-prev", style: "background:" + L.bg }, [el("em", { style: "background:" + hexOf(L, sw) })]), el("b", { text: L.name })]);
+          [el("span", { class: "hxp-prev", style: "background:" + L.bg }, [el("em", { style: "background:" + hexOf(L, sw) })]), el("b", { text: label })]);
         styleBtns.push([b, L.id]); groups[g].appendChild(b);
       });
       var swBox = el("div", { class: "hxp-dots" });

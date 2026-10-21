@@ -1,5 +1,5 @@
 {
-  "_": "색 고르기 데이터 — scripts/looks.js가 읽는다. presets = 고정 스타일(group 국내·해외)(앱 이름은 이름표로만, 화면에는 로고·브랜드 없음) · palette = 직접 고르기 색 조각 · bases = 직접 고를 때의 바탕(12개 — tint는 고른 색으로 살짝 물들인 바탕, 그 밖의 바탕은 bgHex). exact: 버튼 색 채도를 낮추지 않는다(그 앱의 색 그대로).",
+  "_": "색 고르기 데이터 — scripts/looks.js가 읽는다. presets = 고정 스타일(group 국내·해외)(앱 이름은 이름표로만, 화면에는 로고·브랜드 없음) · palette = 직접 고르기 색 조각 · bases = 직접 고를 때의 바탕(12개 — tint는 고른 색으로 살짝 물들인 바탕, 그 밖의 바탕은 bgHex). exact: 버튼 색 채도를 낮추지 않는다(그 앱의 색 그대로). 프리셋 한 칸의 모양 = preset.schema.json(docs/design-system.md §4) — brand = 순수 브랜드 색 · radius · card · body · source(근거 파일, null = 근거 없음 → 고르는 칸에 '참고용'). shape는 옛 칸 — looks.js가 radius · card를 읽게 되면 지운다.",
   "presets": [
     {
       "id": "toss",
@@ -8,8 +8,15 @@
       "mode": "light",
       "bg": "#F2F4F6",
       "ink": "#191F28",
+      "brand": "#3182F6",
       "shape": "flat",
+      "radius": {
+        "control": 14,
+        "card": 20
+      },
+      "card": "fill",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -18,19 +25,19 @@
           "hex": "#3182F6"
         },
         {
-          "id": "navy",
-          "name": "남색",
-          "hex": "#1B3B7A"
-        },
-        {
-          "id": "teal",
-          "name": "청록",
-          "hex": "#0B9C8F"
-        },
-        {
           "id": "red",
           "name": "빨강",
           "hex": "#F04452"
+        },
+        {
+          "id": "yellow",
+          "name": "노랑",
+          "hex": "#FFC342"
+        },
+        {
+          "id": "orange",
+          "name": "주황",
+          "hex": "#FF8800"
         },
         {
           "id": "ink",
@@ -38,7 +45,13 @@
           "hex": "#333D4B"
         }
       ],
-      "group": "국내"
+      "group": "국내",
+      "source": {
+        "repo": "CaesiumY/ko-design-md",
+        "file": "services/toss.tokens.json",
+        "commit": "b594b86",
+        "license": "CC BY 4.0"
+      }
     },
     {
       "id": "daangn",
@@ -46,38 +59,51 @@
       "why": "흰 바탕에 주황 하나 — 동네·생활 서비스처럼 친근해요",
       "mode": "light",
       "bg": "#FFFFFF",
-      "ink": "#212124",
+      "ink": "#1A1C20",
+      "brand": "#FF6600",
       "shape": "soft",
+      "radius": {
+        "control": 10,
+        "card": 14
+      },
+      "card": "line",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
           "id": "carrot",
           "name": "당근 주황",
-          "hex": "#FF6F0F"
+          "hex": "#FF6600"
         },
         {
           "id": "green",
           "name": "초록",
-          "hex": "#00A05B"
+          "hex": "#079171"
         },
         {
           "id": "blue",
           "name": "파랑",
-          "hex": "#2E7DF6"
+          "hex": "#217CF9"
         },
         {
-          "id": "brown",
-          "name": "갈색",
-          "hex": "#8B5A3C"
+          "id": "red",
+          "name": "빨강",
+          "hex": "#FA342C"
         },
         {
           "id": "ink",
           "name": "먹색",
-          "hex": "#4D5159"
+          "hex": "#555D6D"
         }
       ],
-      "group": "국내"
+      "group": "국내",
+      "source": {
+        "repo": "CaesiumY/ko-design-md",
+        "file": "services/seed-design.tokens.json",
+        "commit": "b594b86",
+        "license": "CC BY 4.0"
+      }
     },
     {
       "id": "kakao",
@@ -86,8 +112,15 @@
       "mode": "light",
       "bg": "#F6F6F6",
       "ink": "#191919",
+      "brand": "#FEE500",
       "shape": "round",
+      "radius": {
+        "control": "pill",
+        "card": 20
+      },
+      "card": "shadow",
       "font": "nanum-square-round",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -116,7 +149,8 @@
           "hex": "#191919"
         }
       ],
-      "group": "국내"
+      "group": "국내",
+      "source": null
     },
     {
       "id": "kakaobank",
@@ -126,8 +160,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#1E1E1E",
+      "brand": "#FFE300",
       "shape": "round",
+      "radius": {
+        "control": "pill",
+        "card": 20
+      },
+      "card": "shadow",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -155,7 +196,8 @@
           "name": "회색",
           "hex": "#6B6B6B"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "baemin",
@@ -164,8 +206,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#222222",
+      "brand": "#2AC1BC",
       "shape": "round",
+      "radius": {
+        "control": "pill",
+        "card": 20
+      },
+      "card": "shadow",
       "font": "nanum-square-round",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -194,7 +243,8 @@
           "hex": "#333333"
         }
       ],
-      "group": "국내"
+      "group": "국내",
+      "source": null
     },
     {
       "id": "naver",
@@ -203,8 +253,15 @@
       "mode": "light",
       "bg": "#F5F6F8",
       "ink": "#1E1E23",
+      "brand": "#03C75A",
       "shape": "soft",
+      "radius": {
+        "control": 10,
+        "card": 14
+      },
+      "card": "line",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -233,7 +290,8 @@
           "hex": "#404048"
         }
       ],
-      "group": "국내"
+      "group": "국내",
+      "source": null
     },
     {
       "id": "line",
@@ -243,8 +301,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#111111",
+      "brand": "#06C755",
       "shape": "soft",
+      "radius": {
+        "control": 10,
+        "card": 14
+      },
+      "card": "line",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -253,26 +318,32 @@
           "hex": "#06C755"
         },
         {
-          "id": "ink",
-          "name": "먹색",
-          "hex": "#111111"
+          "id": "navy",
+          "name": "남색",
+          "hex": "#1E2742"
         },
         {
           "id": "blue",
           "name": "파랑",
-          "hex": "#4A90E2"
+          "hex": "#2C7DFA"
         },
         {
           "id": "red",
           "name": "빨강",
-          "hex": "#FF334B"
+          "hex": "#E8332E"
         },
         {
           "id": "gray",
           "name": "회색",
-          "hex": "#8A8A8A"
+          "hex": "#949494"
         }
-      ]
+      ],
+      "source": {
+        "repo": "CaesiumY/ko-design-md",
+        "file": "services/line-design-system.tokens.json",
+        "commit": "b594b86",
+        "license": "CC BY 4.0"
+      }
     },
     {
       "id": "coupang",
@@ -282,8 +353,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#111111",
+      "brand": "#346AFF",
       "shape": "soft",
+      "radius": {
+        "control": 10,
+        "card": 14
+      },
+      "card": "line",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -311,7 +389,8 @@
           "name": "먹색",
           "hex": "#333333"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "kurly",
@@ -321,8 +400,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#333333",
+      "brand": "#5F0080",
       "shape": "soft",
+      "radius": {
+        "control": 10,
+        "card": 14
+      },
+      "card": "line",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -350,7 +436,8 @@
           "name": "먹색",
           "hex": "#333333"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "ohou",
@@ -360,8 +447,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#292929",
+      "brand": "#35C5F0",
       "shape": "round",
+      "radius": {
+        "control": "pill",
+        "card": 20
+      },
+      "card": "shadow",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -389,7 +483,8 @@
           "name": "먹색",
           "hex": "#424242"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "musinsa",
@@ -398,8 +493,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#000000",
+      "brand": "#000000",
       "shape": "sharp",
+      "radius": {
+        "control": 6,
+        "card": 6
+      },
+      "card": "line",
       "font": "suit",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -428,7 +530,8 @@
           "hex": "#8C6A4F"
         }
       ],
-      "group": "국내"
+      "group": "국내",
+      "source": null
     },
     {
       "id": "29cm",
@@ -438,8 +541,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#000000",
+      "brand": "#000000",
       "shape": "sharp",
+      "radius": {
+        "control": 6,
+        "card": 6
+      },
+      "card": "line",
       "font": "suit",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -467,7 +577,8 @@
           "name": "갈색",
           "hex": "#7B5C43"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "banksalad",
@@ -477,8 +588,15 @@
       "mode": "light",
       "bg": "#F7F8FA",
       "ink": "#191F28",
+      "brand": "#00C281",
       "shape": "flat",
+      "radius": {
+        "control": 14,
+        "card": 20
+      },
+      "card": "fill",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -506,7 +624,8 @@
           "name": "먹색",
           "hex": "#2B2F38"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "apple",
@@ -516,8 +635,15 @@
       "mode": "light",
       "bg": "#F5F5F7",
       "ink": "#1D1D1F",
+      "brand": "#0071E3",
       "shape": "flat",
+      "radius": {
+        "control": 14,
+        "card": 20
+      },
+      "card": "fill",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -545,7 +671,8 @@
           "name": "보라",
           "hex": "#8944AB"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "google",
@@ -555,8 +682,15 @@
       "mode": "light",
       "bg": "#F8F9FA",
       "ink": "#1F1F1F",
+      "brand": "#1A73E8",
       "shape": "round",
+      "radius": {
+        "control": "pill",
+        "card": 20
+      },
+      "card": "shadow",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -584,23 +718,31 @@
           "name": "먹색",
           "hex": "#3C4043"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "airbnb",
       "name": "에어비앤비 느낌",
-      "why": "흰 바탕에 코랄 빨강, 둥근 모양 — 여행·숙소처럼 설레는 서비스에 어울려요",
+      "why": "흰 바탕에 코랄 빨강, 사진이 주인공인 부드러운 카드 — 여행·숙소처럼 설레는 서비스에 어울려요",
       "group": "해외",
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#222222",
-      "shape": "round",
+      "brand": "#FF385C",
+      "shape": "soft",
+      "radius": {
+        "control": 10,
+        "card": 14
+      },
+      "card": "line",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
           "id": "coral",
-          "name": "코랄 빨강",
+          "name": "코랄",
           "hex": "#FF385C"
         },
         {
@@ -609,21 +751,27 @@
           "hex": "#222222"
         },
         {
-          "id": "teal",
-          "name": "청록",
-          "hex": "#00A699"
-        },
-        {
-          "id": "orange",
-          "name": "주황",
-          "hex": "#E8590C"
-        },
-        {
           "id": "plum",
           "name": "자두",
           "hex": "#92174D"
+        },
+        {
+          "id": "luxe",
+          "name": "짙은 보라",
+          "hex": "#460479"
+        },
+        {
+          "id": "gray",
+          "name": "회색",
+          "hex": "#6A6A6A"
         }
-      ]
+      ],
+      "source": {
+        "repo": "VoltAgent/awesome-design-md",
+        "file": "design-md/airbnb/DESIGN.md",
+        "commit": "3b60532",
+        "license": "MIT"
+      }
     },
     {
       "id": "notion",
@@ -633,8 +781,15 @@
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#37352F",
-      "shape": "sharp",
+      "brand": "#37352F",
+      "shape": "soft",
+      "radius": {
+        "control": 10,
+        "card": 14
+      },
+      "card": "line",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -662,18 +817,31 @@
           "name": "초록",
           "hex": "#0F7B6C"
         }
-      ]
+      ],
+      "source": {
+        "repo": "VoltAgent/awesome-design-md",
+        "file": "design-md/notion/DESIGN.md",
+        "commit": "3b60532",
+        "license": "MIT"
+      }
     },
     {
       "id": "slack",
       "name": "슬랙 느낌",
-      "why": "흰 바탕에 자두 보라 — 여럿이 함께 일하는 도구에 어울려요",
+      "why": "흰 바탕에 자두 보라, 알약 모양 버튼 — 여럿이 함께 일하는 도구에 어울려요",
       "group": "해외",
       "mode": "light",
       "bg": "#FFFFFF",
       "ink": "#1D1C1D",
-      "shape": "soft",
+      "brand": "#4A154B",
+      "shape": "round",
+      "radius": {
+        "control": "pill",
+        "card": 20
+      },
+      "card": "shadow",
       "font": "pretendard",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -701,7 +869,13 @@
           "name": "노랑",
           "hex": "#ECB22E"
         }
-      ]
+      ],
+      "source": {
+        "repo": "VoltAgent/awesome-design-md",
+        "file": "design-md/slack/DESIGN.md",
+        "commit": "3b60532",
+        "license": "MIT"
+      }
     },
     {
       "id": "linear",
@@ -711,8 +885,15 @@
       "mode": "dark",
       "bg": "#0F1011",
       "ink": "#F7F8F8",
+      "brand": "#5E6AD2",
       "shape": "sharp",
+      "radius": {
+        "control": 6,
+        "card": 6
+      },
+      "card": "line",
       "font": "suit",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -740,24 +921,32 @@
           "name": "빨강",
           "hex": "#E5484D"
         }
-      ]
+      ],
+      "source": null
     },
     {
       "id": "spotify",
       "name": "스포티파이 느낌",
-      "why": "검은 바탕에 초록 — 음악·영상처럼 오래 켜 두는 서비스에 어울려요",
+      "why": "검은 바탕에 초록, 알약 모양 버튼 — 음악·영상처럼 오래 켜 두는 서비스에 어울려요",
       "group": "해외",
       "mode": "dark",
       "bg": "#121212",
       "ink": "#FFFFFF",
+      "brand": "#1ED760",
       "shape": "round",
+      "radius": {
+        "control": "pill",
+        "card": 20
+      },
+      "card": "shadow",
       "font": "suit",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
           "id": "green",
           "name": "초록",
-          "hex": "#1DB954"
+          "hex": "#1ED760"
         },
         {
           "id": "white",
@@ -765,31 +954,44 @@
           "hex": "#FFFFFF"
         },
         {
-          "id": "pink",
-          "name": "분홍",
-          "hex": "#F573A0"
+          "id": "red",
+          "name": "빨강",
+          "hex": "#F3727F"
         },
         {
           "id": "sky",
           "name": "하늘",
-          "hex": "#509BF5"
+          "hex": "#539DF5"
         },
         {
-          "id": "yellow",
-          "name": "노랑",
-          "hex": "#FFC864"
+          "id": "orange",
+          "name": "주황",
+          "hex": "#FFA42B"
         }
-      ]
+      ],
+      "source": {
+        "repo": "VoltAgent/awesome-design-md",
+        "file": "design-md/spotify/DESIGN.md",
+        "commit": "3b60532",
+        "license": "MIT"
+      }
     },
     {
       "id": "netflix",
       "name": "넷플릭스 느낌",
-      "why": "검은 바탕에 빨강 — 영상·밤에 오래 보는 서비스에 어울려요",
+      "why": "검은 바탕에 빨강, 살짝만 둥근 모서리 — 영상·밤에 오래 보는 서비스에 어울려요",
       "mode": "dark",
       "bg": "#141414",
       "ink": "#FFFFFF",
+      "brand": "#E50914",
       "shape": "sharp",
+      "radius": {
+        "control": 6,
+        "card": 6
+      },
+      "card": "line",
       "font": "suit",
+      "body": 15,
       "exact": true,
       "swatches": [
         {
@@ -803,22 +1005,28 @@
           "hex": "#F5F5F1"
         },
         {
-          "id": "gold",
-          "name": "금색",
-          "hex": "#F5C518"
+          "id": "yellow",
+          "name": "노랑",
+          "hex": "#F5D85C"
         },
         {
-          "id": "sky",
-          "name": "하늘",
-          "hex": "#54B9FF"
+          "id": "teal",
+          "name": "청록",
+          "hex": "#54B9C5"
         },
         {
-          "id": "violet",
-          "name": "보라",
-          "hex": "#9B6BFF"
+          "id": "navy",
+          "name": "남색",
+          "hex": "#3E3E91"
         }
       ],
-      "group": "해외"
+      "group": "해외",
+      "source": {
+        "repo": "Meliwat/awesome-ios-design-md",
+        "file": "design-md/video/netflix/DESIGN.md",
+        "commit": "5d3aeca",
+        "license": "MIT"
+      }
     }
   ],
   "palette": [

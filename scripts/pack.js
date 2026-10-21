@@ -223,7 +223,7 @@ const CLAYOUT = C && C.layout ? (JSON.parse(read(path.join(ROOT, "packages/core/
 const ALL_LAYOUTS = JSON.parse(read(path.join(ROOT, "packages/core/layouts/layouts.json"))).layouts || [];
 const CMIX = C && C.mix ? ALL_LAYOUTS.find((l) => l.id === C.mix) : null;
 const recipeOf = (L) => `"${L.name}" — ${L.recipe}${MOBILE && L.mobile ? ` 휴대폰: ${L.mobile}` : ""}`;
-// 과감함 단계(시안 10개 = 1~10단계): 높을수록 구성도 과감하게 — 사용자 결정 2026-10-14 "너무 다 비슷함"
+// 과감함 단계(1~10 눈금, 시안은 1 · 4 · 7 · 10): 높을수록 구성도 과감하게 — 사용자 결정 2026-10-14 "너무 다 비슷함"
 const LEVEL_NOTE = !C || !C.level ? "" : C.level <= 3 ? "무난하게: 흔한 앱처럼 익숙한 배치, 판은 위에서 아래로 차례대로."
   : C.level <= 6 ? "조금 과감하게: 두 패턴을 섞어 첫 화면 위쪽과 아래쪽 구성이 확실히 다르게, 큰 숫자·큰 판 하나로 강약을 준다."
   : "과감하게: 창의 부품(.hero+.overlap · .bento · .scroll-row · .story-row · .chat · .poster)을 적극 써서 흔한 앱과 다른 첫인상을 만든다. 크기 대비를 크게(아주 큰 글자·꽉 찬 색 판·넓은 여백), 같은 모양의 판이 세 번 이상 연달아 오지 않게.";

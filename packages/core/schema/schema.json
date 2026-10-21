@@ -139,12 +139,12 @@
         },
         "concepts": {
           "type": "array",
-          "maxItems": 10,
+          "maxItems": 4,
           "items": {
             "$ref": "#/$defs/concept"
           },
           "x-stage": "C",
-          "description": "시안 10개 = 과감함 1~10단계"
+          "description": "시안 = 과감함 단계(concept.level 목록)마다 하나 — 서로 다른지는 lint가 본다(레이아웃 · 계열 · 꾸밈 · 메뉴 구조)"
         },
         "board": {
           "$ref": "#/$defs/board",
@@ -973,13 +973,17 @@
         "id": {
           "type": "string",
           "pattern": "^[a-z]$",
-          "description": "a~j — 목록 안에서 하나"
+          "description": "a~d — 목록 안에서 하나"
         },
         "level": {
           "type": "integer",
-          "minimum": 1,
-          "maximum": 10,
-          "description": "과감함 단계 — 10개가 1~10을 한 번씩(lint)"
+          "enum": [
+            1,
+            4,
+            7,
+            10
+          ],
+          "description": "과감함 단계(1 무난 … 10 과감) — 시안마다 하나씩. 이 목록이 시안 수를 정한다(lint · scripts/dress.js가 여기서 읽는다)"
         },
         "name": {
           "type": "string",

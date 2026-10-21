@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
  * dress.js — 꾸밈 카테고리 9개(배경 · 판 모양 · 제목 · 모서리 · 간격 · 글꼴 · 아이콘 · 색 쓰는 방식 · 그라데이션)의 값·과감함 점수·이름.
- * 사용자 결정(2026-10-14): "너무 다 비슷함", "1~10단계 다른 형태를 다 보여주자" → 시안 10개 = 과감함 1~10단계, 카테고리를 섞어 다르게.
+ * 사용자 결정(2026-10-14): "너무 다 비슷함", "1~10단계 다른 형태를 다 보여주자" → 카테고리를 섞어 다르게.
+ * 사람 방향(2026-10-21): "시안 10개는 그렇게까지 필요 없다" → 시안 4개 = 과감함 1 · 4 · 7 · 10단계(LEVELS — 스키마 concept.level 목록).
  *
- *   node scripts/dress.js runs/<p>   → screens.json concepts[]마다 dress가 없으면 level(1~10)로 채우고 표를 찍는다
- *                                       (level 1 = 모두 기본값, 10 = 가장 과감. 시안끼리 4개 이상 카테고리가 다르게)
+ *   node scripts/dress.js runs/<p>   → screens.json concepts[]마다 dress가 없으면 level로 채우고 표를 찍는다
+ *                                       (level 1 = 모두 기본값, 10 = 가장 과감. 시안끼리 4개 이상 카테고리가 다르게, level이 없으면 LEVELS 순서대로)
  * 화면에는 packages/core/tokens/dress.css가 data-* 로 입힌다(시안 보드 = 시안 화면 상자, 초안·최종본 = <html>, screens.json dress).
  * build.js · lint.js · 시안 보드가 CATS를 같이 쓴다.
  * 판 모양에는 스타일 견본 9개(플랫 · 머티리얼 · 글래스 …)를 흡수했다(설계 D2) — 견본의 근거(언제 · 하지 말 것 · 참고처 · 1순위 강조)는 NOTE에.
@@ -39,12 +40,14 @@ const NOTE = {
     line: { from: "line", bg: "plain", radius: "none", rank1: "outline", when: "콘텐츠 · 읽을거리 · 고급스러운 차분함", dont: "선과 글자를 너무 연하게 두지 않기 — 선 3:1, 글자 굵기 400 이상", refs: ["https://www.nngroup.com/articles/flat-design/"] },
   },
 };
-/** 판 모양이 정하는 모서리 (없으면 null) */
-const lockedRadius = (d) => (d && NOTE.cards[d.cards] && NOTE.cards[d.cards].radius) || null;
+/** 판 모양이 정하는 모서리 (없으면 null) — 레퍼런스 프리셋이 판 모양 · 모서리를 덮었으면(presetLock) 잠그지 않는다: 사람이 고른 것이 이긴다(설계 E5) */
+const lockedRadius = (d) => (d && !d.presetLock && NOTE.cards[d.cards] && NOTE.cards[d.cards].radius) || null;
 const LOCKED = new Set(Object.values(NOTE.cards).map((n) => n.radius).filter(Boolean));
 // 판이 비치는 판 모양 — 위쪽 색 띠 · 어두운 머리 위에 오면 글자가 바탕색에 묻힌다. 판이 아예 없는 것(line)은 무늬 바탕 · 그라데이션 위에도 두지 않는다
 const SEE = ["glass", "aurora", "line"], BARE = ["line"], PATTERN = ["glow", "dots", "mesh"];
 const KEYS = Object.keys(CATS);
+/** 시안의 과감함 단계 — 정본은 스키마(concept.level 목록), 시안 수도 이 길이 */
+const LEVELS = require("../packages/core/schema/schema.json").$defs.concept.properties.level.enum;
 const BASE = { bg: "plain", cards: "base", head: "normal", radius: "base", space: "normal", font: "base", icons: "line", tone: "neutral", grad: "none" };
 const MAX = KEYS.reduce((n, k) => n + Math.max(...Object.values(CATS[k].values).map((v) => v[0])), 0);
 /** 판 모양이 모서리를 정하면 radius 칸을 그 값으로 맞춘다 */
@@ -59,10 +62,10 @@ const words = (d) => { d = d && fit(d); return KEYS.filter((k) => d && d[k] && d
 const attrs = (d) => { d = d && fit(d); return KEYS.filter((k) => k !== "icons" && d && d[k] && d[k] !== BASE[k]).map((k) => ` data-${k}="${d[k]}"`).join(""); };
 function check(d) {
   const bad = [];
-  for (const [k, v] of Object.entries(d || {})) if (!CATS[k]) bad.push(`카테고리 '${k}' 없음`); else if (!CATS[k].values[v]) bad.push(`${CATS[k].name} '${v}' 없음 (${Object.keys(CATS[k].values).join("|")})`);
+  for (const [k, v] of Object.entries(d || {})) if (k === "presetLock") continue; else if (!CATS[k]) bad.push(`카테고리 '${k}' 없음`); else if (!CATS[k].values[v]) bad.push(`${CATS[k].name} '${v}' 없음 (${Object.keys(CATS[k].values).join("|")})`);
   const r = lockedRadius(d);
   if (r && d.radius && d.radius !== r) bad.push(`판 모양 '${d.cards}'은 모서리 '${r}'를 함께 정한다 — radius는 비우거나 '${r}'`);
-  if (!r && d && LOCKED.has(d.radius)) bad.push(`모서리 '${d.radius}'는 판 모양이 정하는 값 (${Object.keys(NOTE.cards).filter((c) => NOTE.cards[c].radius === d.radius).join("|")})`);
+  if (!r && d && !d.presetLock && LOCKED.has(d.radius)) bad.push(`모서리 '${d.radius}'는 판 모양이 정하는 값 (${Object.keys(NOTE.cards).filter((c) => NOTE.cards[c].radius === d.radius).join("|")})`);
   return bad;
 }
 /** 함께 두면 안 되는 조합의 벌점 — 0이면 괜찮다 (pick이 피하고, 시험은 0인 조합만 본다) */
@@ -91,7 +94,32 @@ function pick(level, taken, seed) {
   }
   return best;
 }
-module.exports = { CATS, NOTE, KEYS, BASE, MAX, SEE, score, diff, words, attrs, check, clash, fit, full, pick };
+// ---------- 레퍼런스 프리셋 → 판 모양 · 모서리 (설계 E5) ----------
+// 레퍼런스(토스 느낌 …)를 고르면 그 프리셋의 card · radius가 꾸밈의 두 칸만 덮는다. 바탕 · 제목 · 간격은 시안 것 그대로
+/** presets.json card → 판 모양 */
+const PRESET_CARDS = { fill: "flat", line: "line", shadow: "float" };
+/** 모서리 단계의 px — dress.css [data-radius] --r-card를 base.css 모서리 단계로 푼다(숫자를 여기 다시 적지 않는다) */
+function radiusSteps() {
+  const fs = require("fs"), path = require("path");
+  const css = (f) => fs.readFileSync(path.join(__dirname, "../packages/core/tokens", f), "utf8");
+  const vars = {};
+  for (const m of css("base.css").matchAll(/(--r-[a-z0-9]+):\s*([^;]+);/g)) vars[m[1]] = m[2].trim();
+  const px = (v) => { const m = /^var\((--[a-z0-9-]+)\)$/.exec(String(v).trim()); return m ? px(vars[m[1]]) : parseFloat(v); };
+  const steps = {};
+  for (const m of css("dress.css").matchAll(/\[data-radius="([a-z]+)"\]\s*\.app\s*\{[^}]*?--r-card:\s*([^;]+);/g)) steps[m[1]] = px(m[2]);
+  return { steps, px };
+}
+/** 프리셋 하나 → { cards, radius } — radius는 radius.card(px)에 가장 가까운 모서리 단계.
+ *  base(data-radius 없음)도 후보다: 그 스타일 모양(looks.js SHAPE)이 정하는 --r-card. 거리가 같으면 base */
+function presetDress(P, steps = radiusSteps()) {
+  const card = P.radius && P.radius.card, want = typeof card === "number" ? card : steps.px(`var(--r-${card})`);
+  const base = steps.px(require("./looks.js").lookTokens(P)["--r-card"]);
+  const near = [["base", base]].concat(Object.entries(steps.steps)).reduce((a, b) => (Math.abs(b[1] - want) < Math.abs(a[1] - want) ? b : a));
+  return { cards: PRESET_CARDS[P.card] || BASE.cards, radius: Number.isNaN(want) ? "base" : near[0] };
+}
+/** 꾸밈 d(없으면 기본값) 위에 프리셋의 판 모양 · 모서리를 덮는다 — presetLock이 있으면 판 모양 잠금을 건너뛴다 */
+const withPreset = (d, P, steps) => Object.assign({}, d || BASE, presetDress(P, steps), { presetLock: P.id });
+module.exports = { CATS, NOTE, KEYS, LEVELS, BASE, MAX, SEE, score, diff, words, attrs, check, clash, fit, full, pick, radiusSteps, presetDress, withPreset };
 
 if (require.main === module) {
   const fs = require("fs"), path = require("path");
@@ -100,10 +128,12 @@ if (require.main === module) {
   const p = path.join(runDir, "screens.json"), S = JSON.parse(fs.readFileSync(p, "utf8"));
   const C = Array.isArray(S.concepts) ? S.concepts : [];
   const taken = C.filter((c) => c.dress).map((c) => c.dress);
+  // level이 없으면 시안 순서대로 LEVELS — 1 · 2 · 3 · 4처럼 붙어서 서로 비슷해지지 않게
+  const lv = (c) => c.level || LEVELS[Math.min(C.indexOf(c), LEVELS.length - 1)];
   let n = 0;
-  C.slice().sort((a, b) => (a.level || 0) - (b.level || 0)).forEach((c, i) => {
+  C.slice().sort((a, b) => lv(a) - lv(b)).forEach((c) => {
     if (c.dress) return;
-    c.dress = pick(c.level || i + 1, taken, (c.level || i + 1) * 7919 + c.id.charCodeAt(0)); taken.push(c.dress); n++;
+    c.dress = pick(lv(c), taken, lv(c) * 7919 + c.id.charCodeAt(0)); taken.push(c.dress); n++;
   });
   fs.writeFileSync(p, JSON.stringify(S, null, 2) + "\n");
   for (const c of C) console.log(`시안 ${c.id} · ${c.level || "?"}단계 · 과감함 ${score(c.dress)}/${MAX} · ${words(c.dress).join(" · ") || "기본 그대로"}`);

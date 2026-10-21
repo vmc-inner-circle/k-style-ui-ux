@@ -106,66 +106,6 @@
     },
     {
       "id": "b",
-      "level": 2,
-      "name": "오늘 할 일부터 보기",
-      "why": "출발 전 챙길 것이 가장 먼저 보여요",
-      "layout": "today-todo",
-      "shell": "tabbar",
-      "home": "오늘 할 일 체크 목록 + 진행 막대",
-      "density": "보통",
-      "traits": [
-        "할 일 중심"
-      ],
-      "screens": [
-        "plan",
-        "item-edit",
-        "parent-home",
-        "todos"
-      ],
-      "dress": {
-        "bg": "tint",
-        "cards": "base",
-        "head": "normal",
-        "radius": "round",
-        "space": "normal",
-        "font": "pretendard",
-        "icons": "line",
-        "tone": "soft",
-        "grad": "none"
-      }
-    },
-    {
-      "id": "c",
-      "level": 3,
-      "name": "달력 한 장으로 보기",
-      "why": "여행 날짜가 달력에서 한눈에 들어와요",
-      "layout": "calendar-month",
-      "shell": "top",
-      "home": "11월 달력 + 고른 날 일정",
-      "density": "보통",
-      "traits": [
-        "달력"
-      ],
-      "screens": [
-        "plan",
-        "item-edit",
-        "parent-home",
-        "todos"
-      ],
-      "dress": {
-        "bg": "plain",
-        "cards": "boxed",
-        "head": "big",
-        "radius": "base",
-        "space": "normal",
-        "font": "base",
-        "icons": "line",
-        "tone": "bold",
-        "grad": "fade"
-      }
-    },
-    {
-      "id": "d",
       "level": 4,
       "name": "확정과 후보를 나눠 보기",
       "why": "정해진 것과 정하는 중인 것이 위에서 갈라져요",
@@ -196,69 +136,7 @@
       }
     },
     {
-      "id": "e",
-      "level": 5,
-      "name": "하루씩 시간표로 보기",
-      "why": "그날 몇 시에 어디 있어야 하는지가 먼저예요",
-      "layout": "week-schedule",
-      "mix": "list-detail",
-      "shell": "top",
-      "home": "날짜 띠 + 그날 시간 순서",
-      "density": "보통",
-      "traits": [
-        "시간표"
-      ],
-      "screens": [
-        "plan",
-        "item-edit",
-        "parent-home",
-        "todos"
-      ],
-      "dress": {
-        "bg": "glow",
-        "cards": "line",
-        "head": "normal",
-        "radius": "pill",
-        "space": "tight",
-        "font": "nanum-square-round",
-        "icons": "line",
-        "tone": "neutral",
-        "grad": "aurora"
-      }
-    },
-    {
-      "id": "f",
-      "level": 6,
-      "name": "출발까지 남은 날부터",
-      "why": "D-24 큰 숫자가 여행 기분을 먼저 알려요",
-      "layout": "big-number",
-      "mix": "feed",
-      "shell": "tabbar",
-      "home": "D-24 큰 숫자 + 아래로 이어지는 소식",
-      "density": "여유",
-      "traits": [
-        "큰 숫자"
-      ],
-      "screens": [
-        "plan",
-        "item-edit",
-        "parent-home",
-        "todos"
-      ],
-      "dress": {
-        "bg": "dots",
-        "cards": "outline",
-        "head": "huge",
-        "radius": "base",
-        "space": "extra",
-        "font": "suit",
-        "icons": "fluent",
-        "tone": "neutral",
-        "grad": "none"
-      }
-    },
-    {
-      "id": "g",
+      "id": "c",
       "level": 7,
       "name": "여행 표지 위에 일정 겹치기",
       "why": "여행 수첩 표지처럼 설레는 첫 화면이에요",
@@ -289,69 +167,7 @@
       }
     },
     {
-      "id": "h",
-      "level": 8,
-      "name": "크기가 다른 칸으로 한눈에",
-      "why": "남은 날·할 일·소식이 한 화면에 칸으로 모여요",
-      "layout": "bento",
-      "mix": "card-grid",
-      "shell": "tabbar",
-      "home": "큰 칸 남은 날 + 작은 칸 할 일·소식·가족",
-      "density": "촘촘",
-      "traits": [
-        "바둑판"
-      ],
-      "screens": [
-        "plan",
-        "item-edit",
-        "parent-home",
-        "todos"
-      ],
-      "dress": {
-        "bg": "band",
-        "cards": "flat",
-        "head": "huge",
-        "radius": "sharp",
-        "space": "extra",
-        "font": "serif-title",
-        "icons": "fluent",
-        "tone": "soft",
-        "grad": "aurora"
-      }
-    },
-    {
-      "id": "i",
-      "level": 9,
-      "name": "가족 얼굴과 소식부터",
-      "why": "누가 무엇을 했는지 사람 중심으로 보여요",
-      "layout": "stories",
-      "mix": "feed",
-      "shell": "top",
-      "home": "가족 얼굴 줄 + 바뀐 소식 이어 보기",
-      "density": "보통",
-      "traits": [
-        "사람 중심"
-      ],
-      "screens": [
-        "plan",
-        "item-edit",
-        "parent-home",
-        "todos"
-      ],
-      "dress": {
-        "bg": "dark",
-        "cards": "outline",
-        "head": "huge",
-        "radius": "pill",
-        "space": "tight",
-        "font": "pretendard",
-        "icons": "fluent",
-        "tone": "bold",
-        "grad": "fade"
-      }
-    },
-    {
-      "id": "j",
+      "id": "d",
       "level": 10,
       "name": "큰 글자 한 장으로 말하기",
       "why": "부모님도 한 번에 읽는 아주 큰 글자예요",

@@ -1,5 +1,6 @@
 // 스타일 — 색 대비는 looks.js(실제로 칠하는 계산) 하나로 본다: 바탕 3 × 버튼 색 5 × (고른 색 그대로 · 채도 낮춤)에서
-// 글자/판 7 · 흐린 글자/판·바탕 4.5 · 버튼 글자/버튼 4.5 · 강조 글자/판·바탕 4.5 이상.
+// 글자/판 7 · 흐린 글자/판·바탕 4.5 · 버튼 글자/버튼(고른 색 그대로 3 · 채도 낮춤 4.5, E2) · 강조 글자/판·바탕 4.5 이상.
+// 레퍼런스 프리셋은 색 역할(DS3)을 따로 본다: 당근 흰 글자 · 토스 그대로 · 21개 × 버튼 색 전부 audit FAIL 0.
 // 꾸밈 판 모양(견본을 흡수한 값까지)은 dress.css를 읽어 판 색을 계산하고, 판 위 글자 4.5 이상인지 본다(비치는 판은 가장 나쁜 바탕 위에서).
 const path = require("path");
 const { ROOT, suite } = require("../lib.js");
@@ -19,11 +20,30 @@ for (const b of bases) for (const hex of ["#23317A", "#D4A017", "#2F6FD6", "#F2C
   const bg = V["--c-bg"], sf = V["--c-surface"];
   const c = { 글자: ct(V["--c-text"], sf), 흐린: Math.min(ct(V["--c-text-muted"], sf), ct(V["--c-text-muted"], bg)), 흐린2: Math.min(ct(V["--c-text-2"], sf), ct(V["--c-text-2"], bg)),
     버튼글자: ct(V["--c-primary-fg"], V["--c-primary"]), 강조글자: Math.min(ct(V["--c-primary-text"], sf), ct(V["--c-primary-text"], bg)) };
-  if (c.글자 < 7 || c.흐린 < 4.5 || c.흐린2 < 4.5 || c.버튼글자 < 4.5 || c.강조글자 < 4.5 || V["--c-text-2"] === V["--c-text-muted"]) {
+  if (c.글자 < 7 || c.흐린 < 4.5 || c.흐린2 < 4.5 || c.버튼글자 < (exact ? 3 : 4.5) || c.강조글자 < 4.5 || V["--c-text-2"] === V["--c-text-muted"]) {
     bad++; t.fail(`${L.base} · ${hex}${exact ? " (그대로)" : ""}: ${Object.entries(c).map(([k, v]) => k + " " + v).join(" · ")}${V["--c-text-2"] === V["--c-text-muted"] ? " · 흐린 글자 두 단계가 같은 색" : ""}`);
   }
 }
 if (!bad) t.ok(`looks.js 대비 ${n}조합 모두 기준 이상`);
+
+// 색 역할(DS3) — 레퍼런스 프리셋은 브랜드 색 그대로(--c-brand), 버튼 채움만 흰 글자가 3이 될 만큼 깊게
+{
+  const roles = (id) => { const P = LK.PRESETS.find((p) => p.id === id); return Object.assign(LK.lookTokens(P), LK.swatchTokens(P, P.swatches[0])); };
+  const dg = roles("daangn"), dgText = Math.min(ct(dg["--c-primary-text"], dg["--c-bg"]), ct(dg["--c-primary-text"], dg["--c-surface"]));
+  const dgOff = [dg["--c-brand"] === "#FF6600" ? "" : `brand ${dg["--c-brand"]} (기대 #FF6600)`,
+    dg["--c-primary"] !== dg["--c-brand"] ? "" : "채움이 brand와 같음(깊게 하지 않음)",
+    dg["--c-primary-fg"] === "#FFFFFF" && ct(dg["--c-primary"], "#FFFFFF") >= 3 ? "" : `버튼 글자 ${dg["--c-primary-fg"]} ${ct(dg["--c-primary"], dg["--c-primary-fg"])} (흰 글자 3 이상)`,
+    dgText >= 4.5 ? "" : `강조 글자 ${dg["--c-primary-text"]} ${dgText} (4.5 이상)`].filter(Boolean);
+  if (dgOff.length) t.fail(`당근 색 역할: ${dgOff.join(" · ")}`);
+  else t.ok(`당근: brand #FF6600 · 채움 ${dg["--c-primary"]} 흰 글자 ${ct(dg["--c-primary"], "#FFFFFF")} · 강조 글자 ${dg["--c-primary-text"]} ${dgText}`);
+  const ts = roles("toss");
+  if (ts["--c-primary"] === "#3182F6" && ts["--c-brand"] === "#3182F6" && ts["--c-primary-fg"] === "#FFFFFF") t.ok("토스: 채움 = brand = #3182F6 · 흰 글자 그대로");
+  else t.fail(`토스 색 역할: 채움 ${ts["--c-primary"]} · brand ${ts["--c-brand"]} · 버튼 글자 ${ts["--c-primary-fg"]} (기대 #3182F6 · #3182F6 · #FFFFFF)`);
+  const fails = [];
+  for (const P of LK.PRESETS) for (const sw of P.swatches) for (const r of LK.audit(P, sw)) if (r.level === "fail") fails.push(`${P.id}/${sw.id} ${r.pair} ${r.ratio} (${r.min} 이상)`);
+  fails.forEach((e) => t.fail(`audit: ${e}`));
+  if (!fails.length) t.ok(`레퍼런스 ${LK.PRESETS.length}개 × 버튼 색 ${LK.PRESETS.reduce((s, p) => s + p.swatches.length, 0)}개 — audit FAIL 0`);
+}
 
 // 프리셋 → 직접 고른 색(custom) · 글자 크기 — 계산은 looks.js customLook 하나 (scripts/screens.js)
 {
@@ -98,8 +118,10 @@ function colors(expr, V) {
 }
 const hex = (c) => "#" + c.slice(0, 3).map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
 const over = (top, under) => [0, 1, 2].map((i) => top[i] * top[3] + under[i] * (1 - top[3])).concat(1);
+// 그 꾸밈에서 걸리는 규칙인가 — 선택자에 나온 data-* 조건이 모두 맞아야 한다(띠 + 그라데이션처럼 둘을 함께 거는 규칙). 꾸밈에 없는 칸은 기본값으로 본다
+const on = (r, d) => { const ks = [...new Set([...r.sel.replace(/:not\([^)]*\)/g, "").matchAll(/\[data-([a-z]+)/g)].map((m) => m[1]))];
+  return ks.length > 0 && ks.every((k) => has(r, k, k in d ? d[k] : DR.BASE[k])); };
 // 그 꾸밈에서 .app에 걸리는 변수 (규칙 순서대로 덮는다)
-const on = (r, d) => Object.entries(d).some(([k, v]) => has(r, k, v));
 const varsFor = (V, d) => DRESS_CSS.filter((r) => /(^|\s)\.app$/.test(r.sel) && (r.sel === ".app" || on(r, d)))
   .reduce((o, r) => Object.assign(o, Object.fromEntries(Object.entries(r.decl).filter(([k]) => k.startsWith("--")))), Object.assign({}, V));
 // 판 색: 판에 바로 칠한 background — 없으면 웹은 --c-surface, 휴대폰은 --m-card-bg

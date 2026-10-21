@@ -260,9 +260,9 @@ PRD 맞춤 규칙 — `preset`(걸음 P, 메인 스키마 $defs.preset). 메인�
 
 2턴 초안 보드 상단과 최종본 왼쪽 아래 **"색 바꾸기"**: 스타일(맞춤 · 국내 · 해외, 색 미리보기) · 고른 스타일의 버튼 색 5개 · 직접 고르기 팔레트(24색 + 그 밖의 색) · 바탕 3개 · '처음 색으로'. 누르면 그 페이지의 모든 화면이 즉시 다시 칠해진다(없는 분위기는 looks.js가 그 자리에서 계산).
 
-## 6-1. 시안 10개 — 과감함 1~10단계: 레이아웃 패턴 섞기 + 꾸밈 카테고리 섞기
+## 6-1. 시안 4개 — 과감함 1 · 4 · 7 · 10단계: 레이아웃 패턴 섞기 + 꾸밈 카테고리 섞기
 
-사용자 결정(2026-10-14): "레퍼런스를 탐색하는 과정을 없애고 다양한 레이아웃 패턴을", "너무 다 비슷함 유사도를 100% 다 다르게", "1~10단계 다른 형태를 다 보여주자 레퍼런스로", "카테고리로 다양하게 믹스", "한 눈에 한 화면에 다 보이게". → 시안 10개를 **과감함 1단계(무난)~10단계(과감)**로, 단계마다 **레이아웃 패턴(+섞을 패턴)**과 **꾸밈 카테고리 9개**가 다르다. 보드의 '나란히 넘기기'가 시안 2~3개씩 나란히, 칸 안 화면은 세로로 쭉 보여준다(←→로 넘김).
+사용자 결정(2026-10-14): "레퍼런스를 탐색하는 과정을 없애고 다양한 레이아웃 패턴을", "너무 다 비슷함 유사도를 100% 다 다르게", "1~10단계 다른 형태를 다 보여주자 레퍼런스로", "카테고리로 다양하게 믹스", "한 눈에 한 화면에 다 보이게". 사람 방향(2026-10-21): "시안 10개는 그렇게까지 필요 없다". → 시안 4개를 **과감함 1단계(무난) · 4단계 · 7단계 · 10단계(과감)**로(단계 목록은 스키마 `concept.level`), 단계마다 **레이아웃 패턴(+섞을 패턴)**과 **꾸밈 카테고리 9개**가 다르다. 시안 보드는 캔버스 한 장에 시안마다 한 줄, 위쪽 A~D로 바로 간다.
 
 **레이아웃 패턴** `packages/core/layouts/layouts.json` 21개 — `bold` 1(무난) · 2(보통) · 3(과감):
 - 1: summary-cards 요약 숫자부터 · today-todo 오늘 할 일부터 · calendar-month 달력 한 장으로 · timeline 시간 순서대로 · list-detail 목록과 상세를 나란히 · table 표로 한눈에 · tabs-split 위에서 나눠 보기
@@ -286,23 +286,29 @@ PRD 맞춤 규칙 — `preset`(걸음 P, 메인 스키마 $defs.preset). 메인�
 - **판 모양이 모서리를 함께 정한다**: brutal · skeuo → `sm`, line → `none`. 이 판 모양에서 `radius`는 비우거나 그 값(다르면 `dress.js check`가 막는다), `sm` · `none`은 이 판 모양에서만 쓴다.
 - **섞으면 안 되는 조합**은 `dress.js`가 피한다(glass · aurora · line은 band · dark 배경과, line은 glow · dots · mesh 배경 · 그라데이션과). 값의 언제 · 하지 말 것 · 근거는 `dress.js` NOTE, 점수의 정본은 `scripts/dress.js`.
 
-**concepts** (10개):
+**concepts** (4개):
 ```json
-"board": { "stage": "concept", "concept": "c" },
+"board": { "stage": "concept", "concept": "a" },
 "concepts": [
   { "id": "a", "level": 1, "name": "오늘 할 일부터 보기", "why": "처음 쓰는 사람이 무엇부터 할지 바로 알아요",
     "layout": "today-todo", "shell": "tabbar", "home": "할 일 목록 + 진행 막대", "density": "보통", "traits": ["익숙한 배치"],
-    "screens": ["home", "plan", "share"] },
-  { "id": "f", "level": 6, "name": "숫자 칸과 소식을 섞어 보기", "layout": "bento", "mix": "feed", "shell": "top", "…": "…" },
-  { "id": "j", "level": 10, "name": "큰 글자 한 장으로 말하기", "layout": "poster", "mix": "carousel-cards", "shell": "none", "…": "…" }
+    "screens": ["home", "plan", "share", "todos", "parent-home"] },
+  { "id": "b", "level": 4, "name": "카드 모음으로 보기", "layout": "card-grid", "mix": "timeline", "shell": "top", "…": "…" },
+  { "id": "c", "level": 7, "name": "숫자 칸과 소식을 섞어 보기", "layout": "bento", "mix": "feed", "shell": "tabbar", "…": "…" },
+  { "id": "d", "level": 10, "name": "큰 글자 한 장으로 말하기", "layout": "poster", "mix": "carousel-cards", "shell": "none", "…": "…" }
 ]
 ```
-- `level` 1~10이 한 번씩(lint FAIL). 1~3단계는 bold 1 패턴 하나, 4~6단계는 bold 1~2 패턴 + `mix`, 7~10단계는 bold 3 패턴 위주 + `mix`(lint: 4단계부터 mix 없으면 WARN).
-- `layout`은 10개 모두 다르게(WARN), 한 패턴(layout·mix 합쳐)은 시안 두 곳까지(WARN). `mix`는 layout과 다르게.
-- `dress`는 `node scripts/dress.js runs/<p>`가 단계에 맞춰 채운다(1단계 = 모두 기본, 10단계 = 가장 과감, 시안끼리 4개 이상 카테고리가 다르게). 같아 보이는 두 시안이 있으면 그 시안 dress를 직접 고친다(lint: 3개 미만 다르면 WARN).
-- `shell`: web `sidebar` · `top` · `rail` / mobile `tabbar` · `top` · `none` — 셋 다 섞어 쓴다.
+- `level`은 1 · 4 · 7 · 10이 한 번씩, 시안 수는 그 개수(lint: 시안 단계에서 FAIL). 1단계는 bold 1 패턴 하나, 4단계는 bold 1~2 패턴 + `mix`, 7 · 10단계는 bold 3 패턴 위주 + `mix`(lint: 4단계부터 mix 없으면 WARN).
+- **다름 검사**(lint: 시안 단계에서 FAIL) — 시안이 넷뿐이라 서로 확실히 달라야 한다:
+  - `layout`은 4개 모두 다르게.
+  - layout 계열(`bold` 1 · 2 · 3)이 2종 이상 — 모두 무난한 패턴이면 걸린다.
+  - 꾸밈 칸이 두 시안씩 모두 **4개 이상** 다르게 — 같아 보이는 두 시안이 있으면 그 시안 dress를 직접 고친다.
+  - `shell` 2종 이상(셋 다 쓰지 않으면 WARN).
+- 한 패턴(layout·mix 합쳐)은 시안 두 곳까지(WARN). `mix`는 layout과 다르게.
+- `dress`는 `node scripts/dress.js runs/<p>`가 단계에 맞춰 채운다(1단계 = 모두 기본, 10단계 = 가장 과감, 시안끼리 4개 이상 카테고리가 다르게).
+- `shell`: web `sidebar` · `top` · `rail` / mobile `tabbar` · `top` · `none`.
 - `name`은 무엇이 먼저 보이는지 일상어로. "대시보드형·미니멀·A타입" 금지. `look`·`refs`·`references`는 쓰지 않는다.
-- `screens`: 시안마다 **메인 화면 3장**(모든 시안이 같은 slug) — 역할별 첫 화면 먼저, 남는 칸에 핵심 작업. 1턴: 시안마다 조립 에이전트 1개(3장) = 10개 동시.
+- `screens`: 시안마다 **메인 화면 5~6장**(모든 시안이 같은 slug, 5장 미만이면 WARN · 7장 이상 FAIL) — 역할별 첫 화면 먼저, 남는 칸에 핵심 작업. 1턴: 시안마다 조립 에이전트 1개(5~6장) = 4개 동시.
 - 1턴 screens.json에 `board.stage = "concept"`. 2턴에 고른 시안의 `dress`를 `board.dress`로 옮기고 `board.stage`를 지운다(SKILL 2턴).
 
 ## 7. board.ask — 구조 질문 최대 3개

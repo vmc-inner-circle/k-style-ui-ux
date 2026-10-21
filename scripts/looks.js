@@ -18,9 +18,10 @@
  * 디자이너 기준으로 자동 보정한다(사용자 선택지를 늘리지 않는다):
  *   - 본문 글자는 순수 검정·순수 흰색이 아니게: 바탕과의 대비가 글꼴 세트의 inkMax를 넘으면 바탕 쪽으로 섞어 눌러 준다(#000 → #2E2E2E 수준)
  *   - 버튼 색은 형광처럼 쨍하지 않게: OKLCH 채도(chroma)를 상한까지 낮춘다(밝기·색상은 그대로) — exact면 그대로
- *   - 흐린 글자(--c-text-2·--c-text-muted)는 판과 바탕 둘 다에 대비 4.5가 될 때까지 글자 쪽으로 진하게
- *   - 버튼 위 글자(--c-primary-fg)는 흰색·어두운색 중 대비가 큰 쪽 — exact여도 같다
- *   - 강조색을 글자로 쓸 때(큰 숫자·링크·선택된 탭)는 --c-primary-text: 색상은 두고 밝기만 바꿔 판·바탕 둘 다에 4.5
+ *   - 흐린 글자(--c-text-muted)는 판과 바탕 둘 다에 대비 4.5, 보조 글자(--c-text-2)는 6이 될 때까지 본문 글자 쪽으로 진하게
+ *   - 버튼 색 하나를 세 역할로 나눈다(DS3, docs/design-system.md §2):
+ *     --c-brand 고른 색 그대로(꾸밈 · 표시선) · --c-primary 버튼 채움(흰 글자가 바닥선 — 레퍼런스 3 · 맞춤 4.5 — 이 될 만큼만 밝기를 내림)
+ *     · --c-primary-text 강조 글자(큰 숫자 · 링크 · 고른 탭 — 밝기만 바꿔 판 · 바탕 둘 다에 4.5)
  *   - 상태색(완료·주의·오류·안내)도 원색 대신 차분한 색(흙빛 빨강 등)을 바탕에 맞춰 섞는다
  */
 (function () {
@@ -105,21 +106,21 @@ function softInk(ink, bg, max) {
   for (let i = 0; i < 24; i++) { const t = (lo + hi) / 2; if (contrast(mix(ink, bg, t), bg) > max) lo = t; else hi = t; }
   return mix(ink, bg, hi);
 }
-const READ = 4.5;   // 글자가 읽히는 최소 대비 (WCAG AA)
-/** 흐린 글자: 본문 글자와 바탕을 t만큼 섞되, 뒤에 깔리는 색(unders) 모두에 4.5가 안 되면 글자 쪽으로 진하게. 실제로 쓴 섞는 비율을 돌려준다 */
-function readableT(ink, bg, t, unders) {
-  while (t > 0 && Math.min(...unders.map((u) => contrast(mix(ink, bg, t), u))) < READ) t = Math.max(0, t - 0.02);
-  return t;
+// ---------- 대비 바닥선 (docs/design-system.md §2) ----------
+// 글자는 바탕 · 판 위에서 4.5 이상(KRDS · WCAG AA). 보조 글자(text-2)는 흐린 글자보다 한 단계 진하게 6 이상.
+// 레퍼런스 스타일(exact)의 흰 버튼 글자만 3 이상 허용 — 그 앱이 실제로 쓰는 조합(당근 주황 · 토스 파랑 …), WCAG 큰 굵은 글자 기준. 검사는 경고로 드러낸다
+const TEXT_MIN = 4.5, TEXT2_MIN = 6, BRAND_BUTTON_MIN = 3;
+/** fg가 bgs(여러 바탕) 모두 위에서 min을 넘을 때까지 toward 쪽으로 섞는다. toward로도 안 되면 toward */
+function atLeast(fg, bgs, min, toward) {
+  const worst = (c) => Math.min(...[].concat(bgs).map((b) => contrast(c, b)));
+  if (worst(fg) >= min) return String(fg).toUpperCase();
+  if (worst(toward) < min) return String(toward).toUpperCase();
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 24; i++) { const t = (lo + hi) / 2; if (worst(mix(fg, toward, t)) >= min) hi = t; else lo = t; }
+  return mix(fg, toward, hi);
 }
 /** 판(카드) 색 — 흐린 글자 · 강조 글자가 이 위에서도 읽혀야 한다 */
 const surfaceOf = (L) => (L.mode === "dark" ? mix(L.bg, "#FFFFFF", 0.04) : mix(L.bg, "#FFFFFF", 0.75));
-/** 강조색을 글자로 쓸 때: 색상은 두고 밝기만 바꿔 뒤에 깔리는 색 모두에 4.5가 되게 (밝은 분위기는 진하게, 어두운 분위기는 밝게) */
-function readableTint(p, unders, dark) {
-  const [L0, C, H] = hex2oklch(p), ok = (h) => Math.min(...unders.map((u) => contrast(h, u))) >= READ;
-  if (ok(p)) return p;
-  for (let L = L0; L >= 0 && L <= 1; L += dark ? 0.01 : -0.01) { const h = oklch2hex([L, C, H]); if (ok(h)) return h; }
-  return dark ? "#FFFFFF" : "#000000";
-}
 
 // 상태색 — 원색 대신 차분한 색. 연한 바탕은 그 분위기의 바탕에 섞어 만든다
 const STATUS_HEX = {
@@ -131,7 +132,7 @@ function statusTokens(bg, dark) {
   for (const [k, c] of Object.entries(P)) {
     t[`--c-${k}`] = c;
     t[`--c-${k}-soft`] = mix(bg, c, dark ? 0.16 : 0.12);
-    t[`--c-${k}-soft-fg`] = dark ? mix(c, "#FFFFFF", 0.4) : mix(c, "#000000", 0.32);
+    t[`--c-${k}-soft-fg`] = atLeast(dark ? mix(c, "#FFFFFF", 0.4) : mix(c, "#000000", 0.32), t[`--c-${k}-soft`], TEXT_MIN, dark ? "#FFFFFF" : "#000000");
   }
   t["--c-danger-hover"] = dark ? mix(P.danger, "#FFFFFF", 0.16) : mix(P.danger, "#000000", 0.12);
   t["--c-danger-active"] = dark ? P.danger : mix(P.danger, "#000000", 0.24);
@@ -157,41 +158,93 @@ function inkOf(L) { return softInk(L.ink, L.bg, L.mode === "dark" ? Math.min(fon
 
 /** 배경·글자·모양·글꼴 → 바탕 토큰 */
 function lookTokens(L) {
-  const dark = L.mode === "dark", bg = L.bg, ink = inkOf(L);
-  // 흐린 글자 두 단계: 흐린 글자를 먼저 맞추고, 흐린 글자 2는 그보다 늘 한 단계(0.12) 진하게 — 둘이 같은 색이 되지 않게
-  const surface = surfaceOf(L), [t2, tm] = dark ? [0.3, 0.52] : [0.36, 0.54];
-  const mutedT = readableT(ink, bg, tm, [surface, bg]), muted = mix(ink, bg, mutedT), text2 = mix(ink, bg, readableT(ink, bg, Math.min(t2, mutedT - 0.12), [surface, bg]));
+  const dark = L.mode === "dark", bg = L.bg, ink = inkOf(L), surface = surfaceOf(L);
   const t = dark ? {
     "--c-bg": bg, "--c-surface": surface, "--c-surface-2": mix(bg, "#FFFFFF", 0.08), "--c-surface-3": mix(bg, "#FFFFFF", 0.12),
     "--c-border": mix(bg, "#FFFFFF", 0.14), "--c-border-strong": mix(bg, "#FFFFFF", 0.22),
-    "--c-text": ink, "--c-text-2": text2, "--c-text-muted": muted, "--c-text-inverse": bg,
+    "--c-text": ink, "--c-text-2": mix(ink, bg, 0.3), "--c-text-muted": mix(ink, bg, 0.52), "--c-text-inverse": bg,
     "--c-overlay": "rgba(0, 0, 0, .6)", "--c-skeleton": mix(bg, "#FFFFFF", 0.12),
   } : {
     "--c-bg": bg, "--c-surface": surface, "--c-surface-2": mix(bg, ink, 0.035), "--c-surface-3": mix(bg, ink, 0.07),
     "--c-border": mix(bg, ink, 0.11), "--c-border-strong": mix(bg, ink, 0.2),
-    "--c-text": ink, "--c-text-2": text2, "--c-text-muted": muted, "--c-text-inverse": "#FFFFFF",
+    "--c-text": ink, "--c-text-2": mix(ink, bg, 0.36), "--c-text-muted": mix(ink, bg, 0.54), "--c-text-inverse": "#FFFFFF",
     "--c-overlay": "rgba(17, 24, 39, .45)", "--c-skeleton": mix(bg, ink, 0.07),
   };
+  // 대비 바닥선: 보조 · 흐린 글자를 바탕과 판 둘 다에서 기준 이상으로(모자라면 본문 글자 쪽으로 진하게)
+  const on = [bg, surface];
+  t["--c-text-2"] = atLeast(t["--c-text-2"], on, TEXT2_MIN, ink);
+  t["--c-text-muted"] = atLeast(t["--c-text-muted"], on, TEXT_MIN, ink);
   return Object.assign(t, statusTokens(bg, dark), SHAPE[L.shape] || SHAPE.soft, fontTokens(L));
 }
-/** 버튼 색 → 강조 토큰 (눌림·연한 배경·위 글자색까지) */
+/** 버튼 채움(DS3): 흰 글자가 min이 될 때까지 OKLCH 밝기만 내린다 — 색감 · 채도는 그대로. 최대 maxDL. 안 되면 null */
+const FILL_MAX_DL = 0.08;   // 레퍼런스 버튼 채움을 깊게 하는 한도(design-system §2) — 더 내리면 주황이 갈색이 된다
+function deepenFill(hex, min, maxDL) {
+  if (contrast(hex, "#FFFFFF") >= min) return { hex: String(hex).toUpperCase(), dl: 0 };
+  const [L, C, H] = hex2oklch(hex);
+  for (let d = 0.005; d <= maxDL + 1e-9; d += 0.005) { const h = oklch2hex([L - d, C, H]); if (contrast(h, "#FFFFFF") >= min) return { hex: h, dl: +d.toFixed(3) }; }
+  return null;
+}
+/** 강조 글자(DS3): bgs 모두 위에서 min이 될 때까지 OKLCH 밝기만 바꾼다(밝은 분위기는 어둡게, 어두운 분위기는 밝게). 안 되면 글자색 쪽으로 섞기 */
+function textTone(hex, bgs, min, dark) {
+  const worst = (c) => Math.min(...[].concat(bgs).map((b) => contrast(c, b)));
+  if (worst(hex) >= min) return String(hex).toUpperCase();
+  const [L, C, H] = hex2oklch(hex);
+  for (let d = 0.01; d <= 0.7; d += 0.01) { const h = oklch2hex([clamp(L + (dark ? d : -d), 0, 1), C, H]); if (worst(h) >= min) return h; }
+  return atLeast(hex, bgs, min, dark ? "#FFFFFF" : "#000000");
+}
+/** 버튼 색 하나 → 색 역할(DS3, design-system §2)
+ *  --c-brand: 고른 색 그대로(강조선 · 표시 · 꾸밈) · --c-primary: 버튼 채움(흰 글자가 바닥선이 될 만큼만 깊게)
+ *  --c-primary-fg: 버튼 위 글자 · --c-primary-text: 강조 글자(링크 · 고른 탭 · 숫자 강조, 바탕 · 판 위 4.5) */
 function swatchTokens(L, sw) {
-  const dark = L.mode === "dark", p = primaryHex(L, sw);
-  // 버튼 위 글자: 흰색과 어두운색 중 대비가 큰 쪽 (고른 색 그대로인 분위기(exact)도 같다 — 머스타드에 흰 글자는 안 읽힌다)
-  //   둘 다 4.5가 안 되는 중간 밝기 색(청록 등)은 순수 검정까지 쓴다 — 흰색·검정 중 하나는 늘 4.5를 넘는다
-  const deep = dark ? L.bg : "#111827", pick = (d) => (contrast(p, "#FFFFFF") >= contrast(p, d) ? "#FFFFFF" : d);
-  const fg = contrast(p, pick(deep)) >= READ ? pick(deep) : pick("#000000");
+  const dark = L.mode === "dark", W = "#FFFFFF", D = dark ? L.bg : "#111827";
+  const brand = primaryHex(L, sw);                   // 레퍼런스는 그 색 그대로, 맞춤 분위기는 채도만 차분하게
+  const T = L.exact ? BRAND_BUTTON_MIN : TEXT_MIN;   // 흰 버튼 글자의 바닥선 — 레퍼런스 3 · 맞춤 4.5
+  let p = brand, fg = W;
+  if (contrast(brand, W) < T) {
+    // 1) 밝은 분위기: 흰 글자가 되도록 채움만 깊게(레퍼런스는 한도 0.08, 맞춤은 넉넉히)  2) 안 되면 진한 글자  3) 그래도 안 되면 끝까지 깊게
+    const d = !dark && deepenFill(brand, T, L.exact ? FILL_MAX_DL : 0.3);
+    if (d) p = d.hex;
+    else if (contrast(brand, D) >= TEXT_MIN) fg = D;
+    else { const d2 = deepenFill(brand, T, 0.6); if (d2) p = d2.hex; else fg = contrast(brand, D) > contrast(brand, W) ? D : W; }
+  }
+  const text = textTone(brand, [L.bg, surfaceOf(L)], TEXT_MIN, dark);
+  const soft = dark ? mix(L.bg, brand, 0.18) : mix(L.bg, brand, 0.12);
   return {
+    "--c-brand": brand,
     "--c-primary": p,
-    "--c-primary-text": readableTint(p, [surfaceOf(L), L.bg], dark),
     "--c-primary-hover": dark ? mix(p, "#FFFFFF", 0.16) : mix(p, "#000000", 0.12),
     "--c-primary-active": dark ? mix(p, "#000000", 0.12) : mix(p, "#000000", 0.24),
     "--c-primary-fg": fg,
-    "--c-primary-soft": dark ? mix(L.bg, p, 0.18) : mix(L.bg, p, 0.12),
-    "--c-primary-soft-fg": dark ? mix(p, "#FFFFFF", 0.45) : mix(p, "#000000", 0.35),
+    "--c-primary-text": text,
+    "--c-primary-soft": soft,
+    "--c-primary-soft-fg": textTone(text, soft, TEXT_MIN, dark),
     "--c-accent": "var(--c-primary)", "--c-accent-soft": "var(--c-primary-soft)", "--c-accent-soft-fg": "var(--c-primary-soft-fg)",
-    "--c-focus": p,
+    "--c-focus": brand,
   };
+}
+/** 대비 검사 — 분위기 하나 × 버튼 색 하나의 글자 짝들. lint · 시험이 쓴다.
+ *  돌려줌: [{ pair, ratio, min, level: "ok" | "warn" | "fail", note }] */
+const dark0 = (L) => L.mode === "dark";
+function audit(L, sw) {
+  const t = Object.assign(lookTokens(L), swatchTokens(L, sw)), out = [];
+  const add = (pair, a, b, min, note) => { const r = contrast(t[a] || a, t[b] || b); out.push({ pair, ratio: +r.toFixed(2), min, level: r >= min ? "ok" : "fail", note: note || "" }); };
+  for (const bgk of ["--c-bg", "--c-surface"]) {
+    add(`본문/${bgk.slice(4)}`, "--c-text", bgk, TEXT_MIN);
+    add(`보조 글자/${bgk.slice(4)}`, "--c-text-2", bgk, TEXT2_MIN);
+    add(`흐린 글자/${bgk.slice(4)}`, "--c-text-muted", bgk, TEXT_MIN);
+  }
+  const cw = contrast(t["--c-primary"], t["--c-primary-fg"]);
+  const brand = L.exact && t["--c-primary-fg"] === "#FFFFFF" && cw < TEXT_MIN && cw >= BRAND_BUTTON_MIN;
+  out.push({ pair: "버튼 글자/버튼", ratio: +cw.toFixed(2), min: brand ? BRAND_BUTTON_MIN : TEXT_MIN, level: brand ? "warn" : cw >= TEXT_MIN ? "ok" : "fail", note: brand ? "레퍼런스의 흰 글자 그대로(3 이상)" : "" });
+  add("연한 강조 글자/연한 강조", "--c-primary-soft-fg", "--c-primary-soft", TEXT_MIN);
+  for (const k of ["success", "warning", "danger", "info"]) add(`${k} 글자/${k} 연한 바탕`, `--c-${k}-soft-fg`, `--c-${k}-soft`, TEXT_MIN);
+  // 강조 글자(링크 · 고른 탭) — --c-primary-text, 바탕 · 판 위 4.5
+  add("강조 글자/bg", "--c-primary-text", "--c-bg", TEXT_MIN);
+  add("강조 글자/surface", "--c-primary-text", "--c-surface", TEXT_MIN);
+  // 레퍼런스 버튼: 채움을 깊게 했는지 · 한도를 넘어 진한 글자로 바꿨는지(사람이 알아야 하는 변화라 경고로)
+  if (L.exact && t["--c-primary"] !== t["--c-brand"]) out.push({ pair: "버튼 채움 깊게", ratio: +cw.toFixed(2), min: BRAND_BUTTON_MIN, level: "warn", note: `${t["--c-brand"]} → ${t["--c-primary"]}` });
+  if (L.exact && !dark0(L) && t["--c-primary-fg"] !== "#FFFFFF") out.push({ pair: "버튼 진한 글자", ratio: +cw.toFixed(2), min: TEXT_MIN, level: "warn", note: "깊게 하는 한도 안에서 흰 글자가 안 돼 진한 글자" });
+  return out;
 }
 const block = (sel, vars) => `${sel} {\n${Object.entries(vars).map(([k, v]) => `  ${k}: ${v};`).join("\n")}\n}`;
 function looksCss(looks) {
@@ -256,6 +309,6 @@ function swatchGrid() {
   return rows;
 }
 
-const API = { PRESETS, PALETTE, BASES, FONTS, harmonies, swatchGrid, hex2oklch, oklch2hex, fontOf, fontLinks, fontTokens, inkOf, calmHex, primaryHex, customLook, getLooks, looksCss, lookTokens, swatchTokens, resolveSwatch, contrast, mix, hex2rgb };
+const API = { audit, TEXT_MIN, PRESETS, PALETTE, BASES, FONTS, harmonies, swatchGrid, hex2oklch, oklch2hex, fontOf, fontLinks, fontTokens, inkOf, calmHex, primaryHex, customLook, getLooks, looksCss, lookTokens, swatchTokens, resolveSwatch, contrast, mix, hex2rgb };
 if (typeof module !== "undefined" && module.exports) module.exports = API; else window.HXLooks = API;
 })();

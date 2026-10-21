@@ -1,7 +1,7 @@
 /**
  * schema-check.js — 외부 패키지 없이 JSON Schema 일부 키워드(type·required·enum·const·pattern·items·
- * min/maxLength·minItems·maxItems·minimum·maximum·properties·additionalProperties(false 또는 스키마)·allOf/if/then·anyOf·$ref)만 해석하는 검사기.
- * scripts/schema.js가 쓴다.
+ * min/maxLength·minItems·maxItems·minimum·maximum·properties·additionalProperties(false 또는 스키마)·allOf/if/then·anyOf·oneOf·$ref)만 해석하는 검사기.
+ * scripts/schema.js · test/checks/37-presets.js(preset.schema.json)가 쓴다.
  *
  *   const { check } = require("./schema-check.js"); const errs = []; check(schema, value, "$", schema, errs);
  */
@@ -9,6 +9,7 @@ const typeOk = (t, v) =>
   t === "array" ? Array.isArray(v)
   : t === "object" ? v !== null && typeof v === "object" && !Array.isArray(v)
   : t === "integer" ? Number.isInteger(v)
+  : t === "null" ? v === null
   : typeof v === t;
 
 function check(schema, v, at, root, errs) {
@@ -26,6 +27,11 @@ function check(schema, v, at, root, errs) {
   if (schema.anyOf) {
     const tries = schema.anyOf.map((s) => { const e = []; check(s, v, at, root, e); return e; });
     if (!tries.some((e) => !e.length)) errs.push(`${at}: 허용 형식 중 어느 것과도 맞지 않음 — ${tries.map((e) => e[0]).join(" / ")}`);
+  }
+  if (schema.oneOf) {
+    const tries = schema.oneOf.map((s) => { const e = []; check(s, v, at, root, e); return e; }), hit = tries.filter((e) => !e.length).length;
+    if (!hit) errs.push(`${at}: 허용 형식 중 어느 것과도 맞지 않음 — ${tries.map((e) => e[0]).join(" / ")}`);
+    else if (hit > 1) errs.push(`${at}: 허용 형식 ${hit}개와 맞음 — 하나만 맞아야 함`);
   }
   if (Array.isArray(v)) {
     if (schema.minItems && v.length < schema.minItems) errs.push(`${at}: 항목 ${schema.minItems}개 이상 필요`);

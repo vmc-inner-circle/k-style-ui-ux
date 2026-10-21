@@ -165,7 +165,7 @@ a.list-item:hover, button.list-item:hover { background: var(--c-surface-2); }
 }
 .calendar-day:hover { background: var(--c-surface-2); }
 .calendar-day.is-other-month { color: var(--c-text-muted); }
-.calendar-day.today { font-weight: var(--fw-bold); color: var(--c-primary-text); box-shadow: inset 0 0 0 1px var(--c-primary); }
+.calendar-day.today { font-weight: var(--fw-bold); color: var(--c-primary-text); box-shadow: inset 0 0 0 1px var(--c-brand); }
 .calendar-day.selected { background: var(--c-primary); color: var(--c-primary-fg); box-shadow: none; }
 .calendar-day.has-event::after {
   content: ""; position: absolute; left: 50%; bottom: var(--sp-1); transform: translateX(-50%);

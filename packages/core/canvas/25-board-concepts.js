@@ -1,10 +1,11 @@
 /* 25-board-concepts.js — 시안 고르기. 1턴 보드(meta.stage = "concept")는 이 화면 하나뿐이다(B.startConcept).
-   시안 10개 = 과감함 1~10단계 — 레이아웃 패턴(+섞은 패턴)과 꾸밈 카테고리(scripts/dress.js)가 단계마다 다르다. 시안마다 메인 화면 5~6장.
-   사용자 결정(2026-10-14): "10개 다양한 것을 한 번에 다 보여주고 사용자는 색상만 선택", "안마다 메인 화면 5~6장",
+   시안 4개 = 과감함 1 · 4 · 7 · 10단계(사람 방향 2026-10-21) — 레이아웃 패턴(+섞은 패턴)과 꾸밈 카테고리(scripts/dress.js)가 단계마다 다르다. 시안마다 메인 화면 5~6장.
+   시안 수 · 바로가기는 받은 시안(B.concepts)을 그대로 따른다 — 여기서 개수를 정하지 않는다.
+   사용자 결정(2026-10-14): "다양한 것을 한 번에 다 보여주고 사용자는 색상만 선택", "안마다 메인 화면 5~6장",
      "그 초안처럼 캔버스에 다 보여주는 형태로" — 사용 흐름(08-sections.js)과 같은 캔버스 한 장:
      시안마다 한 줄 = 시안 띠(시안 X · 단계 · 이름 · 이유 · 화면 구성 · 꾸밈 · '이 안으로 할게요') → 화면 이름표 → 메인 화면 5~6장 나란히(화면 전체 길이, 보기만).
      화면 안 스크롤·밀기는 넣지 않는다 — 사용자: "스크롤이나 이런 거 그냥 없애자, 화면만 봐도 될 듯". 끌기·휠은 언제나 캔버스 이동, ↑↓ = 이전·다음 시안 줄.
-     끌어서 이동 · ⌘/Ctrl+휠 확대 · 위쪽 도구 = 시안 바로가기(A~J) · 축소/확대 · 전체 보기. 화면 이름 옆 '크게 보기'.
+     끌어서 이동 · ⌘/Ctrl+휠 확대 · 위쪽 도구 = 시안 바로가기(시안마다 하나 — A~D) · 축소/확대 · 전체 보기. 화면 이름 옆 '크게 보기'.
    맨 위 고정 상단바 = 제목 · '색 바꾸기'(packages/core/color/picker.js — 고르면 모든 시안이 그 색으로) · 보내기.
    고른 뒤 흐름: 그 안 + 색 → 2턴 전체 화면 1차안 → 3턴 의견 반영 최종.
    다른 시안의 화면은 build.js가 "<시안 id>~<slug>" 섹션으로 싣고, 꾸밈은 화면 상자의 data-*(dress.css)로 입힌다.
@@ -19,6 +20,9 @@
 
   function frameKey(c, slug) { return B.stage !== "concept" && c.id === B.mainConcept ? slug : c.id + "~" + slug; }
   function full(d) { var o = {}; KEYS.forEach(function (k) { o[k] = (d && d[k]) || DC.base[k]; }); return o; }
+  /* 지금 고른 색이 레퍼런스 프리셋이면 판 모양 · 모서리 두 칸만 프리셋 값으로(나머지는 시안 그대로).
+     판 모양이 잠근 모서리(dress.js NOTE.cards[].radius)와 부딪혀도 프리셋이 이긴다 — 사람이 고른 것 */
+  function withPreset(d) { var p = B.presetDress(); return p ? Object.assign({}, d, { cards: p.cards, radius: p.radius }) : d; }
   /* 꾸밈 → 화면 상자의 data-* (dress.css) + 아이콘(선 ↔ 입체: 스프라이트의 #i- ↔ #f-) */
   function dressBox(box, d) {
     KEYS.forEach(function (k) { if (k === "icons") return; if (d[k] && d[k] !== DC.base[k]) box.setAttribute("data-" + k, d[k]); else box.removeAttribute("data-" + k); });
@@ -43,7 +47,7 @@
     function done() { m.remove(); doc.removeEventListener("keydown", key); doc.body.style.overflow = ""; }
     doc.body.appendChild(m); doc.addEventListener("keydown", key); doc.body.style.overflow = "hidden";
     HX.mountFrame(frameKey(c, slug), box, { scale: 1, fullHeight: true, badges: false });
-    dressBox(box, full(c.dress));
+    dressBox(box, withPreset(full(c.dress)));
     close.focus();
   }
 
@@ -180,12 +184,14 @@
       });
     }
     HX.on("board-change", paint);
+    // 색을 바꾸면(22-board-canvas.js B.mountColor) 실린 상자들을 다시 입힌다
+    B.redress = function () { rows.forEach(function (R) { R.boards.forEach(function (b) { if (b.frame) dressBox(b.box, withPreset(b.d)); }); }); };
     HX.on("layout", function () { if (mounted && vp.clientWidth) layout(); });
     // 붙인 뒤에 화면을 싣고 배치 (화면 전체 길이를 재야 줄 높이가 정해진다)
     requestAnimationFrame(function () {
       rows.forEach(function (R) { R.boards.forEach(function (b) {
         b.frame = HX.mountFrame(frameKey(R.c, b.slug), b.box, { scale: 1, fullHeight: true, badges: false });   // 화면 전체 길이 — 보기만
-        dressBox(b.box, b.d);
+        dressBox(b.box, withPreset(b.d));
       }); });
       mounted = true;
       requestAnimationFrame(function () { HX.relayout(); requestAnimationFrame(function () { layout(); fit(false); }); });

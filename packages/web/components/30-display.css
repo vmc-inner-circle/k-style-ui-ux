@@ -107,7 +107,7 @@ button.chip, a.chip { cursor: pointer; }
   white-space: nowrap; cursor: pointer;
 }
 .tab:hover { color: var(--c-text); }
-.tab.active { color: var(--c-primary-text); border-bottom-color: var(--c-primary); }
+.tab.active { color: var(--c-primary-text); border-bottom-color: var(--c-brand); }
 .tab .badge { margin-left: calc(var(--sp-1) * -1); }
 /* 알약형 탭 (세그먼트와 비슷하지만 콘텐츠 전환용) */
 .tabs-pill { border-bottom: 0; gap: var(--sp-2); }
