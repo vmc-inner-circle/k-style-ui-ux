@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<rect width="800" height="600" fill="#FFE8DB"/>
+<rect x="130" y="320" width="90" height="160" rx="8" fill="#FFFFFF"/>
+<rect x="150" y="350" width="50" height="8" rx="4" fill="#BFBFC1"/>
+<rect x="150" y="410" width="50" height="8" rx="4" fill="#BFBFC1"/>
+<rect x="590" y="150" width="12" height="330" fill="#4C4E51"/>
+<rect x="390" y="146" width="212" height="12" rx="6" fill="#4C4E51"/>
+<ellipse cx="392" cy="176" rx="46" ry="22" fill="#FFFFFF"/>
+<rect x="386" y="152" width="12" height="20" fill="#4C4E51"/>
+<rect x="540" y="296" width="52" height="8" fill="#4C4E51"/>
+<rect x="490" y="286" width="62" height="12" rx="3" fill="#FFFFFF"/>
+<rect x="500" y="278" width="30" height="6" rx="3" fill="#BFBFC1"/>
+<ellipse cx="400" cy="486" rx="150" ry="12" fill="#BFBFC1"/>
+<rect x="320" y="468" width="160" height="16" rx="8" fill="#555D6D"/>
+<rect x="382" y="396" width="36" height="76" fill="#555D6D"/>
+<path d="M352 392 L262 262 Q254 246 270 240 L282 236 Q298 232 306 248 L382 380 Z" fill="#E14D00"/>
+<rect x="232" y="206" width="56" height="34" rx="14" fill="#B93901" transform="rotate(-30 260 223)"/>
+<rect x="300" y="368" width="200" height="38" rx="18" fill="#E14D00"/>
+<path d="M494 372 L592 428 Q604 438 594 450 L584 456 L486 404 Z" fill="#E14D00"/>
+<rect x="340" y="350" width="110" height="12" rx="6" fill="#B93901"/>
+</svg>

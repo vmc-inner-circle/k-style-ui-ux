@@ -1,0 +1,588 @@
+{
+ "groups": [
+  "처음 들어올 때",
+  "이번 주 — 누가 어디에",
+  "일정 만들기·고치기",
+  "맡을 일",
+  "함께 비는 시간",
+  "챙길 날"
+ ],
+ "story": {
+  "headline": "적는 사람은 한 명이어도, <em>누가 맡았는지</em>는 모두가 같은 화면에서 안다",
+  "summary": "첫 화면은 달력이 아니라 이번 주를 사람별 줄로 펼친 표입니다. 맡을 사람이 없는 일과 겹친 날이 그 표 위에 먼저 올라오고, 한 번 누르면 맡은 사람이 정해져 적은 사람에게 알려집니다. 알림은 날마다 울리지 않고 일요일 밤 한 번, 다음 주 미리보기로 모입니다.",
+  "ideas": [
+   {
+    "title": "사람별 줄로 보는 이번 주",
+    "desc": "월간 칸 대신 지은·민수·하윤·준 네 줄에 장소까지 적혀 '누가 어디에'가 한눈에 보인다."
+   },
+   {
+    "title": "맡을 사람 없음이 맨 위에",
+    "desc": "적을 때 맡을 사람을 몰라도 저장되고, 아무도 안 맡은 일은 홈 맨 위와 맡을 일 탭에 남는다. 누르면 바로 맡고, 적은 사람에게만 알린다."
+   },
+   {
+    "title": "일요일 밤 한 번의 미리보기",
+    "desc": "따로 울리는 알림은 맡음·새 맡을 일·챙길 날 미리 한 번뿐. 나머지는 주 1회 미리보기에 모은다."
+   },
+   {
+    "title": "그림으로 읽는 일정",
+    "desc": "병원·학교·수영·장보기·외식·기념일마다 장면 그림이 붙고, 빈 날과 함께 비는 시간에도 그 시간을 떠올리게 하는 그림이 들어간다."
+   }
+  ]
+ },
+ "screens": [
+  {
+   "id": "start",
+   "title": "우리 집 만들기",
+   "group": "처음 들어올 때",
+   "kind": "form",
+   "purpose": "집 이름과 함께 사는 사람을 넣고, 어른에게 초대 링크를 보낸다",
+   "policies": [
+    "아이처럼 폰이 없는 구성원은 이름만으로 추가(앱을 열지 않아도 일정의 주인·참여자가 된다)",
+    "구성원은 2~5명. 사람마다 구분 색 하나(지은 주황·민수 파랑·하윤 초록·준 보라)",
+    "초대는 카카오톡·문자로 링크 보내기 — 이미 쓰는 메신저가 한다"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": true,
+    "shares": true,
+    "large_list": false,
+    "long_task": false
+   },
+   "file": "screens/start.html",
+   "role": "everyone",
+   "states": [
+    "done"
+   ]
+  },
+  {
+   "id": "start--done",
+   "file": "screens/start--done.html",
+   "group": "처음 들어올 때",
+   "title": "우리 집 만들기 · 보낸 뒤",
+   "purpose": "보낸 뒤 모습",
+   "role": "everyone",
+   "kind": "form",
+   "state_of": "start",
+   "state": "done"
+  },
+  {
+   "id": "home",
+   "title": "이번 주 · 11월 3일 화",
+   "group": "이번 주 — 누가 어디에",
+   "kind": "home",
+   "purpose": "가족 네 명의 이번 주를 사람별 줄로 보고, 맡을 사람 없는 일 3건과 겹침 1건을 먼저 본다",
+   "policies": [
+    "맨 위: 맡을 사람 없는 일 3건(E5·E7·E8) 한 줄씩 + 겹침 1건(수 11/4). 없으면 블록이 사라진다",
+    "본문: 월~일 × 지은·민수·하윤·준·가족 줄. 칸에는 종류 그림 + 시간 + 장소. '+n'으로 가리지 않는다",
+    "여는 사람(지은) 줄이 맨 위·오늘 칸 강조. 사람 칩으로 걸러 보기(모두·지은·민수·하윤·준), 맡은 일 소식은 이 화면 소식 줄에 한 번 뜨고 사라진다"
+   ],
+   "tabs": [
+    {
+     "label": "모두",
+     "screen": "home"
+    },
+    {
+     "label": "민수",
+     "screen": "home-minsu"
+    }
+   ],
+   "branches": [
+    {
+     "to": "event",
+     "label": "겹침 일정을 누르면"
+    },
+    {
+     "to": "tasks",
+     "label": "맡을 사람 없음 전체 보기"
+    },
+    {
+     "to": "free",
+     "label": "함께 비는 시간 찾기"
+    }
+   ],
+   "file": "screens/home.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "home-minsu",
+   "title": "이번 주 · 민수만",
+   "group": "이번 주 — 누가 어디에",
+   "kind": "home",
+   "purpose": "민수가 출근길에 '이번 주 내가 맡은 것'만 걸러 본다",
+   "policies": [
+    "민수가 참여하거나 맡은 4건(E3 픽업·E4·E9·E10)만 날짜순 목록. 겹침 1건이 맨 위",
+    "'민수가 맡아요'(픽업·분리수거)와 '민수 일정'(치과·시댁 방문)을 행 안 글자로 구분",
+    "칩을 '모두'로 돌리면 홈으로"
+   ],
+   "tabs": [
+    {
+     "label": "모두",
+     "screen": "home"
+    },
+    {
+     "label": "민수",
+     "screen": "home-minsu"
+    }
+   ],
+   "file": "screens/home-minsu.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "month",
+   "title": "11월 달력",
+   "group": "이번 주 — 누가 어디에",
+   "kind": "home",
+   "purpose": "한 달을 사람 색 점과 종류 그림으로 훑고, 빈 날과 챙길 날을 본다",
+   "policies": [
+    "칸마다 사람 색 점(최대 4) + 그날 대표 그림 하나. 글자 일정은 날짜를 누르면 아래 목록으로(시장 관례 M1)",
+    "아무 일정 없는 날은 빈 날 그림, 챙길 날은 그림 테두리로",
+    "공휴일 표시는 끌 수 있다(리뷰 불만 A4)"
+   ],
+   "file": "screens/month.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "week-preview",
+   "title": "다음 주 미리보기 · 11월 1일 일요일 밤",
+   "group": "이번 주 — 누가 어디에",
+   "kind": "detail",
+   "purpose": "일요일 밤 9시 한 번 오는 알림을 열면, 다음 주 놓치면 안 될 것만 모아 본다",
+   "policies": [
+    "알림은 주 1회 이 미리보기 하나 — 매일 아침 요약 없음",
+    "제목은 '다음 주 11월 2일~8일', 보낸 시각은 작게. 순서: 겹침 1건 → 맡을 사람 없는 일 3건 → 2주 안 챙길 날 2건(11/12 현장체험학습, 11/14 결혼기념일)",
+    "맡을 사람 없는 일은 여기서 바로 '맡기'"
+   ],
+   "file": "screens/week-preview.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "event",
+   "title": "하윤 수영",
+   "group": "일정 만들기·고치기",
+   "kind": "detail",
+   "purpose": "하윤 수영(매주 수)의 시간·장소·맡은 사람과 이번 주 겹침을 본다",
+   "policies": [
+    "맨 위 장면 그림(수영장) + 11/4(수) 17:00~17:50 · 구민체육센터 수영장 · 매주 수",
+    "겹침: 민수가 맡은 17:50 픽업과 민수 치과(17:30~18:30) — 맡은 사람 바꾸기 링크",
+    "누가 적었는지(지은)·언제 바꿨는지 한 줄"
+   ],
+   "branches": [
+    {
+     "to": "event-edit",
+     "label": "고치기"
+    }
+   ],
+   "file": "screens/event.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "event-new",
+   "title": "새 일정",
+   "group": "일정 만들기·고치기",
+   "kind": "form",
+   "purpose": "준 소아과 검진을 종류 그림·누구·언제·반복·맡을 사람까지 한 화면에서 적는다",
+   "policies": [
+    "순서: 종류(그림 칩) → 누구의 일정(구성원 다중) → 날짜·시간 → 반복 → 맡을 사람 → 장소(선택)",
+    "맡을 사람은 '아직 안 정함'이 기본값처럼 고를 수 있다 — 그러면 맡을 일에 올라감",
+    "맨 위 '자주 쓰는 일정'·'지난 일정' 칩으로 불러오기(시장 관례 M5). 종류 칩에 '집에 없어요'(회사 일정을 옮기지 않고 시간만 적기)"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": true,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "file": "screens/event-new.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "event-edit",
+   "title": "일정 고치기",
+   "group": "일정 만들기·고치기",
+   "kind": "form",
+   "purpose": "하윤 수영의 이번 주 픽업만 민수에서 지은으로 바꾼다",
+   "policies": [
+    "반복 일정이면 저장 전에 '이번만 / 앞으로 모두'를 고른다(기본: 이번만)",
+    "맡은 사람을 바꾸면 원래 맡았던 사람(민수)에게 알림 1건",
+    "맨 아래 '일정 지우기'(반복이면 이번만/앞으로)"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": true,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "file": "screens/event-edit.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "event-saved",
+   "title": "저장했어요",
+   "group": "일정 만들기·고치기",
+   "kind": "result",
+   "purpose": "준 소아과 검진이 저장되고, 맡을 사람이 없어 맡을 일에 올라갔음을 확인한다",
+   "policies": [
+    "저장한 일정 요약(그림·날짜·누구) + '맡을 사람 없음' 배지",
+    "따로 알리지 않고 이번 주·맡을 일에 올라감 — 하루 전(11/4 수 저녁 8시)까지 아무도 안 맡으면 어른 모두에게 한 번 알린다는 한 줄",
+    "주 버튼 '이번 주로', 보조 링크 '하나 더 적기'"
+   ],
+   "branches": [
+    {
+     "to": "tasks",
+     "label": "맡을 사람이 없으면"
+    }
+   ],
+   "file": "screens/event-saved.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "tasks",
+   "title": "맡을 일",
+   "group": "맡을 일",
+   "kind": "list",
+   "purpose": "아직 아무도 안 맡은 일 3건을 보고 한 번 눌러 맡는다",
+   "policies": [
+    "위: 맡을 사람 없음 3건(가까운 날짜순) — 행 오른쪽 '맡기' 버튼",
+    "아래: 이번 주 맡은 일(민수: 하윤 수영 픽업, 분리수거)",
+    "맡으면 적은 사람(지은)에게만 알림 — 가족 전체에 울리지 않는다"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "long_task": false,
+    "large_list": false
+   },
+   "branches": [
+    {
+     "to": "task-claimed",
+     "label": "맡기를 누르면"
+    }
+   ],
+   "file": "screens/tasks.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "task-claimed",
+   "title": "맡았어요",
+   "group": "맡을 일",
+   "kind": "result",
+   "purpose": "민수가 준 소아과 검진을 맡았고 지은에게 알렸음을 확인한다",
+   "policies": [
+    "'준 소아과 검진은 민수가 맡아요' + 11/5(목) 10:30 연세소아과",
+    "지은에게 알렸어요(받는 사람 이름) + 되돌리기(되돌리면 다시 맡을 사람 없음, 지은에게 한 번 더 알림)",
+    "남은 맡을 일 2건으로 이어가기"
+   ],
+   "file": "screens/task-claimed.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "free",
+   "title": "함께 비는 시간",
+   "group": "함께 비는 시간",
+   "kind": "list",
+   "purpose": "지은과 민수가 둘 다 비는 저녁·주말 후보 3개를 보고 하나를 고른다",
+   "policies": [
+    "위: 누구와 함께(구성원 칩, 기본 지은+민수) → 언제(이번 주 저녁·주말)",
+    "후보 3개(F1 금 19:30~22:00, F2 토 17:00~21:00, F3 일 10:00~19:30) 각각 장면 그림",
+    "앱에 적은 일정·'집에 없어요' 표시 기준 — 회사 일정은 잡은 뒤 함께하는 사람이 '안 돼요'로 답한다"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "long_task": false,
+    "large_list": false
+   },
+   "branches": [
+    {
+     "to": "free-plan",
+     "label": "후보를 고르면"
+    }
+   ],
+   "file": "screens/free.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "free-plan",
+   "title": "함께 할 일 잡기",
+   "group": "함께 비는 시간",
+   "kind": "form",
+   "purpose": "고른 금요일 19:30에 '둘이 저녁 외식'을 바로 잡는다",
+   "policies": [
+    "시간·참여자는 고른 후보로 채워져 있다(고칠 수 있음)",
+    "같이 할 일 그림 칩: 외식·산책·영화·집에서",
+    "장소는 선택 입력"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": true,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "file": "screens/free-plan.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "free-done",
+   "title": "같이 잡았어요",
+   "group": "함께 비는 시간",
+   "kind": "result",
+   "purpose": "금요일 저녁 외식이 두 사람의 이번 주에 들어갔음을 확인한다",
+   "policies": [
+    "외식 장면 그림 + 11/6(금) 19:30 · 망원동 라꼬끼나 · 지은·민수",
+    "민수에게 알림 1건 — 민수는 알림에서 '좋아요 / 안 돼요'로 답한다(회사 일정은 앱이 모르므로)",
+    "이번 주로 돌아가기"
+   ],
+   "file": "screens/free-done.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "dates",
+   "title": "챙길 날",
+   "group": "챙길 날",
+   "kind": "list",
+   "purpose": "생일·기념일·준비가 필요한 날 4건을 가까운 순으로 보고, 언제 한 번 알릴지 정한다",
+   "policies": [
+    "행마다 그림 + 날짜 + D-day + 준비할 것 + '미리 알림: ○주 전 한 번'(기본값 그대로 두면 된다 — 선물·예약이 필요한 날은 2주 전)",
+    "알림은 날마다 한 번만 — 그 외에는 일요일 밤 미리보기에만 나온다",
+    "음력 생일(시어머니 생신)은 음력으로 적고 올해 양력 날짜를 같이(시장 관례 K4)"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "long_task": false,
+    "large_list": false
+   },
+   "file": "screens/dates.html",
+   "role": "everyone",
+   "states": []
+  }
+ ],
+ "photo_centric": true,
+ "badges": {
+  "확정": "is-brand",
+  "겹침": "is-warning",
+  "맡을 사람 없음": "is-info",
+  "완료": "is-success",
+  "후보": ""
+ },
+ "people": [
+  {
+   "name": "지은 — 집안 일정을 챙기는 사람",
+   "who": "38세 한국 여성, 맞벌이 회사원, 하윤(9)·준(5) 엄마. 집 일정을 거의 혼자 적는다",
+   "why": "하윤 학원·준 병원·시댁 방문을 혼자 기억해 카톡으로 전하다 또 '못 들었는데'를 들었다",
+   "feels": "지침과 억울함 — 왜 나만 기억해야 하지",
+   "wants": [
+    {
+     "q": "이번 주 우리 집 사람들이 언제 어디에 있나",
+     "at": [
+      "home"
+     ]
+    },
+    {
+     "q": "아직 아무도 안 맡은 일이 뭐가 남았나",
+     "at": [
+      "home",
+      "tasks"
+     ]
+    },
+    {
+     "q": "내가 적은 걸 누가 맡았나",
+     "at": [
+      "task-claimed",
+      "event"
+     ]
+    },
+    {
+     "q": "겹치는 날이 있나 — 당일 아침 말고 지금",
+     "at": [
+      "home",
+      "event"
+     ]
+    },
+    {
+     "q": "곧 챙겨야 할 날이 뭔가",
+     "at": [
+      "dates",
+      "week-preview"
+     ]
+    }
+   ],
+   "win": "준 소아과를 적어 두기만 했는데 남편이 맡았다는 소식이 왔다. 카톡을 보내지 않았다",
+   "screens": [
+    "home",
+    "event-new",
+    "tasks",
+    "dates"
+   ],
+   "core": true
+  },
+  {
+   "name": "민수 — 주로 확인만 하는 사람",
+   "who": "40세 한국 남성, 맞벌이 회사원. 회사 일정은 회사 캘린더에, 이 앱은 출근길에 연다",
+   "why": "아내가 보낸 초대 링크 — 픽업 날을 또 잊은 다음 날",
+   "feels": "미안함과 귀찮음 — 적는 건 부담, 보기만 쉬웠으면",
+   "wants": [
+    {
+     "q": "이번 주 내가 맡은 게 뭔가",
+     "at": [
+      "home-minsu",
+      "home"
+     ]
+    },
+    {
+     "q": "내가 맡을 수 있는 일이 남았나",
+     "at": [
+      "tasks"
+     ]
+    },
+    {
+     "q": "이번 주말 둘 다 비는 때가 있나",
+     "at": [
+      "free"
+     ]
+    },
+    {
+     "q": "다음 주 놓치면 안 되는 날이 있나",
+     "at": [
+      "week-preview",
+      "dates"
+     ]
+    }
+   ],
+   "win": "일요일 밤 미리보기에서 결혼기념일을 먼저 보고, 금요일 저녁을 먼저 잡았다",
+   "screens": [
+    "home",
+    "week-preview",
+    "tasks",
+    "free"
+   ]
+  }
+ ],
+ "prd_coverage": {
+  "F1": [
+   "home",
+   "home-minsu",
+   "month"
+  ],
+  "F2": [
+   "event-new",
+   "event-edit",
+   "event",
+   "event-saved"
+  ],
+  "F3": [
+   "tasks",
+   "task-claimed",
+   "home"
+  ],
+  "F4": [
+   "free",
+   "free-plan",
+   "free-done"
+  ],
+  "F5": [
+   "dates",
+   "week-preview"
+  ],
+  "US1": [
+   "home",
+   "month"
+  ],
+  "US2": [
+   "tasks",
+   "task-claimed",
+   "event-new"
+  ],
+  "US3": [
+   "free",
+   "free-plan",
+   "free-done"
+  ],
+  "C1": [
+   "event",
+   "month",
+   "free",
+   "dates"
+  ],
+  "S0": [
+   "start"
+  ]
+ },
+ "stage": "go",
+ "pending_states": 4
+}

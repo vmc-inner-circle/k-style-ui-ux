@@ -1,0 +1,146 @@
+[
+  {
+    "slot": "start-family",
+    "file": "assets/photos/start-family.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "거실 소파에 함께 앉은 한국인 가족 4명(30대 엄마·40대 아빠·9살 딸·5살 아들), 따뜻한 저녁 조명"
+  },
+  {
+    "slot": "ev-hospital",
+    "file": "assets/photos/ev-hospital.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "소아과 진료실에서 의사에게 청진을 받는 5살 한국 남자아이"
+  },
+  {
+    "slot": "ev-school",
+    "file": "assets/photos/ev-school.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "초등학교 2학년 교실 책상에 마주 앉은 담임 선생님과 학부모"
+  },
+  {
+    "slot": "ev-swim",
+    "file": "assets/photos/ev-swim.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "구민체육센터 실내 수영장에서 킥판을 잡고 수영하는 9살 한국 여자아이"
+  },
+  {
+    "slot": "ev-piano",
+    "file": "assets/photos/ev-piano.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "피아노 학원에서 업라이트 피아노를 치는 9살 한국 여자아이 뒷모습"
+  },
+  {
+    "slot": "ev-yoga",
+    "file": "assets/photos/ev-yoga.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "동네 요가원에서 매트 위 자세를 잡는 30대 한국 여성"
+  },
+  {
+    "slot": "ev-dentist",
+    "file": "assets/photos/ev-dentist.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "치과 진료 의자와 조명이 있는 진료실"
+  },
+  {
+    "slot": "ev-grocery",
+    "file": "assets/photos/ev-grocery.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "채소와 우유가 담긴 마트 카트가 있는 대형마트 통로"
+  },
+  {
+    "slot": "ev-family-visit",
+    "file": "assets/photos/ev-family-visit.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "할머니 할아버지 댁 현관에서 손주를 반기는 한국인 조부모"
+  },
+  {
+    "slot": "ev-recycle",
+    "file": "assets/photos/ev-recycle.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "아파트 분리수거장에 놓인 플라스틱·종이 분리수거함"
+  },
+  {
+    "slot": "free-dinner",
+    "file": "assets/photos/free-dinner.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "창가 테이블에 파스타 두 접시와 와인잔이 놓인 아늑한 동네 식당, 마주 앉은 한국인 부부 손만"
+  },
+  {
+    "slot": "free-walk",
+    "file": "assets/photos/free-walk.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "해 질 녘 한강 공원을 함께 걷는 한국인 가족 4명 뒷모습"
+  },
+  {
+    "slot": "free-picnic",
+    "file": "assets/photos/free-picnic.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "일요일 낮 공원 잔디밭 돗자리 위 도시락과 아이 둘"
+  },
+  {
+    "slot": "empty-day",
+    "file": "assets/photos/empty-day.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "아무 일정 없는 날 — 햇살 드는 거실 소파와 담요, 책 한 권"
+  },
+  {
+    "slot": "date-anniversary",
+    "file": "assets/photos/date-anniversary.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "결혼기념일 저녁 테이블 위 꽃다발과 작은 케이크"
+  },
+  {
+    "slot": "date-mother-bday",
+    "file": "assets/photos/date-mother-bday.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "리본 맨 선물 상자와 꽃 한 송이 — 어머니 생신 선물"
+  },
+  {
+    "slot": "date-fieldtrip",
+    "file": "assets/photos/date-fieldtrip.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "서울숲 소풍 — 김밥 도시락과 아이 가방"
+  },
+  {
+    "slot": "date-kid-bday",
+    "file": "assets/photos/date-kid-bday.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "다섯 개 초가 꽂힌 아이 생일 케이크"
+  }
+]

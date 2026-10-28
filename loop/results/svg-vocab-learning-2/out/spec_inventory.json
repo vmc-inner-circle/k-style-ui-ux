@@ -1,0 +1,14 @@
+{"mode": "brief",
+ "items": [
+  {"id": "S1", "kind": "screen", "name": "목표 설정", "quote": "**목표 설정**: 학습 목적과 하루 분량(또는 시험일)을 정하면 오늘 할 몫이 정해져야 합니다.", "covered_by": ["onboard-goal", "onboard-amount", "onboard-plan", "goal-edit"]},
+  {"id": "S2", "kind": "screen", "name": "오늘의 학습", "quote": "**오늘의 학습**: 새 단어와 복습 단어를 한 흐름 안에서 학습하고, 단어마다 그림·예문·발음을 볼 수 있어야 합니다.", "covered_by": ["home", "study-card", "study-quiz", "study-write", "study-done"]},
+  {"id": "S3", "kind": "screen", "name": "기억 확인", "quote": "**기억 확인**: 외웠는지 스스로 판단하거나 퀴즈로 확인하고, 결과에 따라 다음 복습 시점이 달라져야 합니다.", "covered_by": ["study-card", "study-quiz", "study-write"]},
+  {"id": "S4", "kind": "screen", "name": "밀린 학습 다시 시작하기", "quote": "**밀린 학습 다시 시작하기**: 며칠 빠졌을 때 쌓인 복습을 부담 없이 다시 시작할 수 있어야 합니다.", "covered_by": ["home-back", "restart", "back-done"]},
+  {"id": "S5", "kind": "screen", "name": "내 단어장과 진도", "quote": "**내 단어장과 진도**: 외운 단어·헷갈리는 단어를 모아 보고, 얼마나 쌓였는지 확인할 수 있어야 합니다.", "covered_by": ["words", "word-detail", "progress"]},
+  {"id": "R1", "kind": "rule", "name": "며칠 빠져 복습이 쌓임", "quote": "학습을 3일 이상 빼먹는 일이 한 달에 두세 번은 생깁니다.", "screen_hint": "S4", "state_hint": "policy", "policy": "home-back"}
+ ],
+ "objects": [
+  {"id": "O1", "name": "학습 목표", "quote": "학습 목적과 하루 분량(또는 시험일)을 정하면 오늘 할 몫이 정해져야 합니다.", "create": "onboard-goal", "view": ["home", "home-exam"], "edit": "goal-edit", "after": "onboard-plan"},
+  {"id": "O2", "name": "내 단어장", "quote": "외운 단어·헷갈리는 단어를 모아 보고, 얼마나 쌓였는지 확인할 수 있어야 합니다.", "create": "study-card", "view": ["words", "progress"], "edit": "word-detail", "after": "study-done"},
+  {"id": "O3", "name": "다시 시작 계획", "quote": "**밀린 학습 다시 시작하기**: 며칠 빠졌을 때 쌓인 복습을 부담 없이 다시 시작할 수 있어야 합니다.", "create": "restart", "view": "home-back", "edit": "restart", "after": "back-done"}
+ ]}

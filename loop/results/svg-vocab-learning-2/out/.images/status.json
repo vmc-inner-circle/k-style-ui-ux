@@ -1,0 +1,56 @@
+{
+  "state": "done",
+  "t0": 1793171403.1,
+  "sheets": 2,
+  "generated": 5,
+  "placeholders": 0,
+  "alternates": 0,
+  "elapsed_s": 109.1,
+  "notes": [
+    "mode: svg"
+  ],
+  "sheet_plan": [
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "scene-postpone",
+        "scene-attach",
+        "scene-deadline",
+        "scene-invoice"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "scene-commute"
+      ]
+    }
+  ],
+  "mode": "svg",
+  "timeline": [
+    {
+      "slot": "scene-attach",
+      "t": 30.7
+    },
+    {
+      "slot": "scene-deadline",
+      "t": 43.5
+    },
+    {
+      "slot": "scene-commute",
+      "t": 71.5
+    },
+    {
+      "slot": "scene-postpone",
+      "t": 88.6
+    },
+    {
+      "slot": "scene-invoice",
+      "t": 101.4
+    }
+  ],
+  "first_svg_s": 30.7,
+  "last_svg_s": 101.4
+}

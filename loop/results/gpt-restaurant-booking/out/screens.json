@@ -1,0 +1,667 @@
+{
+ "groups": [
+  "찾기 — 조건에 맞고 자리가 있는 곳만",
+  "식당 보기 — 사진으로 미리 확인",
+  "예약하기",
+  "찼을 때 — 빈자리 알림·웨이팅",
+  "내 예약 — 바꾸기·취소"
+ ],
+ "story": {
+  "headline": "사진 옆에 <em>그날 앉을 자리</em>를 함께 보여 줘서, 고르는 순간 이미 예약이 끝난다",
+  "summary": "검색 결과 카드마다 메뉴·매장·좌석 사진 3장과 그 날짜·인원에 남은 시간을 같이 둡니다. 자리가 없는 곳은 빈자리 알림과 오늘 웨이팅으로 이어지고, 취소 규정은 모든 화면에서 같은 날짜별 환불 표 하나로 보입니다.",
+  "ideas": [
+   {
+    "title": "사진 3장 + 남은 시간 카드",
+    "desc": "메뉴·매장·좌석 사진과 '19:00 룸 1개 남음'을 한 카드에. 사진만 보고 골라도 자리가 있다."
+   },
+   {
+    "title": "식당 사진과 방문자 사진을 나눈다",
+    "desc": "방문자 사진에 촬영 달을 달아 '사진과 다르다'는 실패를 막는다."
+   },
+   {
+    "title": "날짜별 환불 표 하나",
+    "desc": "예약·상세·취소에서 같은 표, 오늘이 어느 칸인지 표시. 지금 취소하면 얼마인지 한 줄로."
+   },
+   {
+    "title": "빈자리는 10분 안에 먼저 확정",
+    "desc": "알림을 받으면 남은 시간이 보이고 한 번에 결제까지."
+   }
+  ]
+ },
+ "screens": [
+  {
+   "id": "home",
+   "title": "홈 · 10/28(수) 오전",
+   "group": "찾기 — 조건에 맞고 자리가 있는 곳만",
+   "kind": "home",
+   "purpose": "언제·몇 명·어떤 자리인지 먼저 정하고 찾는다",
+   "policies": [
+    "맨 위는 조건 입력(동네·날짜·시간·인원) — 기본값은 망원·연남, 이번 주 토요일, 2명",
+    "분위기 칩(조용한·단체·아이 동반·데이트)은 상황별 묶음으로도 쓴다",
+    "다가오는 예약이 있으면 조건 아래 한 줄로 보인다"
+   ],
+   "branches": [
+    {
+     "to": "results",
+     "label": "조건 정하고 찾기"
+    }
+   ],
+   "file": "screens/home.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "results",
+   "title": "찾기 결과 · 10/31(토) 6명 단체",
+   "group": "찾기 — 조건에 맞고 자리가 있는 곳만",
+   "kind": "list",
+   "purpose": "사진 3장과 남은 시간으로 바로 비교한다",
+   "policies": [
+    "카드마다 메뉴·매장·좌석 사진 3장 + 조건 체크(룸·아이 의자) + 그날 가능한 시간 칩",
+    "자리가 없는 시간은 칩에 '마감', 조건에 맞는 자리가 하나도 없는 식당은 결과에서 뺀다",
+    "별점 대신 사진과 좌석 조건으로 고른다"
+   ],
+   "branches": [
+    {
+     "to": "restaurant",
+     "label": "카드 누름"
+    },
+    {
+     "to": "book",
+     "label": "시간 칩 바로 누름"
+    }
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "long_task": false,
+    "large_list": true
+   },
+   "file": "screens/results.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "restaurant",
+   "title": "식당 상세 · 망원 화로",
+   "group": "식당 보기 — 사진으로 미리 확인",
+   "kind": "detail",
+   "purpose": "음식·매장·자리를 사진으로 확인하고 시간을 고른다",
+   "policies": [
+    "한 화면에 사진(메뉴·매장·좌석) · 가격대 · 좌석 정보 · 10/31 가능 시간 · 예약금",
+    "좌석 정보는 단체 룸 8인·아이 의자 2개처럼 숫자로",
+    "예약금과 '오늘 23:59까지 무료 취소'를 시간 고르기 바로 아래에"
+   ],
+   "branches": [
+    {
+     "to": "restaurant-photos",
+     "label": "사진 더 보기"
+    },
+    {
+     "to": "book",
+     "label": "시간 고르고 예약하기"
+    }
+   ],
+   "file": "screens/restaurant.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "restaurant-photos",
+   "title": "사진 · 망원 화로",
+   "group": "식당 보기 — 사진으로 미리 확인",
+   "kind": "list",
+   "purpose": "식당 사진과 방문자 사진을 나눠 실제 모습을 본다",
+   "policies": [
+    "메뉴·매장·좌석으로 나눠 보이고, 방문자 사진에는 촬영 달을 단다",
+    "식당이 올린 사진 9장 · 방문자 사진 15장"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "long_task": false,
+    "large_list": false
+   },
+   "file": "screens/restaurant-photos.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "book",
+   "title": "예약하기 · 망원 화로",
+   "group": "예약하기",
+   "kind": "form",
+   "purpose": "날짜·시간·인원·좌석 요청을 정하고 예약금을 결제한다",
+   "policies": [
+    "순서: 날짜 → 인원 → 시간 → 좌석 요청 → 예약금·취소 규정 → 결제",
+    "예약금 1인 10,000원 × 인원, 방문하면 음식값에서 차감",
+    "날짜별 환불 표(전액·50%·환불 없음)를 결제 버튼 위에 둔다"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": true,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "file": "screens/book.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "book-done",
+   "title": "예약 완료 · 망원 화로",
+   "group": "예약하기",
+   "kind": "result",
+   "purpose": "예약이 잡혔고 요청이 전달된 것을 확인하고 단톡방에 알린다",
+   "policies": [
+    "좌석 요청이 식당에 전달됐다고 보여 준다",
+    "카톡으로 보내기 한 번 — 보내지는 카드 미리보기(대표 사진·식당 이름·10/31(토) 19:00·6명 룸·주소)를 버튼 위에. 모임 기능은 따로 만들지 않는다",
+    "무료 취소 마감(10/28 23:59)을 한 줄로"
+   ],
+   "branches": [
+    {
+     "to": "booking-detail",
+     "label": "예약 보기"
+    }
+   ],
+   "file": "screens/book-done.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "restaurant-full",
+   "title": "식당 상세 · 오르조 · 10/30(금) 마감",
+   "group": "찼을 때 — 빈자리 알림·웨이팅",
+   "kind": "detail",
+   "purpose": "원하는 날이 다 찼을 때 빈자리 알림과 오늘 웨이팅 중 고른다",
+   "policies": [
+    "원하는 날 시간이 모두 마감이면 시간 칩 자리에 빈자리 알림 신청이 온다",
+    "알림은 원하는 시간 범위(19:00~20:30)로, 자리가 나면 10분 안에 먼저 확정한 사람이 갖는다",
+    "오늘 웨이팅은 현재 대기 팀 수와 예상 시간을 함께"
+   ],
+   "branches": [
+    {
+     "to": "waiting",
+     "label": "오늘 웨이팅 걸기"
+    }
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": true,
+    "large_list": false,
+    "long_task": false
+   },
+   "file": "screens/restaurant-full.html",
+   "role": "everyone",
+   "states": [
+    "done"
+   ]
+  },
+  {
+   "id": "restaurant-full--done",
+   "file": "screens/restaurant-full--done.html",
+   "group": "찼을 때 — 빈자리 알림·웨이팅",
+   "title": "식당 상세 · 오르조 · 10/30(금) 마감 · 보낸 뒤",
+   "purpose": "보낸 뒤 모습",
+   "role": "everyone",
+   "kind": "detail",
+   "state_of": "restaurant-full",
+   "state": "done"
+  },
+  {
+   "id": "waiting",
+   "title": "웨이팅 · 오르조 · 오늘",
+   "group": "찼을 때 — 빈자리 알림·웨이팅",
+   "kind": "form",
+   "purpose": "몇 분 걸리는지 보고 웨이팅을 건다",
+   "policies": [
+    "현재 대기 4팀 · 약 25분을 맨 위에",
+    "차례가 되면 알림, 알림 뒤 10분 안에 도착해야 한다"
+   ],
+   "file": "screens/waiting.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "waiting-status",
+   "title": "웨이팅 중 · 내 앞 3팀",
+   "group": "찼을 때 — 빈자리 알림·웨이팅",
+   "kind": "result",
+   "purpose": "지금 내 순서와 예상 입장 시각을 본다",
+   "policies": [
+    "내 앞 팀 수를 가장 크게, 예상 입장 19:15쯤",
+    "자리를 떠나도 차례가 되면 알림이 온다",
+    "웨이팅 취소는 아래 글자 버튼으로, 늦을 것 같으면 '10분 미루기' 한 번(인라인 글자 버튼)"
+   ],
+   "file": "screens/waiting-status.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "alert-offer",
+   "title": "빈자리 알림 · 10/29(목) 21:10",
+   "group": "찼을 때 — 빈자리 알림·웨이팅",
+   "kind": "form",
+   "purpose": "자리가 난 순간 10분 안에 확정한다",
+   "policies": [
+    "남은 시간(21:20까지)을 가장 크게",
+    "인원·시간은 알림 신청 그대로 채워져 있고, 알림 신청 때 저장한 카카오페이로 버튼 한 번에 예약금 20,000원 결제·확정",
+    "먼저 확정한 사람이 자리를 갖는다 — 놓치면 알림은 계속 켜져 있다"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": true,
+    "large_list": false,
+    "long_task": false
+   },
+   "file": "screens/alert-offer.html",
+   "role": "everyone",
+   "states": [
+    "done"
+   ]
+  },
+  {
+   "id": "alert-offer--done",
+   "file": "screens/alert-offer--done.html",
+   "group": "찼을 때 — 빈자리 알림·웨이팅",
+   "title": "빈자리 알림 · 10/29(목) 21:10 · 보낸 뒤",
+   "purpose": "보낸 뒤 모습",
+   "role": "everyone",
+   "kind": "form",
+   "state_of": "alert-offer",
+   "state": "done"
+  },
+  {
+   "id": "my-bookings",
+   "title": "내 예약",
+   "group": "내 예약 — 바꾸기·취소",
+   "kind": "list",
+   "purpose": "확정된 예약과 기다리는 것을 한곳에서 본다",
+   "policies": [
+    "다가오는 예약 → 웨이팅 → 빈자리 알림 순",
+    "각 행에 상태 배지(확정·대기 중 — 웨이팅과 빈자리 알림 모두 '대기 중')",
+    "빈자리 알림은 행 안에서 끈다"
+   ],
+   "branches": [
+    {
+     "to": "booking-detail",
+     "label": "예약 누름"
+    },
+    {
+     "to": "waiting-status",
+     "label": "웨이팅 누름"
+    }
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "long_task": false,
+    "large_list": false
+   },
+   "file": "screens/my-bookings.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "booking-detail",
+   "title": "예약 상세 · 망원 화로 10/31",
+   "group": "내 예약 — 바꾸기·취소",
+   "kind": "detail",
+   "purpose": "예약 내용과 지금 취소하면 얼마인지 본다",
+   "policies": [
+    "날짜별 환불 표에 오늘 칸 표시 — 지금 취소하면 60,000원 전액",
+    "인원·시간 변경과 취소는 같은 줄 두 버튼",
+    "요청 사항과 예약번호"
+   ],
+   "branches": [
+    {
+     "to": "booking-change",
+     "label": "인원·시간 변경"
+    },
+    {
+     "to": "cancel",
+     "label": "예약 취소"
+    }
+   ],
+   "file": "screens/booking-detail.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "booking-change",
+   "title": "인원·시간 변경 · 6명 → 7명",
+   "group": "내 예약 — 바꾸기·취소",
+   "kind": "form",
+   "purpose": "인원·시간을 바꾸고 차액을 바로 본다",
+   "policies": [
+    "같은 룸(8인)에 들어가는지 바로 보여 준다",
+    "차액(추가 10,000원)을 버튼 위에",
+    "시간 칩은 7명 기준 가능한 시간(17:30·19:00·20:30)만, 바꿔도 취소 규정 날짜는 그대로"
+   ],
+   "traits": {
+    "list_first_use": false,
+    "form": true,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "file": "screens/booking-change.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "change-done",
+   "title": "변경 완료 · 7명",
+   "group": "내 예약 — 바꾸기·취소",
+   "kind": "result",
+   "purpose": "무엇이 바뀌었는지 확인한다",
+   "policies": [
+    "인원 6명 → 7명처럼 바뀐 것만 앞뒤로",
+    "추가 결제 10,000원, 예약금 합계 70,000원",
+    "단톡방에 바뀐 내용을 카톡으로 보내기 한 번"
+   ],
+   "branches": [
+    {
+     "to": "booking-detail",
+     "label": "예약 보기"
+    }
+   ],
+   "file": "screens/change-done.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "cancel",
+   "title": "예약 취소 · 전액 환불",
+   "group": "내 예약 — 바꾸기·취소",
+   "kind": "form",
+   "purpose": "지금 취소하면 얼마를 돌려받는지 보고 취소한다",
+   "policies": [
+    "환불 금액 60,000원을 가장 크게, 근거는 날짜별 환불 표의 오늘 칸",
+    "취소 이유는 고르지 않아도 된다",
+    "되돌릴 수 없다는 것을 버튼 위 한 줄로"
+   ],
+   "file": "screens/cancel.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "cancel-done",
+   "title": "취소 완료 · 60,000원 환불",
+   "group": "내 예약 — 바꾸기·취소",
+   "kind": "result",
+   "purpose": "환불이 언제 어디로 들어오는지 확인한다",
+   "policies": [
+    "카카오페이로 3영업일 안에",
+    "같은 조건으로 다시 찾기 링크"
+   ],
+   "branches": [
+    {
+     "to": "results",
+     "label": "다른 곳 찾기"
+    }
+   ],
+   "file": "screens/cancel-done.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  }
+ ],
+ "photo_centric": true,
+ "badges": {
+  "확정": "is-brand",
+  "마감": "is-warning",
+  "대기 중": "is-info",
+  "완료": "is-success",
+  "취소": ""
+ },
+ "accent": "마감 임박",
+ "people": [
+  {
+   "name": "서윤 — 모임 자리를 잡는 사람",
+   "who": "32세 한국 여성, 망원동 직장인, 대학 동기 6명 모임 총무",
+   "why": "토요일 저녁 6명 자리를 정해야 하는데 지도·블로그·인스타를 30분째 오가는 중",
+   "feels": "조급함과 책임감 — 내가 고른 곳이 별로면 민망하다",
+   "wants": [
+    {
+     "q": "이 날짜·인원에 실제로 자리가 있는 곳은 어디인가",
+     "at": [
+      "results"
+     ]
+    },
+    {
+     "q": "6명이 한 룸에 앉을 수 있나",
+     "at": [
+      "results",
+      "restaurant"
+     ]
+    },
+    {
+     "q": "음식·분위기가 사진이랑 정말 같나",
+     "at": [
+      "restaurant",
+      "restaurant-photos"
+     ]
+    },
+    {
+     "q": "예약금은 얼마고 언제까지 취소하면 돌려받나",
+     "at": [
+      "book",
+      "booking-detail",
+      "cancel"
+     ]
+    },
+    {
+     "q": "한 명 더 오면 인원을 바꿀 수 있나",
+     "at": [
+      "booking-detail",
+      "booking-change"
+     ]
+    }
+   ],
+   "win": "단톡방에 '토 19:00 망원 화로 룸 잡았어'와 사진 한 장을 올렸을 때",
+   "screens": [
+    "home",
+    "results",
+    "restaurant",
+    "restaurant-photos",
+    "book",
+    "book-done",
+    "my-bookings",
+    "booking-detail",
+    "booking-change",
+    "cancel"
+   ],
+   "core": true
+  },
+  {
+   "name": "정우 — 가족 외식을 잡는 사람",
+   "who": "38세 한국 남성, 5살 딸 아빠, 주말 점심 부모님까지 5명",
+   "why": "지난번 식당에 아이 의자가 없어 당황했다",
+   "feels": "걱정 — 부모님 앞에서 곤란하고 싶지 않다",
+   "wants": [
+    {
+     "q": "아이 의자가 있나, 몇 개인가",
+     "at": [
+      "results",
+      "restaurant"
+     ]
+    },
+    {
+     "q": "좌식인가 테이블인가",
+     "at": [
+      "restaurant",
+      "restaurant-photos"
+     ]
+    },
+    {
+     "q": "요청한 좌석 조건이 식당에 전달됐나",
+     "at": [
+      "book-done",
+      "booking-detail"
+     ]
+    }
+   ],
+   "win": "도착하니 테이블에 아이 의자가 미리 놓여 있을 때",
+   "screens": [
+    "results",
+    "restaurant",
+    "restaurant-photos",
+    "book",
+    "book-done"
+   ]
+  },
+  {
+   "name": "민지 — 인기 식당을 노리는 사람",
+   "who": "27세 한국 여성, 연남동 인기 비스트로에서 데이트하고 싶다",
+   "why": "원하는 날 예약이 이미 다 찼다",
+   "feels": "아쉬움, 반쯤 포기",
+   "wants": [
+    {
+     "q": "자리가 날 수 있나, 기다릴 방법이 있나",
+     "at": [
+      "restaurant-full"
+     ]
+    },
+    {
+     "q": "지금 웨이팅하면 몇 분 걸리나",
+     "at": [
+      "restaurant-full",
+      "waiting"
+     ]
+    },
+    {
+     "q": "자리가 나면 놓치지 않을 수 있나",
+     "at": [
+      "alert-offer"
+     ]
+    },
+    {
+     "q": "내 순서가 지금 몇 번째인가",
+     "at": [
+      "waiting-status"
+     ]
+    }
+   ],
+   "win": "알림을 받고 10분 안에 금요일 19:30 자리를 잡았을 때",
+   "screens": [
+    "restaurant-full",
+    "waiting",
+    "waiting-status",
+    "alert-offer",
+    "my-bookings"
+   ]
+  }
+ ],
+ "prd_coverage": {
+  "F1": [
+   "home",
+   "results"
+  ],
+  "F2": [
+   "restaurant",
+   "restaurant-photos"
+  ],
+  "F3": [
+   "book",
+   "book-done"
+  ],
+  "F4": [
+   "restaurant-full",
+   "waiting",
+   "waiting-status",
+   "alert-offer"
+  ],
+  "F5": [
+   "my-bookings",
+   "booking-detail",
+   "booking-change",
+   "change-done",
+   "cancel",
+   "cancel-done"
+  ],
+  "US1": [
+   "home",
+   "results"
+  ],
+  "US2": [
+   "restaurant",
+   "restaurant-photos"
+  ],
+  "US3": [
+   "restaurant-full",
+   "alert-offer",
+   "waiting-status"
+  ]
+ },
+ "stage": "go",
+ "pending_states": 2
+}

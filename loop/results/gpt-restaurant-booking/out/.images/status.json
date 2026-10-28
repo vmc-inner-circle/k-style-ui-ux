@@ -1,0 +1,72 @@
+{
+  "state": "done",
+  "t0": 1793174408.8,
+  "sheets": 6,
+  "generated": 24,
+  "placeholders": 0,
+  "alternates": 5,
+  "elapsed_s": 489.3,
+  "notes": [],
+  "sheet_plan": [
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "r1-menu",
+        "r1-room",
+        "r1-seat",
+        "r2-menu"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "r2-room",
+        "r2-seat",
+        "r3-menu",
+        "r3-room"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "r3-seat",
+        "r4-menu",
+        "r4-room",
+        "r4-seat"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "r5-menu",
+        "r5-room",
+        "r5-seat",
+        "r6-menu"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "r6-room",
+        "r6-seat"
+      ]
+    },
+    {
+      "cells": "3x3",
+      "cell_ratio": "1:1",
+      "slots": [
+        "r1-menu2",
+        "r1-seat2",
+        "v1",
+        "v2",
+        "v3",
+        "v4"
+      ]
+    }
+  ]
+}

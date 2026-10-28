@@ -1,0 +1,42 @@
+[
+  {
+    "slot": "scene-postpone",
+    "file": "assets/photos/scene-postpone.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "회의 일정표의 금요일로 옮겨지는 회의 메모, 미루다"
+  },
+  {
+    "slot": "scene-attach",
+    "file": "assets/photos/scene-attach.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "이메일에 파일을 첨부하는 노트북 화면"
+  },
+  {
+    "slot": "scene-deadline",
+    "file": "assets/photos/scene-deadline.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "다음 주 월요일에 빨간 동그라미가 쳐진 달력"
+  },
+  {
+    "slot": "scene-invoice",
+    "file": "assets/photos/scene-invoice.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "책상 위 청구서 종이와 계산기"
+  },
+  {
+    "slot": "scene-commute",
+    "file": "assets/photos/scene-commute.jpg",
+    "author": "AI 일러스트 (Claude SVG)",
+    "license": "generated",
+    "url": "",
+    "title": "출근길 지하철에서 한 손으로 폰을 든 30대 한국 여성의 손과 어깨"
+  }
+]

@@ -1,0 +1,16 @@
+{"mode":"brief",
+"items":[
+{"id":"S1","kind":"screen","name":"식당 찾기","quote":"지역·날짜·인원·분위기(조용한, 단체, 아이 동반 등)로 식당을 찾고, 사진 중심으로 비교할 수 있어야 합니다.","covered_by":["home","results"]},
+{"id":"S2","kind":"screen","name":"식당 상세","quote":"대표 메뉴·매장·좌석 사진, 가격대, 예약 가능 시간을 한 화면에서 볼 수 있어야 합니다.","covered_by":["restaurant","restaurant-photos","restaurant-full"]},
+{"id":"S3","kind":"screen","name":"예약하기","quote":"날짜·시간·인원·좌석 요청을 정해 예약하고, 예약금이 있으면 결제할 수 있어야 합니다.","covered_by":["book","book-done"]},
+{"id":"S4","kind":"screen","name":"웨이팅·빈자리 알림","quote":"예약이 찼을 때 웨이팅을 걸거나 빈자리가 나면 알림을 받을 수 있어야 합니다.","covered_by":["restaurant-full","waiting","waiting-status","alert-offer"]},
+{"id":"S5","kind":"screen","name":"내 예약 관리","quote":"예약을 확인하고, 인원·시간 변경과 취소를 할 수 있어야 합니다.","covered_by":["my-bookings","booking-detail","booking-change","change-done","cancel","cancel-done"]},
+{"id":"R1","kind":"rule","name":"예약이 찬 시간은 웨이팅·빈자리 알림으로 전환","quote":"예약이 찼을 때 웨이팅을 걸거나 빈자리가 나면 알림을 받을 수 있어야 합니다.","screen_hint":"S4","state_hint":"error","policy":"restaurant-full"},
+{"id":"R2","kind":"rule","name":"예약금이 있는 식당은 결제 필요","quote":"예약금이 있으면 결제할 수 있어야 합니다.","screen_hint":"S3","state_hint":"confirm","policy":"book"},
+{"id":"R3","kind":"rule","name":"취소 규정 안내","quote":"취소 규정이 헷갈리지 않도록 설계해주세요.","screen_hint":"S5","state_hint":"policy","policy":"cancel"}
+],
+"objects":[
+{"id":"O1","name":"예약","quote":"날짜·시간·인원·좌석 요청을 정해 예약하고, 예약금이 있으면 결제할 수 있어야 합니다.","create":["book"],"view":["my-bookings","booking-detail"],"edit":["booking-change","cancel"],"after":["book-done","change-done","cancel-done"]},
+{"id":"O2","name":"웨이팅","quote":"예약이 찼을 때 웨이팅을 걸거나","create":["waiting"],"view":["waiting-status","my-bookings"],"edit":["waiting-status"],"after":["waiting-status"]},
+{"id":"O3","name":"빈자리 알림","quote":"빈자리가 나면 알림을 받을 수 있어야 합니다.","create":["restaurant-full"],"view":["my-bookings"],"edit":["my-bookings"],"after":["restaurant-full--done","alert-offer--done"]}
+]}

@@ -1,0 +1,139 @@
+{
+  "state": "done",
+  "t0": 1793173450.8,
+  "sheets": 5,
+  "generated": 18,
+  "placeholders": 0,
+  "alternates": 0,
+  "elapsed_s": 319.8,
+  "notes": [
+    "mode: svg"
+  ],
+  "sheet_plan": [
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "start-family",
+        "ev-hospital",
+        "ev-school",
+        "ev-swim"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "ev-piano",
+        "ev-yoga",
+        "ev-dentist",
+        "ev-grocery"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "ev-family-visit",
+        "ev-recycle",
+        "free-dinner",
+        "free-walk"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "free-picnic",
+        "empty-day",
+        "date-anniversary",
+        "date-mother-bday"
+      ]
+    },
+    {
+      "cells": "2x2",
+      "cell_ratio": "4:3",
+      "slots": [
+        "date-fieldtrip",
+        "date-kid-bday"
+      ]
+    }
+  ],
+  "mode": "svg",
+  "timeline": [
+    {
+      "slot": "start-family",
+      "t": 169.5
+    },
+    {
+      "slot": "ev-swim",
+      "t": 180.1
+    },
+    {
+      "slot": "ev-hospital",
+      "t": 187.1
+    },
+    {
+      "slot": "ev-school",
+      "t": 195.8
+    },
+    {
+      "slot": "ev-piano",
+      "t": 203.3
+    },
+    {
+      "slot": "ev-yoga",
+      "t": 209.4
+    },
+    {
+      "slot": "ev-dentist",
+      "t": 216.5
+    },
+    {
+      "slot": "ev-grocery",
+      "t": 225.7
+    },
+    {
+      "slot": "ev-family-visit",
+      "t": 235.0
+    },
+    {
+      "slot": "ev-recycle",
+      "t": 256.9
+    },
+    {
+      "slot": "free-dinner",
+      "t": 264.3
+    },
+    {
+      "slot": "free-walk",
+      "t": 271.0
+    },
+    {
+      "slot": "free-picnic",
+      "t": 277.8
+    },
+    {
+      "slot": "empty-day",
+      "t": 284.2
+    },
+    {
+      "slot": "date-anniversary",
+      "t": 290.6
+    },
+    {
+      "slot": "date-mother-bday",
+      "t": 295.8
+    },
+    {
+      "slot": "date-fieldtrip",
+      "t": 302.0
+    },
+    {
+      "slot": "date-kid-bday",
+      "t": 310.4
+    }
+  ],
+  "first_svg_s": 169.5,
+  "last_svg_s": 310.4
+}

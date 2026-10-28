@@ -1,0 +1,194 @@
+[
+  {
+    "slot": "r1-menu",
+    "file": "assets/photos/r1-menu.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "망원 화로 대표 메뉴 — 숯불 위 한우 꽃등심"
+  },
+  {
+    "slot": "r1-room",
+    "file": "assets/photos/r1-room.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "망원 화로 매장 — 따뜻한 조명의 숯불구이 홀"
+  },
+  {
+    "slot": "r1-seat",
+    "file": "assets/photos/r1-seat.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "망원 화로 단체 룸 — 8인 테이블과 화로 두 개"
+  },
+  {
+    "slot": "r1-menu2",
+    "file": "assets/photos/r1-menu2.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "망원 화로 된장찌개와 반찬"
+  },
+  {
+    "slot": "r1-seat2",
+    "file": "assets/photos/r1-seat2.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "망원 화로 룸 테이블 끝에 놓인 아이 의자"
+  },
+  {
+    "slot": "v1",
+    "file": "assets/photos/v1.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "방문자 사진 — 친구들이 굽는 고기, 손만 보이게"
+  },
+  {
+    "slot": "v2",
+    "file": "assets/photos/v2.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "방문자 사진 — 룸에 앉은 모임 뒷모습"
+  },
+  {
+    "slot": "v3",
+    "file": "assets/photos/v3.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "방문자 사진 — 냉면과 고기 한 상"
+  },
+  {
+    "slot": "v4",
+    "file": "assets/photos/v4.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "방문자 사진 — 룸 입구와 테이블 간격"
+  },
+  {
+    "slot": "r2-menu",
+    "file": "assets/photos/r2-menu.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "연남 소반 한식 정식 한 상"
+  },
+  {
+    "slot": "r2-room",
+    "file": "assets/photos/r2-room.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "연남 소반 조용한 한옥풍 매장"
+  },
+  {
+    "slot": "r2-seat",
+    "file": "assets/photos/r2-seat.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "연남 소반 6인 룸 테이블"
+  },
+  {
+    "slot": "r3-menu",
+    "file": "assets/photos/r3-menu.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "타코 데 마포 타코 플래터"
+  },
+  {
+    "slot": "r3-room",
+    "file": "assets/photos/r3-room.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "타코 데 마포 활기찬 매장"
+  },
+  {
+    "slot": "r3-seat",
+    "file": "assets/photos/r3-seat.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "타코 데 마포 10인 단체석"
+  },
+  {
+    "slot": "r4-menu",
+    "file": "assets/photos/r4-menu.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "홍린관 깐풍기와 짜장면"
+  },
+  {
+    "slot": "r4-room",
+    "file": "assets/photos/r4-room.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "홍린관 붉은 조명의 중식당 홀"
+  },
+  {
+    "slot": "r4-seat",
+    "file": "assets/photos/r4-seat.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "홍린관 원형 회전 테이블 8인 룸"
+  },
+  {
+    "slot": "r5-menu",
+    "file": "assets/photos/r5-menu.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "트라토리아 망원 생면 파스타와 피자"
+  },
+  {
+    "slot": "r5-room",
+    "file": "assets/photos/r5-room.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "트라토리아 망원 아늑한 매장"
+  },
+  {
+    "slot": "r5-seat",
+    "file": "assets/photos/r5-seat.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "트라토리아 망원 8인 긴 테이블"
+  },
+  {
+    "slot": "r6-menu",
+    "file": "assets/photos/r6-menu.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "오르조 대표 메뉴 — 성게 크림 파스타"
+  },
+  {
+    "slot": "r6-room",
+    "file": "assets/photos/r6-room.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "오르조 매장 — 2인 테이블이 늘어선 비스트로"
+  },
+  {
+    "slot": "r6-seat",
+    "file": "assets/photos/r6-seat.jpg",
+    "author": "AI 생성 (codex image_generation)",
+    "license": "generated",
+    "url": "",
+    "title": "오르조 창가 2인 테이블"
+  }
+]

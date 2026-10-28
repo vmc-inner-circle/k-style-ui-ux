@@ -1,0 +1,15 @@
+{"mode":"brief",
+ "items":[
+  {"id":"S1","kind":"screen","name":"함께 보는 캘린더","quote":"**함께 보는 캘린더**: 구성원별 일정을 한 화면에서 구분해 보고, 사람별로 걸러 볼 수 있어야 합니다.","covered_by":["home","home-minsu","month"]},
+  {"id":"S2","kind":"screen","name":"일정 만들기·고치기","quote":"**일정 만들기·고치기**: 누가 참여하는지, 반복되는지, 누가 맡는지를 정해 일정을 만들고 고칠 수 있어야 합니다.","covered_by":["event-new","event-edit","event","event-saved"]},
+  {"id":"S3","kind":"screen","name":"맡을 사람 정하기","quote":"**맡을 사람 정하기**: 아직 맡을 사람이 없는 일을 보여 주고, 누군가 맡으면 다른 사람에게 알려야 합니다.","covered_by":["tasks","task-claimed"]},
+  {"id":"S4","kind":"screen","name":"함께 비는 시간 찾기","quote":"**함께 비는 시간 찾기**: 둘 이상의 구성원이 동시에 비는 시간을 찾아 바로 일정을 잡을 수 있어야 합니다.","covered_by":["free","free-plan","free-done"]},
+  {"id":"S5","kind":"screen","name":"챙길 날","quote":"**챙길 날**: 생일·기념일·준비가 필요한 일정을 미리 알려 주되, 알림이 잦아 부담이 되지 않도록 설계해주세요.","covered_by":["dates","week-preview"]}
+ ],
+ "objects":[
+  {"id":"O1","name":"일정","quote":"누가 참여하는지, 반복되는지, 누가 맡는지를 정해 일정을 만들고 고칠 수 있어야 합니다.","create":"event-new","view":"event","edit":"event-edit","after":"event-saved"},
+  {"id":"O2","name":"맡은 일(담당 지정)","quote":"아직 맡을 사람이 없는 일을 보여 주고, 누군가 맡으면 다른 사람에게 알려야 합니다.","create":"event-new","view":"tasks","edit":"event-edit","after":"task-claimed"},
+  {"id":"O3","name":"함께 하는 일정","quote":"둘 이상의 구성원이 동시에 비는 시간을 찾아 바로 일정을 잡을 수 있어야 합니다.","create":"free","view":"free-plan","edit":"event-edit","after":"free-done"},
+  {"id":"O4","name":"우리 집(구성원)","quote":"맞벌이 부부, 동거 커플, 아이를 키우는 가족처럼 한집에 사는 2~5명","create":"start","view":"home","edit":"n/a — 구성원 고치기는 설정 화면(1차 범위 밖), 처음 만들 때 이름만 넣으면 된다","after":"start--done"},
+  {"id":"O5","name":"챙길 날","quote":"생일·기념일·준비가 필요한 일정을 미리 알려 주되, 알림이 잦아 부담이 되지 않도록 설계해주세요.","create":"event-new","view":"dates","edit":"event-edit","after":"event-saved"}
+ ]}

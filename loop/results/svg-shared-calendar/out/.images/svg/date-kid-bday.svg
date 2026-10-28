@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<rect width="800" height="600" fill="#FFE8DB"/>
+<path d="M200 190 Q210 260 230 330" stroke="#BFBFC1" stroke-width="3" fill="none"/>
+<ellipse cx="200" cy="150" rx="36" ry="44" fill="#E14D00"/>
+<path d="M600 190 Q590 260 570 330" stroke="#BFBFC1" stroke-width="3" fill="none"/>
+<ellipse cx="600" cy="150" rx="36" ry="44" fill="#B93901"/>
+<path d="M260 160 Q262 230 270 300" stroke="#BFBFC1" stroke-width="3" fill="none"/>
+<ellipse cx="258" cy="124" rx="30" ry="36" fill="#FFFFFF"/>
+<ellipse cx="400" cy="466" rx="190" ry="18" fill="#555D6D"/>
+<rect x="250" y="350" width="300" height="112" rx="14" fill="#FFFFFF"/>
+<rect x="300" y="270" width="200" height="86" rx="14" fill="#E14D00"/>
+<path d="M300 284 Q300 270 314 270 L486 270 Q500 270 500 284 L500 296 Q488 310 476 296 Q464 310 452 296 Q440 310 428 296 Q416 310 404 296 Q392 310 380 296 Q368 310 356 296 Q344 310 332 296 Q320 310 312 296 L300 296 Z" fill="#FFFFFF"/>
+<g fill="#E14D00"><rect x="280" y="380" width="14" height="6" rx="3"/><rect x="340" y="420" width="14" height="6" rx="3"/><rect x="420" y="390" width="14" height="6" rx="3"/><rect x="500" y="420" width="14" height="6" rx="3"/></g>
+<g fill="#B93901"><rect x="310" y="410" width="6" height="14" rx="3"/><rect x="380" y="376" width="6" height="14" rx="3"/><rect x="460" y="426" width="6" height="14" rx="3"/><rect x="520" y="380" width="6" height="14" rx="3"/></g>
+<rect x="331" y="226" width="10" height="44" rx="3" fill="#B93901"/>
+<rect x="361" y="226" width="10" height="44" rx="3" fill="#4C4E51"/>
+<rect x="395" y="226" width="10" height="44" rx="3" fill="#B93901"/>
+<rect x="429" y="226" width="10" height="44" rx="3" fill="#4C4E51"/>
+<rect x="459" y="226" width="10" height="44" rx="3" fill="#B93901"/>
+<g fill="#E14D00"><ellipse cx="336" cy="214" rx="7" ry="11"/><ellipse cx="366" cy="214" rx="7" ry="11"/><ellipse cx="400" cy="214" rx="7" ry="11"/><ellipse cx="434" cy="214" rx="7" ry="11"/><ellipse cx="464" cy="214" rx="7" ry="11"/></g>
+</svg>

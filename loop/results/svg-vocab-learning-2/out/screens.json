@@ -1,0 +1,677 @@
+{
+ "groups": [
+  "처음 들어올 때 — 분으로 고르면 오늘 몫이 정해진다",
+  "오늘 — 날마다 맨 위가 바뀐다",
+  "10분 학습 — 새 단어와 복습이 한 줄로",
+  "며칠 빠졌을 때 — 오늘은 20장만",
+  "단어장과 진도"
+ ],
+ "story": {
+  "headline": "밀린 86장이 아니라 <em>오늘의 20장</em>만 보여 준다",
+  "summary": "하루 분량은 개수가 아니라 분으로 고르고, 앱이 그 시간에 맞는 장 수를 정한다. 며칠 빠져도 하루 양은 평소와 같고, 밀린 복습은 다음 5일에 나눠 둔다. 단어는 뜻 → 문장 → 쓰기 단계마다 다른 문제로 다시 만난다.",
+  "ideas": [
+   {
+    "title": "분으로 고르는 하루 분량",
+    "desc": "50개를 고르는 과욕 대신 5·10·15분 중 하나. 10분이면 20장."
+   },
+   {
+    "title": "밀려도 하루 양은 그대로",
+    "desc": "4일 빠져 86장이 쌓여도 오늘은 잊기 쉬운 20장만, 나머지 66장은 11월 2일까지 날짜에 나눠 둔다."
+   },
+   {
+    "title": "뜻 → 문장 → 쓰기",
+    "desc": "같은 단어가 그림 카드, 문장 빈칸, 낱말 조각 문장 만들기로 단계마다 다시 나온다."
+   },
+   {
+    "title": "이미 아는 단어는 한 번에 빼기",
+    "desc": "새 단어 카드의 '이미 알아요' 한 번이면 다시 나오지 않는다."
+   }
+  ]
+ },
+ "screens": [
+  {
+   "id": "onboard-goal",
+   "title": "무엇을 위해 외우나요",
+   "group": "처음 들어올 때 — 분으로 고르면 오늘 몫이 정해진다",
+   "kind": "form",
+   "purpose": "목적을 고르면 그 목적의 단어 묶음이 정해진다",
+   "policies": [
+    "목적은 하나만: 토익 · 여행 회화 · 업무 이메일",
+    "고른 목적에 따라 다음 단계가 하루 시간 또는 시험일로 갈린다",
+    "나중에 목표 고치기에서 바꿀 수 있다"
+   ],
+   "branches": [
+    {
+     "to": "onboard-amount",
+     "label": "목적 고름"
+    }
+   ],
+   "file": "screens/onboard-goal.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "onboard-amount",
+   "title": "하루 몇 분 할까요",
+   "group": "처음 들어올 때 — 분으로 고르면 오늘 몫이 정해진다",
+   "kind": "form",
+   "purpose": "개수 대신 시간으로 고르게 해 과욕을 막는다. 토익이면 시험일을 함께 넣는다",
+   "policies": [
+    "5분 = 10장 · 10분 = 20장 · 15분 = 30장",
+    "토익은 시험일을 넣으면 앱이 하루 분량을 계산(준호: 12월 13일 → 새 22 + 복습 18 = 40장, 약 20분)",
+    "개수를 직접 입력하는 칸은 두지 않는다"
+   ],
+   "file": "screens/onboard-amount.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": true,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "onboard-plan",
+   "title": "오늘 몫이 정해졌어요",
+   "group": "처음 들어올 때 — 분으로 고르면 오늘 몫이 정해진다",
+   "kind": "result",
+   "purpose": "목표의 결과 — 오늘 할 장 수와 끝나는 날을 한 문장으로",
+   "policies": [
+    "준호 기준: 하루 40장(새 22 + 복습 18), 약 20분, 12월 6일 새 단어 끝",
+    "마지막 1주(12월 7~13일)는 복습만",
+    "첫 학습 시작하기가 주 버튼"
+   ],
+   "file": "screens/onboard-plan.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "home",
+   "title": "오늘 · 10월 23일",
+   "group": "오늘 — 날마다 맨 위가 바뀐다",
+   "kind": "home",
+   "purpose": "민지의 평소 출근길 — 오늘 몫 20장 중 몇 장 남았는지가 가장 크게",
+   "policies": [
+    "맨 위는 오늘 몫 카드(7/20, 13장 남음) — 이어서 하기",
+    "연속 일수 대신 줄지 않는 '이번 달 공부한 날 17일'",
+    "학습은 미리 내려받아 지하철에서 데이터 없이 된다"
+   ],
+   "tabs": [
+    {
+     "label": "오늘",
+     "screen": "home"
+    },
+    {
+     "label": "단어장",
+     "screen": "words"
+    },
+    {
+     "label": "진도",
+     "screen": "progress"
+    }
+   ],
+   "file": "screens/home.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "home-back",
+   "title": "오늘 · 10월 28일",
+   "group": "오늘 — 날마다 맨 위가 바뀐다",
+   "kind": "home",
+   "purpose": "4일 만에 돌아온 날 — 밀린 86장보다 '오늘은 20장만'이 먼저",
+   "policies": [
+    "3일 이상 빠지면 맨 위가 다시 시작 카드로 바뀌고, 카드에서 바로 20장을 시작한다",
+    "밀린 수 86은 작은 글자로만, 큰 숫자는 오늘 할 20장",
+    "다그치는 말 금지 — '다시 왔네요'처럼 평소 말투"
+   ],
+   "branches": [
+    {
+     "to": "study-quiz",
+     "label": "20장 시작"
+    },
+    {
+     "to": "restart",
+     "label": "어떻게 나눴는지 보기"
+    }
+   ],
+   "tabs": [
+    {
+     "label": "오늘",
+     "screen": "home-back"
+    },
+    {
+     "label": "단어장",
+     "screen": "words"
+    },
+    {
+     "label": "진도",
+     "screen": "progress"
+    }
+   ],
+   "file": "screens/home-back.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "home-exam",
+   "title": "오늘 · 시험 D-46",
+   "group": "오늘 — 날마다 맨 위가 바뀐다",
+   "kind": "home",
+   "purpose": "준호의 홈 — 시험까지 남은 날과 '이 속도면 끝나는 날'이 맨 위",
+   "policies": [
+    "D-46 · 남은 단어 840개 · 하루 새 단어 22개",
+    "이 속도면 12월 6일에 새 단어 끝, 마지막 1주는 복습만",
+    "하루 빠지면 다음 날 수를 늘리지 않고 끝나는 날을 하루 미룬다 — 끝나는 날이 시험 1주 전을 넘기면 그때만 하루 분량을 늘릴지 묻는다"
+   ],
+   "tabs": [
+    {
+     "label": "오늘",
+     "screen": "home-exam"
+    },
+    {
+     "label": "단어장",
+     "screen": "words"
+    },
+    {
+     "label": "진도",
+     "screen": "progress"
+    }
+   ],
+   "file": "screens/home-exam.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "study-card",
+   "title": "새 단어 · 8/20",
+   "group": "10분 학습 — 새 단어와 복습이 한 줄로",
+   "kind": "detail",
+   "purpose": "새 단어 하나 — 그림·뜻·예문·발음, 그리고 스스로 판단",
+   "policies": [
+    "맨 위 한 줄: 닫기 + 진행 막대(8/20) — 닫아도 진행은 저장",
+    "몰라요(오늘 다시) · 헷갈려요(내일) · 알아요(3일 뒤) 버튼에 다음 복습을 함께 적는다",
+    "'이미 알아요'를 누르면 다시 나오지 않고 아는 단어로 간다"
+   ],
+   "branches": [
+    {
+     "to": "study-quiz",
+     "label": "다음 장(복습)"
+    }
+   ],
+   "file": "screens/study-card.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "study-quiz",
+   "title": "복습 · 9/20",
+   "group": "10분 학습 — 새 단어와 복습이 한 줄로",
+   "kind": "detail",
+   "purpose": "문장 단계 복습 — 예문 빈칸에 맞는 단어 고르기, 답한 뒤 다음 복습일",
+   "policies": [
+    "4지선다는 엄지가 닿는 아래 절반에",
+    "답하면 그 자리에서 정답 표시 + '다음 복습 10월 26일' — 맞히면 잠깐 뒤 저절로 다음 장",
+    "틀리면 멈춰서 정답 문장을 보여 주고 헷갈려요로 모여 내일 다시 나온다"
+   ],
+   "branches": [
+    {
+     "to": "study-write",
+     "label": "계속하기"
+    }
+   ],
+   "file": "screens/study-quiz.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "study-write",
+   "title": "쓰기 · 10/20",
+   "group": "10분 학습 — 새 단어와 복습이 한 줄로",
+   "kind": "detail",
+   "purpose": "쓰기 단계 — 낱말 조각을 눌러 문장을 직접 만든다(한 손)",
+   "policies": [
+    "키보드 대신 낱말 조각 누르기 — 한 손으로 된다",
+    "쓰기 단계를 통과하면 다 익힘",
+    "건너뛰기는 몰라요와 같은 처리"
+   ],
+   "branches": [
+    {
+     "to": "study-done",
+     "label": "오늘 몫 마침"
+    }
+   ],
+   "file": "screens/study-write.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "study-done",
+   "title": "오늘 몫 끝",
+   "group": "10분 학습 — 새 단어와 복습이 한 줄로",
+   "kind": "result",
+   "purpose": "20장을 끝낸 결과 — 끝났다는 느낌과 내일 할 것",
+   "policies": [
+    "오늘 한 것: 새 8 + 복습 12, 헷갈려요 2개 생김",
+    "'더 하기' 출구는 두지 않는다 — 끝났다는 느낌을 흐리고 과욕을 부른다",
+    "주 버튼은 확인(홈으로)"
+   ],
+   "file": "screens/study-done.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "restart",
+   "title": "다시 시작 계획",
+   "group": "며칠 빠졌을 때 — 오늘은 20장만",
+   "kind": "detail",
+   "purpose": "밀린 86장을 오늘 20장 + 5일에 어떻게 나눴는지 궁금한 사람이 보는 곳",
+   "policies": [
+    "오늘 20장은 잊기 쉬운 순서(헷갈려요 먼저)",
+    "10월 29일~11월 2일 하루 13~14장씩, 그동안 새 단어는 잠시 쉼 — 하루 양은 20장 그대로",
+    "고를 것 없이 앱이 나눈다 — 돌아온 날 아침에 결정할 일을 만들지 않는다"
+   ],
+   "branches": [
+    {
+     "to": "study-quiz",
+     "label": "20장 시작하기"
+    }
+   ],
+   "file": "screens/restart.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "back-done",
+   "title": "다시 이어졌어요",
+   "group": "며칠 빠졌을 때 — 오늘은 20장만",
+   "kind": "result",
+   "purpose": "돌아온 날 20장을 끝낸 결과 — 남은 66장이 언제 끝나는지",
+   "policies": [
+    "이번 달 공부한 날 17 → 18일",
+    "남은 66장은 11월 2일까지, 11월 3일부터 새 단어 다시 하루 8개",
+    "숫자 0이 되는 기록(연속 일수)은 보여 주지 않는다"
+   ],
+   "file": "screens/back-done.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "words",
+   "title": "단어장",
+   "group": "단어장과 진도",
+   "kind": "list",
+   "purpose": "헷갈리는 단어·다 익힌 단어를 모아 본다",
+   "policies": [
+    "탭: 전체 214 · 헷갈려요 23 · 다 익힘 36",
+    "행마다 그림·단어·뜻·단계(뜻/문장/쓰기)",
+    "맨 아래 '아는 단어 31개' — 다시 꺼낼 수 있다"
+   ],
+   "traits": {
+    "list_first_use": true,
+    "form": false,
+    "shares": false,
+    "long_task": false,
+    "large_list": true
+   },
+   "tabs": [
+    {
+     "label": "오늘",
+     "screen": "home"
+    },
+    {
+     "label": "단어장",
+     "screen": "words"
+    },
+    {
+     "label": "진도",
+     "screen": "progress"
+    }
+   ],
+   "file": "screens/words.html",
+   "role": "everyone",
+   "states": []
+  },
+  {
+   "id": "word-detail",
+   "title": "invoice",
+   "group": "단어장과 진도",
+   "kind": "detail",
+   "purpose": "단어 하나의 장면·예문·발음·단계와 다음 복습일",
+   "policies": [
+    "예문은 목적(업무 이메일) 장면 순서",
+    "헷갈려요 표시를 끄고 켤 수 있다",
+    "아는 단어로 옮기면 복습에서 빠진다"
+   ],
+   "file": "screens/word-detail.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "progress",
+   "title": "진도",
+   "group": "단어장과 진도",
+   "kind": "home",
+   "purpose": "얼마나 쌓였나 — 만난 214개가 단계별로 어디 있나",
+   "policies": [
+    "뜻 102 · 문장 76 · 쓰기 36(다 익힘)",
+    "이번 달 공부한 날 17일 — 연속 일수는 쓰지 않는다",
+    "시험 목표가 있으면 남은 단어·끝나는 날 한 줄"
+   ],
+   "tabs": [
+    {
+     "label": "오늘",
+     "screen": "home"
+    },
+    {
+     "label": "단어장",
+     "screen": "words"
+    },
+    {
+     "label": "진도",
+     "screen": "progress"
+    }
+   ],
+   "file": "screens/progress.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": false,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  },
+  {
+   "id": "goal-edit",
+   "title": "목표 고치기",
+   "group": "단어장과 진도",
+   "kind": "form",
+   "purpose": "목적·하루 시간·시험일을 바꾸면 내일부터 오늘 몫이 다시 계산된다",
+   "policies": [
+    "바꾼 하루 시간은 내일부터 적용(오늘 진행은 그대로)",
+    "목적을 바꿔도 만난 단어 214개는 단어장에 남는다",
+    "저장하면 바뀐 오늘 몫을 다시 보여 준다"
+   ],
+   "branches": [
+    {
+     "to": "onboard-plan",
+     "label": "저장하기"
+    }
+   ],
+   "file": "screens/goal-edit.html",
+   "role": "everyone",
+   "traits": {
+    "list_first_use": false,
+    "form": true,
+    "shares": false,
+    "large_list": false,
+    "long_task": false
+   },
+   "states": []
+  }
+ ],
+ "photo_centric": false,
+ "badges": {
+  "새 단어": "is-info",
+  "복습": "",
+  "헷갈려요": "is-warning",
+  "다 익힘": "is-success",
+  "오늘 몫": "is-brand"
+ },
+ "people": [
+  {
+   "name": "민지 — 출근길 10분, 자주 밀리는 직장인",
+   "who": "31세 한국 여성 마케팅 대리, 업무 이메일, 2호선 출근길 한 손",
+   "why": "영어 이메일 쓸 때마다 같은 단어를 검색한다",
+   "feels": "의욕과 '또 그만두겠지' 불안, 돌아올 때 죄책감",
+   "wants": [
+    {
+     "q": "오늘 몇 분, 몇 장 하면 끝나나",
+     "at": [
+      "home",
+      "home-back"
+     ]
+    },
+    {
+     "q": "며칠 빠졌는데 다 해야 하나",
+     "at": [
+      "home-back",
+      "restart"
+     ]
+    },
+    {
+     "q": "이 단어를 이메일 어떤 문장에서 쓰나",
+     "at": [
+      "study-card",
+      "word-detail"
+     ]
+    },
+    {
+     "q": "오늘 끝났나, 다음엔 언제 보나",
+     "at": [
+      "study-done",
+      "back-done"
+     ]
+    }
+   ],
+   "win": "4일 쉬고 돌아온 날 두 정거장 만에 '오늘 몫 끝'을 본다",
+   "screens": [
+    "home",
+    "home-back",
+    "restart",
+    "study-card",
+    "study-quiz",
+    "study-done",
+    "back-done"
+   ],
+   "core": true
+  },
+  {
+   "name": "준호 — 토익 시험일이 정해진 대학생",
+   "who": "24세 한국 남성 대학교 4학년, 12월 13일 토익 목표 850",
+   "why": "시험까지 남은 단어를 하루치로 쪼개 주는 계획이 필요하다",
+   "feels": "조급함",
+   "wants": [
+    {
+     "q": "시험까지 며칠, 하루에 몇 개",
+     "at": [
+      "onboard-amount",
+      "home-exam"
+     ]
+    },
+    {
+     "q": "지금 속도로 시험 전에 끝나나",
+     "at": [
+      "home-exam",
+      "progress"
+     ]
+    },
+    {
+     "q": "이미 아는 단어를 또 봐야 하나",
+     "at": [
+      "study-card"
+     ]
+    }
+   ],
+   "win": "홈에서 '이 속도면 12월 6일에 다 봐요'를 본다",
+   "screens": [
+    "onboard-goal",
+    "onboard-amount",
+    "onboard-plan",
+    "home-exam",
+    "progress",
+    "goal-edit"
+   ]
+  },
+  {
+   "name": "서연 — 여행에서 직접 말하고 싶은 사람",
+   "who": "28세 한국 여성 디자이너, 1월 뉴욕 여행, 점심 5분",
+   "why": "뜻은 아는데 막상 말하려면 문장이 안 나온다",
+   "feels": "호기심과 답답함",
+   "wants": [
+    {
+     "q": "이 단어를 어떤 장면에서 쓰나",
+     "at": [
+      "study-card",
+      "word-detail"
+     ]
+    },
+    {
+     "q": "내가 직접 문장을 만들 수 있나",
+     "at": [
+      "study-write"
+     ]
+    },
+    {
+     "q": "헷갈리는 단어만 모아 볼 수 있나",
+     "at": [
+      "words"
+     ]
+    }
+   ],
+   "win": "쓰기 단계에서 문장을 직접 조립한다",
+   "screens": [
+    "study-write",
+    "words",
+    "word-detail"
+   ]
+  }
+ ],
+ "prd_coverage": {
+  "F1": [
+   "onboard-goal",
+   "onboard-amount",
+   "onboard-plan",
+   "goal-edit"
+  ],
+  "F2": [
+   "home",
+   "study-card",
+   "study-quiz",
+   "study-write",
+   "study-done"
+  ],
+  "F3": [
+   "study-card",
+   "study-quiz",
+   "study-write"
+  ],
+  "F4": [
+   "home-back",
+   "restart",
+   "back-done"
+  ],
+  "F5": [
+   "words",
+   "word-detail",
+   "progress"
+  ],
+  "US1": [
+   "home",
+   "study-done",
+   "home-back",
+   "restart",
+   "back-done"
+  ],
+  "US2": [
+   "onboard-amount",
+   "onboard-plan",
+   "home-exam"
+  ],
+  "US3": [
+   "study-card",
+   "study-write",
+   "word-detail"
+  ]
+ },
+ "stage": "go",
+ "pending_states": 3
+}

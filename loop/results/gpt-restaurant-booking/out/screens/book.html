@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=375, initial-scale=1">
+<title>예약하기 · 망원 화로</title>
+<link id="tokens" rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../components.css"><script src="../palette.js"></script>
+</head>
+<body class="plain has-cta">
+<header class="appbar"><a class="appbar-btn" href="restaurant.html" aria-label="뒤로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a><h1 class="appbar-title">예약하기 · 망원 화로</h1><span></span></header>
+<main class="page">
+  <div class="field"><label class="label" for="d">날짜</label><input class="input" id="d" value="10/31(토)"></div>
+  <div class="field"><span class="label">인원</span>
+    <div class="chips"><button class="chip">2명</button><button class="chip">3명</button><button class="chip">4명</button><button class="chip">5명</button><button class="chip is-selected">6명</button><button class="chip">7명</button></div>
+  </div>
+  <div class="field"><span class="label">시간</span>
+    <div class="chips"><button class="chip">17:30</button><button class="chip is-selected">19:00</button><button class="chip">20:30</button></div>
+    <p class="info"><img src="../assets/fluent/calendar.svg" alt=""><span>19:00 단체 룸 <span class="accent-text">1개 남음</span></span></p>
+  </div>
+  <div class="field"><span class="label">좌석</span>
+    <div class="chips"><button class="chip is-selected">단체 룸 8인</button><button class="chip">4인 테이블</button><button class="chip">아이 의자</button></div>
+  </div>
+  <div class="field"><label class="label" for="m">요청 사항</label><input class="input" id="m" value="생일인 친구가 있어요. 케이크 보관 부탁드려요"></div>
+
+  <section class="block is-list">
+    <div class="block-head"><h2 class="h2">예약금 60,000원</h2></div>
+    <div class="row"><span class="row-art"><img src="../assets/fluent/receipt.svg" alt=""></span><div class="row-main"><p class="row-title">1인 10,000원 × 6명</p><p class="row-sub">방문하면 음식값에서 빼요 · 카카오페이</p></div></div>
+    <div class="row"><span class="row-date">오늘</span><div class="row-main"><p class="row-title">10/28(수) 23:59까지</p><p class="row-sub">전액 환불 60,000원</p></div></div>
+    <div class="row"><span class="row-date">~10/30</span><div class="row-main"><p class="row-title">10/29(목) ~ 10/30(금)</p><p class="row-sub">50% 환불 30,000원</p></div></div>
+    <div class="row"><span class="row-date">당일</span><div class="row-main"><p class="row-title">10/31(토)</p><p class="row-sub">환불이 없어요</p></div></div>
+  </section>
+</main>
+<div class="cta"><a class="btn primary full" href="book-done.html">60,000원 결제하기</a></div>
+</body></html>
