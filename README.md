@@ -1,6 +1,6 @@
 # k-style-ui-ux
 
-PRD(기획 문서) 한 장을 넣으면 **한국 앱 스타일의 모바일 화면 초안**을 15분 안팎에 HTML로 뽑아 주는 Claude Code 플러그인입니다. VIBE MAFIA CLUB 이너서클이 함께 만드는 오픈소스입니다.
+PRD(기획 문서) 한 장을 넣으면 **한국 앱 스타일의 모바일 화면 초안**을 15분 안팎에 HTML로 뽑아 주는 Claude Code 플러그인입니다. [VIBE MAFIA CLUB 이너서클](https://www.vibemafiaclub.com/inner-circle)이 함께 만드는 오픈소스입니다.
 
 ![가족여행 PRD로 만든 화면](./docs/images/family-trip.jpg)
 
@@ -60,6 +60,7 @@ PRD만 붙여넣고 "화면 만들어줘"라고 해도 됩니다. 결과는 실�
 ## 기여
 
 - `main`에 직접 push하지 않습니다. 브랜치를 만들고 GitHub PR로 병합합니다.
+- 이 하네스는 이너서클의 하네스톤(하네스 자체를 겨루는 워크샵·해커톤)에서 시작했습니다. 같이 만들고 싶다면 [이너서클](https://www.vibemafiaclub.com/inner-circle)에서 모임 일정과 모집 소식을 볼 수 있습니다.
 - 자동 개선 루프 기록: [loop/RESULTS.md](./loop/RESULTS.md)
 - 하네스톤 개인전 안내, v1 아카이브, 첫 빈 템플릿 설명: [docs/history.md](./docs/history.md)
 
