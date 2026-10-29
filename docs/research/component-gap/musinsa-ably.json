@@ -1,0 +1,377 @@
+[
+ {
+  "file": "무신사-00.jpg",
+  "screen_kind": "기타",
+  "components": [
+   "photo-hero"
+  ],
+  "other": [
+   "브랜드 로고"
+  ],
+  "note": "스토어 이미지: 뉴진스 협업 스플래시, 로고와 큰 단체 사진"
+ },
+ {
+  "file": "무신사-01.jpg",
+  "screen_kind": "기타",
+  "components": [
+   "list-row",
+   "coupon-ticket",
+   "illust-3d",
+   "big-number"
+  ],
+  "other": [],
+  "note": "스토어 이미지: 신규 가입 혜택 4행, 쿠폰 티켓 그래픽과 제품 사진"
+ },
+ {
+  "file": "무신사-02.jpg",
+  "screen_kind": "목록",
+  "components": [
+   "top-tabs",
+   "segmented",
+   "chip-row",
+   "sort-filter-bar",
+   "product-grid",
+   "rank-list",
+   "price",
+   "badge",
+   "heart-like",
+   "photo-thumb",
+   "big-number"
+  ],
+  "other": [
+   "갱신 시각 표시"
+  ],
+  "note": "스토어 이미지: 랭킹 탭, 상품/브랜드 전환, 칩 두 줄과 번호 붙은 3열 상품 격자"
+ },
+ {
+  "file": "무신사-03.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "top-tabs",
+   "photo-hero",
+   "page-dots",
+   "icon-grid",
+   "section-more",
+   "h-scroller",
+   "photo-thumb"
+  ],
+  "other": [],
+  "note": "스토어 이미지: 뷰티 탭의 큰 배너(20/20 표시)와 카테고리 아이콘 줄, 주간 베스트"
+ },
+ {
+  "file": "무신사-04.jpg",
+  "screen_kind": "목록",
+  "components": [
+   "segmented",
+   "top-tabs",
+   "search-bar",
+   "avatar",
+   "chip-row",
+   "sort-filter-bar",
+   "photo-hero",
+   "h-scroller",
+   "story-circles"
+  ],
+  "other": [
+   "트렌드 키워드 해시태그 칩"
+  ],
+  "note": "스토어 이미지: 스냅 피드, 트렌드 키워드 칩과 큰 사진 가로 스크롤"
+ },
+ {
+  "file": "무신사-05.jpg",
+  "screen_kind": "목록",
+  "components": [
+   "product-grid",
+   "photo-thumb"
+  ],
+  "other": [
+   "에디토리얼 카드"
+  ],
+  "note": "스토어 이미지: 2열 콘텐츠 카드 격자, 사진 위 제목과 분류 라벨"
+ },
+ {
+  "file": "무신사-06.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "top-tabs",
+   "section-more",
+   "chip-row",
+   "photo-thumb",
+   "product-grid"
+  ],
+  "other": [
+   "아웃라인 버튼"
+  ],
+  "note": "스토어 이미지: 스타일 탭, 스타일 칩 두 줄과 4열 코디 썸네일 격자, 전체 보기 버튼"
+ },
+ {
+  "file": "무신사-07.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "appbar",
+   "search-bar",
+   "top-tabs",
+   "banner-carousel",
+   "page-dots",
+   "icon-grid",
+   "tabbar",
+   "fab",
+   "illust-3d"
+  ],
+  "other": [],
+  "note": "ROUNZ 선글라스 홈: 큰 사진 배너와 5열 아이콘 바로가기 2줄"
+ },
+ {
+  "file": "무신사-08.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "appbar",
+   "top-tabs",
+   "strip-banner",
+   "banner-carousel",
+   "h-scroller",
+   "tabbar",
+   "badge",
+   "photo-thumb"
+  ],
+  "other": [],
+  "note": "Posty 홈: 상단 탭, 띠 배너, 라운드 큰 배너(1/35)와 원형 아닌 라운드 썸네일 줄"
+ },
+ {
+  "file": "무신사-09.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "appbar",
+   "top-tabs",
+   "banner-carousel",
+   "icon-grid",
+   "section-more",
+   "h-scroller",
+   "fab",
+   "tabbar",
+   "badge"
+  ],
+  "other": [],
+  "note": "홈/피드 상단 전환, 가로 탭, 배너(1/12), 아이콘 격자 2줄, 둥근 판매 버튼"
+ },
+ {
+  "file": "무신사-10.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "appbar",
+   "search-bar",
+   "banner-carousel",
+   "icon-grid",
+   "story-circles",
+   "badge",
+   "tabbar",
+   "illust-3d",
+   "h-scroller"
+  ],
+  "other": [],
+  "note": "N+ 스토어 홈: 검색창, 컬러 배너(2/27), 앱 아이콘형 바로가기 2줄, 큐레이션 원형"
+ },
+ {
+  "file": "에이블리-00.jpg",
+  "screen_kind": "기타",
+  "components": [
+   "illust-3d"
+  ],
+  "other": [
+   "브랜드 로고"
+  ],
+  "note": "스토어 이미지: 빨강 배경에 상품 사진 흩뿌린 스플래시, ABLY 로고"
+ },
+ {
+  "file": "에이블리-01.jpg",
+  "screen_kind": "기타",
+  "components": [
+   "illust-3d"
+  ],
+  "other": [],
+  "note": "스토어 이미지: 빨강 배경 위 상품 사진과 12만원 쿠폰팩 문구"
+ },
+ {
+  "file": "에이블리-02.jpg",
+  "screen_kind": "기타",
+  "components": [
+   "illust-3d"
+  ],
+  "other": [],
+  "note": "스토어 이미지: 빨강 배경 위 상품 사진과 전 상품 무료배송 문구"
+ },
+ {
+  "file": "에이블리-03.jpg",
+  "screen_kind": "목록",
+  "components": [
+   "appbar",
+   "top-tabs",
+   "chip-row",
+   "rank-list",
+   "list-row",
+   "avatar",
+   "heart-like",
+   "photo-thumb",
+   "badge",
+   "tabbar",
+   "sort-filter-bar"
+  ],
+  "other": [],
+  "note": "스토어 이미지: 랭킹 화면, 마켓별 순위 행과 상품 사진 3장씩"
+ },
+ {
+  "file": "에이블리-04.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "search-bar",
+   "top-tabs",
+   "strip-banner",
+   "banner-carousel",
+   "page-dots",
+   "icon-grid",
+   "section-more",
+   "product-grid",
+   "rank-list",
+   "heart-like",
+   "tabbar",
+   "countdown"
+  ],
+  "other": [],
+  "note": "스토어 이미지: 샥-출발 홈, 카운트다운 띠, 배너, 둥근 카테고리 2줄과 순위 상품"
+ },
+ {
+  "file": "에이블리-05.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "search-bar",
+   "top-tabs",
+   "photo-hero",
+   "chip-row",
+   "badge",
+   "tabbar",
+   "progress",
+   "product-grid",
+   "photo-thumb"
+  ],
+  "other": [],
+  "note": "스토어 이미지: 코디 탭의 큰 사진 배너와 전체 콘텐츠 칩 줄"
+ },
+ {
+  "file": "에이블리-06.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "search-bar",
+   "top-tabs",
+   "product-grid",
+   "price",
+   "heart-like",
+   "section-more",
+   "h-scroller",
+   "tooltip-coach",
+   "tabbar",
+   "rating"
+  ],
+  "other": [
+   "설명 말풍선 라벨"
+  ],
+  "note": "스토어 이미지: 추천 상품 2열 카드(할인율·가격)와 말풍선 라벨, 아래 가로 줄"
+ },
+ {
+  "file": "에이블리-07.jpg",
+  "screen_kind": "목록",
+  "components": [
+   "appbar",
+   "chip-row",
+   "switch",
+   "sort-filter-bar",
+   "photo-thumb",
+   "badge",
+   "avatar",
+   "heart-like"
+  ],
+  "other": [
+   "리뷰 본문 블록"
+  ],
+  "note": "스토어 이미지: 리뷰 화면, 체형 필터 칩과 스위치, 사진 4장과 리뷰 본문"
+ },
+ {
+  "file": "에이블리-08.jpg",
+  "screen_kind": "폼",
+  "components": [
+   "appbar",
+   "chart",
+   "chip-row",
+   "sticky-cta",
+   "badge"
+  ],
+  "other": [
+   "범위 슬라이더"
+  ],
+  "note": "스토어 이미지: 필터 화면, 키 범위 슬라이더와 분포 그래프, 선택 칩, 하단 초기화/결과보기 버튼"
+ },
+ {
+  "file": "에이블리-09.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "appbar",
+   "search-bar",
+   "top-tabs",
+   "banner-carousel",
+   "page-dots",
+   "icon-grid",
+   "tabbar",
+   "fab"
+  ],
+  "other": [],
+  "note": "ROUNZ 선글라스 홈: 큰 사진 배너와 5열 아이콘 바로가기 2줄"
+ },
+ {
+  "file": "에이블리-10.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "appbar",
+   "top-tabs",
+   "strip-banner",
+   "banner-carousel",
+   "h-scroller",
+   "tabbar",
+   "badge"
+  ],
+  "other": [],
+  "note": "Posty 홈: 상단 탭, 띠 배너, 라운드 큰 배너(1/35), 라운드 썸네일 줄"
+ },
+ {
+  "file": "에이블리-11.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "appbar",
+   "top-tabs",
+   "banner-carousel",
+   "icon-grid",
+   "section-more",
+   "h-scroller",
+   "fab",
+   "tabbar",
+   "badge"
+  ],
+  "other": [],
+  "note": "홈/피드 전환, 가로 탭, 배너(1/12), 아이콘 격자 2줄, 둥근 판매 버튼"
+ },
+ {
+  "file": "에이블리-12.jpg",
+  "screen_kind": "홈",
+  "components": [
+   "appbar",
+   "search-bar",
+   "banner-carousel",
+   "icon-grid",
+   "story-circles",
+   "badge",
+   "tabbar",
+   "illust-3d",
+   "h-scroller"
+  ],
+  "other": [],
+  "note": "N+ 스토어 홈: 검색창, 컬러 배너(2/27), 앱 아이콘형 바로가기 2줄, 큐레이션 원형"
+ }
+]

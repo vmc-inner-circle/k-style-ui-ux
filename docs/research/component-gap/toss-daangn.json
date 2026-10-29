@@ -1,0 +1,23 @@
+[
+{"file":"토스-00.jpg","screen_kind":"홈","components":["card","list-row","big-number","badge","illust-3d","section-more"],"other":["송금/내역 보조 버튼"],"note":"스토어 이미지. 둥근 흰 카드 블록마다 금액+라벨+작은 버튼 행이 쌓인 토스 홈"},
+{"file":"토스-01.jpg","screen_kind":"기타","components":["appbar","illust-3d"],"other":["결과 안내 문구"],"note":"스토어 이미지. 번개 3D 아이콘+파란 큰 문구만 가운데 있는 이자 안내 화면"},
+{"file":"토스-02.jpg","screen_kind":"홈","components":["top-tabs","search-bar","card","big-number","section-more","list-row","segmented","sort-filter-bar","avatar"],"other":["지수 티커"],"note":"스토어 이미지. 상단 탭+내 계좌 카드 2개+큰 투자금액+종목 행"},
+{"file":"토스-03.jpg","screen_kind":"홈","components":["appbar","top-tabs","strip-banner","product-grid","price","rating","badge","photo-thumb","section-more"],"other":[],"note":"스토어 이미지. 쇼핑 홈: 카테고리 탭, 음식 사진 배너, 2열 상품 카드에 할인율·별점·배지"},
+{"file":"토스-04.jpg","screen_kind":"상세","components":["appbar","segmented","illust-3d","list-row","accordion","sticky-cta"],"other":[],"note":"스토어 이미지. 세그먼트+3D 원 아이콘 아래 파란 CTA 버튼과 펼침 목록"},
+{"file":"토스-05.jpg","screen_kind":"목록","components":["big-title","list-row","illust-3d","badge","section-more"],"other":["포인트 잔액"],"note":"스토어 이미지. 3D 아이콘 원+제목+파란 보조문구 행이 길게 이어진 혜택 목록"},
+{"file":"토스-06.jpg","screen_kind":"홈","components":["card","h-scroller","icon-grid","list-row","tabbar","tooltip-coach","big-number","section-more"],"other":["상단 로고+알림바"],"note":"신한 SOL페이 홈: 파란 헤더, 결제예정금액 카드, 아이콘 바로가기 줄, 하단 5탭"},
+{"file":"토스-07.jpg","screen_kind":"홈","components":["card","big-number","progress","chip-row","badge","section-more","tabbar","fab"],"other":["표 형태 데이터","캐릭터 플로팅"],"note":"자산 관리 앱: 파란 그라데이션 총자산 카드+자산 구성 막대, 섹션별 흰 카드 표"},
+{"file":"토스-08.jpg","screen_kind":"홈","components":["big-title","search-bar","top-tabs","banner-carousel","countdown","h-scroller","bottom-sheet","tabbar","badge","page-dots"],"other":["상단 아이콘 3개"],"note":"혜택 앱 홈: 빨간 테두리 검색창, 큰 이미지 배너(1/14), 타임쿠폰 카운트다운, 하단 팝업"},
+{"file":"당근-00.jpg","screen_kind":"기타","components":["illust-3d"],"other":["스플래시 로고"],"note":"스토어 이미지. 하트 모양 컬러 일러스트와 당근 로고, 슬로건 문구"},
+{"file":"당근-01.jpg","screen_kind":"목록","components":["appbar","chip-row","product-list","photo-thumb","heart-like","price","fab","tabbar","search-bar"],"other":[],"note":"스토어 이미지. 왼쪽 썸네일 중고거래 목록+주황 둥근 + 버튼, 가운데 행이 떠 있는 카드로 강조"},
+{"file":"당근-02.jpg","screen_kind":"홈","components":["appbar","story-circles","chip-row","list-row","photo-thumb","badge","heart-like"],"other":["동네생활 글 목록"],"note":"스토어 이미지. 둥근 사각 썸네일 가로 줄+칩 줄+오른쪽 사진 글 목록"},
+{"file":"당근-03.jpg","screen_kind":"상세","components":["appbar","photo-hero","page-dots","badge","list-row","heart-like","sticky-cta"],"other":["정보 아이콘 행"],"note":"스토어 이미지. 알바 상세: 큰 사진, 태그 배지, 시급·시간 아이콘 행, 하단 전화문의/지원하기 버튼"},
+{"file":"당근-04.jpg","screen_kind":"기타","components":["map","search-bar","bottom-sheet","icon-grid","avatar","fab","tabbar"],"other":["지도 위 업체 핀"],"note":"스토어 이미지. 지도 위 검색창과 하단 시트의 5열 카테고리 아이콘 격자"},
+{"file":"당근-05.jpg","screen_kind":"목록","components":["appbar","sort-filter-bar","strip-banner","product-list","photo-thumb","badge","heart-like"],"other":["필터 개수 표시"],"note":"스토어 이미지. 부동산 직거래 목록: 필터 바, 알림설정 띠, 썸네일+월세 정보 행, 집주인 인증 배지"},
+{"file":"당근-06.jpg","screen_kind":"홈","components":["appbar","search-bar","card","h-scroller","photo-thumb","section-more","rating"],"other":["브랜드 로고 카드"],"note":"스토어 이미지. 중고차 홈: 검색창, 국산차/외제차 카드 2개, 통계 띠, 가로 테마 카드, 매물 사진"},
+{"file":"당근-07.jpg","screen_kind":"기타","components":["appbar","avatar","chat-bubble","badge","photo-thumb","bottom-sheet","list-row"],"other":["상품 요약 헤더","약속잡기/송금 버튼"],"note":"스토어 이미지. 주황 말풍선 채팅과 하단 시트의 당근페이 메뉴"},
+{"file":"당근-08.jpg","screen_kind":"기타","components":["big-title","top-tabs","chip-row","calendar","photo-thumb","tabbar","fab","badge"],"other":["월 이동 화살표","플로팅 알약 탭바"],"note":"기록 앱 라이브러리: 큰 제목, 상단 탭, 필터 칩, 사진이 날짜 칸에 채워지는 달력"},
+{"file":"당근-09.jpg","screen_kind":"홈","components":["card","illust-3d","strip-banner","progress","sticky-cta","fab","tooltip-coach","tabbar","badge"],"other":["단계 체크 진행"],"note":"커뮤니티 앱 홈: 파스텔 카드 2개, 광고 행, 5단계 체크 미션 카드+파란 버튼, 플로팅 질문/답변 버튼"},
+{"file":"당근-10.jpg","screen_kind":"홈","components":["search-bar","icon-grid","page-dots","chip-row","card","strip-banner","banner-carousel","tabbar","illust-3d"],"other":[],"note":"서비스 마켓 홈: 검색창, 흰 카드 안 3D 아이콘 격자+점 표시, 칩 줄, 하단 큰 배너(3/7)"},
+{"file":"당근-11.jpg","screen_kind":"홈","components":["avatar","card","h-scroller","icon-grid","strip-banner","section-more","list-row","badge","tabbar"],"other":["게시판 글 목록 N 배지"],"note":"학교 앱 홈: 둥근 카드 가로 줄, 아이콘 바로가기 줄, 프로모션 띠, 게시판 제목+최신글 목록"}
+]
