@@ -17,6 +17,7 @@ body { background: var(--c-bg); padding: var(--stack-m); display: flex; flex-dir
 .spec-stage .chips { padding: 0; }
 .spec-stage .appbar, .spec-stage .cta, .spec-stage .tabbar, .spec-stage .sheet { position: relative; inset: auto; z-index: auto; }
 .spec-stage .sheet { box-shadow: none; }
+.spec-stage .fab { position: relative; inset: auto; }
 </style>
 </head>
 <body>
@@ -148,6 +149,12 @@ body { background: var(--c-bg); padding: var(--stack-m); display: flex; flex-dir
   <div class="spec-cell"><p class="spec-cap">기본</p><div class="spec-stage is-stretch is-flush">
     <div class="sheet"><p class="h2">이 일정을 지울까요?</p><p class="lead">함께 가는 사람에게도 사라져요</p><button class="btn primary full">지우기</button><button class="btn secondary full">취소</button></div>
   </div></div>
+  <div class="spec-cell"><p class="spec-cap">고르기 · 화면을 벗어나지 않고</p><div class="spec-stage is-stretch is-flush">
+    <div class="sheet" role="dialog" aria-label="수강권 고르기"><span class="sheet-grip"></span><div class="sheet-head"><p class="h2">사용할 수강권</p></div><div class="is-list">
+      <button class="row" role="radio" aria-checked="true"><div class="row-main"><p class="row-title">숨 필라테스 20회권</p><p class="row-sub">10회 남음 · 11.23 만료</p></div><span class="row-trail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span></button>
+      <button class="row" role="radio" aria-checked="false"><div class="row-main"><p class="row-title">체험 1회권</p><p class="row-sub">1회 남음 · 10.31 만료</p></div><span class="row-trail"></span></button>
+    </div></div>
+  </div></div>
 </section>
 
 <section class="spec" data-key="empty" data-title="빈 상태">
@@ -214,6 +221,82 @@ body { background: var(--c-bg); padding: var(--stack-m); display: flex; flex-dir
 <section class="spec" data-key="thumb" data-title="썸네일">
   <div class="spec-cell"><p class="spec-cap">기본 · 56</p><div class="spec-stage"><span class="thumb"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt=""></span></div></div>
   <div class="spec-cell"><p class="spec-cap">크게 · is-l 72</p><div class="spec-stage"><span class="thumb is-l"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt=""></span></div></div>
+</section>
+
+
+<section class="spec" data-key="tabs" data-title="상단 가로 탭">
+  <div class="spec-cell"><p class="spec-cap">같은 화면 안 내용 묶음 · tabs</p><div class="spec-stage is-stretch is-flush is-bg">
+    <nav class="tabs" role="tablist"><a class="tabs-item" role="tab" aria-selected="true" href="#">추천</a><a class="tabs-item" role="tab" aria-selected="false" href="#">랭킹</a><a class="tabs-item" role="tab" aria-selected="false" href="#">새로 나온</a><a class="tabs-item" role="tab" aria-selected="false" href="#">혜택</a></nav>
+  </div></div>
+</section>
+
+<section class="spec" data-key="toolbar" data-title="정렬·필터 바">
+  <div class="spec-cell"><p class="spec-cap">기본 · 필터 2개 켜짐</p><div class="spec-stage is-stretch is-flush">
+    <div class="toolbar"><p class="toolbar-count">1,250개</p><button class="toolbar-btn">추천순<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><button class="toolbar-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>필터 <span class="toolbar-on">2</span></button></div>
+  </div></div>
+</section>
+
+<section class="spec" data-key="menu-grid" data-title="아이콘 격자 메뉴">
+  <div class="spec-cell"><p class="spec-cap">5열 · menu-grid</p><div class="spec-stage is-stretch is-flush">
+    <nav class="menu-grid"><a class="menu-item" href="#"><span><img src="assets/fluent/plane.svg" alt=""></span>항공</a><a class="menu-item" href="#"><span><img src="assets/fluent/hotel.svg" alt=""></span>숙소</a><a class="menu-item" href="#"><span><img src="assets/fluent/car.svg" alt=""></span>렌터카</a><a class="menu-item" href="#"><span><img src="assets/fluent/ticket.svg" alt=""></span>투어</a><a class="menu-item" href="#"><span><img src="assets/fluent/meal.svg" alt=""></span>맛집</a><a class="menu-item" href="#"><span><img src="assets/fluent/coffee.svg" alt=""></span>카페</a><a class="menu-item" href="#"><span><img src="assets/fluent/umbrella.svg" alt=""></span>보험</a><a class="menu-item" href="#"><span><img src="assets/fluent/phone.svg" alt=""></span>유심</a><a class="menu-item" href="#"><span><img src="assets/fluent/luggage.svg" alt=""></span>짐 보관</a><a class="menu-item" href="#"><span><img src="assets/fluent/calendar.svg" alt=""></span>일정</a></nav>
+  </div></div>
+</section>
+
+<section class="spec" data-key="scroller" data-title="가로 스크롤 카드 줄">
+  <div class="spec-cell"><p class="spec-cap">카드 · s-card</p><div class="spec-stage is-stretch is-flush">
+    <div class="scroller"><a class="s-card" href="#"><div class="photo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23CED4DA'/%3E%3C/svg%3E" alt="유후인 료칸 1박 사진"></div><p class="s-title">유후인 료칸 1박</p><p class="s-sub">2인 18만원부터</p></a><a class="s-card" href="#"><div class="photo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt="벳푸 지옥온천 사진"></div><p class="s-title">벳푸 지옥온천</p><p class="s-sub">입장료 2,200엔</p></a><a class="s-card" href="#"><div class="photo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23CED4DA'/%3E%3C/svg%3E" alt="다자이후 산책 사진"></div><p class="s-title">다자이후 산책</p><p class="s-sub">반나절 코스</p></a><a class="s-card" href="#"><div class="photo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt="하카타 야타이 사진"></div><p class="s-title">하카타 야타이</p><p class="s-sub">저녁 7시부터</p></a></div>
+  </div></div>
+  <div class="spec-cell"><p class="spec-cap">동그란 썸네일 · s-circle</p><div class="spec-stage is-stretch is-flush">
+    <div class="scroller"><a class="s-circle" href="#" aria-current="true"><span><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23CED4DA'/%3E%3C/svg%3E" alt=""></span>전체</a><a class="s-circle" href="#"><span><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt=""></span>요가</a><a class="s-circle" href="#"><span><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23CED4DA'/%3E%3C/svg%3E" alt=""></span>필라테스</a><a class="s-circle" href="#"><span><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt=""></span>러닝</a><a class="s-circle" href="#"><span><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23CED4DA'/%3E%3C/svg%3E" alt=""></span>수영</a><a class="s-circle" href="#"><span><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt=""></span>클라이밍</a></div>
+  </div></div>
+</section>
+
+<section class="spec" data-key="product-grid" data-title="상품·콘텐츠 카드 격자">
+  <div class="spec-cell"><p class="spec-cap">2열 · 가격·찜·별점</p><div class="spec-stage is-stretch is-flush">
+    <div class="product-grid"><a class="p-card" href="#"><div class="photo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23CED4DA'/%3E%3C/svg%3E" alt="소도구 필라테스 10회권 사진"><button class="like" aria-pressed="true" aria-label="찜"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div><p class="p-brand">바른몸</p><p class="p-name">소도구 필라테스 10회권</p><p class="price"><span class="price-off">15%</span><span class="price-now">170,000원</span><s class="price-was">200,000원</s></p><p class="p-meta"><span class="rating" role="img" aria-label="5점 중 4.8점"><svg class="is-on" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/></svg></span>4.8 · 후기 312</p></a><a class="p-card" href="#"><div class="photo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt="리포머 1:1 체험 사진"><button class="like" aria-pressed="false" aria-label="찜"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div><p class="p-brand">숨 필라테스</p><p class="p-name">리포머 1:1 체험</p><p class="price"><span class="price-now">35,000원</span></p><p class="p-meta"><span class="rating" role="img" aria-label="5점 중 4.8점"><svg class="is-on" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/></svg></span>4.8 · 후기 312</p></a></div>
+  </div></div>
+</section>
+
+<section class="spec" data-key="price" data-title="가격">
+  <div class="spec-cell"><p class="spec-cap">할인 · 기본</p><div class="spec-stage"><p class="price"><span class="price-off">32%</span><span class="price-now">39,000원</span><s class="price-was">57,000원</s></p><p class="price"><span class="price-now">12,900원</span></p></div></div>
+  <div class="spec-cell"><p class="spec-cap">상세 · is-l</p><div class="spec-stage"><p class="price is-l"><span class="price-off">15%</span><span class="price-now">170,000원</span><s class="price-was">200,000원</s></p></div></div>
+</section>
+
+<section class="spec" data-key="like" data-title="찜·좋아요">
+  <div class="spec-cell"><p class="spec-cap">기본 · 누름</p><div class="spec-stage"><div class="p-meta"><button class="like" aria-pressed="false" aria-label="찜"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>128</button><button class="like" aria-pressed="true" aria-label="찜 취소"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>129</button></div></div></div>
+</section>
+
+<section class="spec" data-key="fab" data-title="떠 있는 버튼">
+  <div class="spec-cell"><p class="spec-cap">글자 · 아이콘만</p><div class="spec-stage is-stretch">
+    <div class="p-meta"><a class="fab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>글쓰기</a><a class="fab" href="#" aria-label="새 일정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a></div>
+  </div></div>
+</section>
+
+<section class="spec" data-key="banner" data-title="넘기는 배너">
+  <div class="spec-cell"><p class="spec-cap">일러스트 · 개수 표시</p><div class="spec-stage is-stretch is-flush is-bg">
+    <a class="banner" href="#"><div class="banner-text"><p class="banner-eyebrow">11월 30일까지</p><p class="banner-title">첫 예약 1만원 할인</p><p class="banner-sub">가입하면 쿠폰이 바로 들어가요</p></div><span class="banner-art"><img src="assets/fluent/ticket.svg" alt=""></span><span class="banner-count">1/4</span></a>
+  </div></div>
+  <div class="spec-cell"><p class="spec-cap">사진 · 점 표시</p><div class="spec-stage is-stretch is-flush is-bg">
+    <a class="banner" href="#"><div class="banner-text"><p class="banner-eyebrow">이번 주 새로 열린 수업</p><p class="banner-title">망원동 저녁 리포머</p></div><span class="banner-art is-photo"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23ADB5BD'/%3E%3C/svg%3E" alt="리포머 수업 사진"></span></a>
+    <div class="dots" aria-hidden="true"><span class="is-on"></span><span></span><span></span></div>
+  </div></div>
+</section>
+
+<section class="spec" data-key="strip" data-title="띠 배너">
+  <div class="spec-cell"><p class="spec-cap">기본</p><div class="spec-stage is-stretch is-flush is-bg">
+    <a class="strip" href="#"><img src="assets/fluent/invite.svg" alt=""><span>친구를 초대하면 둘 다 1회 무료</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+  </div></div>
+</section>
+
+<section class="spec" data-key="coupon" data-title="쿠폰">
+  <div class="spec-cell"><p class="spec-cap">받기 전 · 받은 뒤</p><div class="spec-stage is-stretch">
+    <div class="coupon"><div class="coupon-main"><p class="coupon-amount">10,000원</p><p class="coupon-cond">5만원 이상 · 11월 30일까지</p></div><button class="coupon-get"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>받기</button></div>
+    <div class="coupon is-done"><div class="coupon-main"><p class="coupon-amount">3,000원</p><p class="coupon-cond">첫 예약 · 받은 쿠폰</p></div><span class="coupon-get" aria-disabled="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>받음</span></div>
+  </div></div>
+</section>
+
+<section class="spec" data-key="countdown" data-title="남은 시간">
+  <div class="spec-cell"><p class="spec-cap">기본</p><div class="spec-stage"><p class="row-sub"><span class="countdown" role="timer" aria-label="남은 시간 3시간 25분"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>03:25:13</span> 남음</p></div></div>
 </section>
 
 </body></html>
