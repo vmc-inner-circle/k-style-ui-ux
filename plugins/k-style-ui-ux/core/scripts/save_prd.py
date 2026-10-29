@@ -21,7 +21,7 @@ for f in cands[:3]:
         if d.get("type") != "user": continue
         c = d.get("message", {}).get("content")
         if isinstance(c, list): c = "\n".join(x.get("text", "") for x in c if isinstance(x, dict) and x.get("type") == "text")
-        if isinstance(c, str) and "<command-args>" in c:      # /hyper-design:go <PRD> 로 받은 경우
+        if isinstance(c, str) and "<command-args>" in c:      # /k-style-ui-ux:go <PRD> 로 받은 경우
             c = c.split("<command-args>", 1)[1].rsplit("</command-args>", 1)[0]
         if isinstance(c, str) and "<command-name>" in c and len(c) < 400: continue   # 인자 없는 명령 — 다음 메시지가 PRD
         if isinstance(c, str) and len(c) > 200:

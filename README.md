@@ -1,10 +1,10 @@
-# hyper-design
+# k-style-ui-ux
 
 VIBE MAFIA CLUB 이너서클이 함께 만드는 오픈소스 디자인 하네스 실험 레포입니다.
 
 ## 지금 이 레포의 상태
 
-**하네스톤 개인전(2026-09-30)의 공통 출발점입니다.** 모두가 같은 수준에서 시작하도록, 9/5 하네스톤 2회차 참가자가 받은 빈 템플릿([`b946678`](https://github.com/vmc-inner-circle/hyper-design/tree/b946678))으로 되돌렸습니다. 이번 결과물은 HTML이라 Figma 전제 문구만 최소한으로 고쳤습니다.
+**하네스톤 개인전(2026-09-30)의 공통 출발점입니다.** 모두가 같은 수준에서 시작하도록, 9/5 하네스톤 2회차 참가자가 받은 빈 템플릿([`b946678`](https://github.com/vmc-inner-circle/k-style-ui-ux/tree/b946678))으로 되돌렸습니다. 이번 결과물은 HTML이라 Figma 전제 문구만 최소한으로 고쳤습니다.
 
 - 규칙·제출 방법: [HARNESSTON.md](./HARNESSTON.md)
 - 공통 PRD: [prd/family-trip.md](./prd/family-trip.md)(결과물용) · [prd/wedding-meetup.md](./prd/wedding-meetup.md)(연습용)
@@ -14,8 +14,8 @@ VIBE MAFIA CLUB 이너서클이 함께 만드는 오픈소스 디자인 하네�
 
 harnessthon-2-team-3 판본을 이식해 다듬던 기존 하네스(`apps/harness`)는 아래에 보존되어 있습니다.
 
-- 브랜치: [`archive/v1-team3`](https://github.com/vmc-inner-circle/hyper-design/tree/archive/v1-team3)
-- 태그: [`v1-team3-final`](https://github.com/vmc-inner-circle/hyper-design/tree/v1-team3-final)
+- 브랜치: [`archive/v1-team3`](https://github.com/vmc-inner-circle/k-style-ui-ux/tree/archive/v1-team3)
+- 태그: [`v1-team3-final`](https://github.com/vmc-inner-circle/k-style-ui-ux/tree/v1-team3-final)
 - v1 기준으로 열려 있던 PR(#6·#7·#8)은 base를 `archive/v1-team3`로 옮겨 보존했습니다.
 
 ## 기여 규칙
@@ -24,7 +24,7 @@ harnessthon-2-team-3 판본을 이식해 다듬던 기존 하네스(`apps/harnes
 
 ---
 
-> **이 브랜치(sprint/v8-aesthetics)**: 하네스가 Claude Code 플러그인 `hyper-design`으로 바뀌었습니다 — `/hyper-design:go`(1차), `/hyper-design:max`(2차). 설치·사용법은 [plugins/hyper-design/README.md](./plugins/hyper-design/README.md), 자동 개선 루프 기록은 [loop/RESULTS.md](./loop/RESULTS.md).
+> **지금 하네스(PR #17로 병합)**: Claude Code 플러그인 `k-style-ui-ux`(옛 이름 hyper-design)입니다 — `/k-style-ui-ux:go`(1차), `/k-style-ui-ux:max`(2차). 설치·사용법은 [plugins/k-style-ui-ux/README.md](./plugins/k-style-ui-ux/README.md), 자동 개선 루프 기록은 [loop/RESULTS.md](./loop/RESULTS.md).
 
 ## 하네스 템플릿 — oss-design-harness
 

@@ -56,7 +56,7 @@ for s in S:
     if t.get("shares"): exp.add("done")
     if t.get("long_task"): exp.add("progress")
     exp |= RULE_ST.get(s["id"], set())
-    if m.get("stage") == "go": exp &= {"done"}          # 1차는 결과 화면만 — 나머지는 /hyper-design:max
+    if m.get("stage") == "go": exp &= {"done"}          # 1차는 결과 화면만 — 나머지는 /k-style-ui-ux:max
     if "large_list" not in t and s.get("kind") == "list" and "--" not in s["id"]: errs.append(f'{s["id"]}: traits.large_list(30개 넘게 쌓이는 목록인가) 미선언')
     if "--" not in s["id"]:
         decl = set(s.get("states", []) or [])

@@ -10,7 +10,7 @@ python3 openverse.py pick out <slot> <번호> [--ratio 3:4] [--blur-faces]
 import sys, json, hashlib, pathlib, urllib.request, urllib.parse, io, argparse
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 API = "https://api.openverse.org/v1/images/"
-UA = {"User-Agent": "Mozilla/5.0 (hyper-design harness)"}
+UA = {"User-Agent": "Mozilla/5.0 (k-style-ui-ux harness)"}
 CACHE = pathlib.Path.home() / ".cache/hd-openverse"; CACHE.mkdir(parents=True, exist_ok=True)
 RAT = {"3:4": (3, 4), "1:1": (1, 1), "4:3": (4, 3), "16:9": (16, 9), "9:16": (9, 16), "4:5": (4, 5)}
 
