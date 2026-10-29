@@ -1,7 +1,10 @@
 import json,glob,collections,re
+import os
+D=os.path.dirname(os.path.abspath(__file__))
+KEEP=set(json.load(open(D+'/keep.json')))
 ref=[];ours=[]
-for f in glob.glob(__import__('os').path.dirname(__file__)+'/*.json'):
-    d=json.load(open(f)); (ours if f.endswith('ours.json') else ref).extend(d)
+for f in [f for f in glob.glob(D+'/*.json') if not f.endswith('keep.json')]:
+    d=json.load(open(f)); (ours if f.endswith('ours.json') else ref).extend(d if f.endswith('ours.json') else [x for x in d if x['file'].split('/')[-1] in KEEP])
 def app(x): return re.split(r'-\d',x['file'].split('/')[-1])[0]
 apps=collections.defaultdict(list)
 for x in ref: apps[app(x)].append(x)
