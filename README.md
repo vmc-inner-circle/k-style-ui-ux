@@ -2,6 +2,17 @@
 
 VIBE MAFIA CLUB 이너서클이 함께 만드는 오픈소스 디자인 하네스 실험 레포입니다.
 
+## 설치
+
+Claude Code에서:
+```
+/plugin marketplace add vmc-inner-circle/k-style-ui-ux
+/plugin install k-style-ui-ux@k-style-ui-ux
+```
+로컬에서 바로 써 보려면: `claude --plugin-dir <이 저장소>/plugins/k-style-ui-ux`
+
+실행: `/k-style-ui-ux:go <PRD 파일 경로>`(1차, 약 15분) → `/k-style-ui-ux:max`(오류·확인창·빈 화면 같은 상태 화면 추가, 약 10분). 결과는 실행한 폴더의 `out/index.html`. 자세한 내용은 [plugins/k-style-ui-ux/README.md](./plugins/k-style-ui-ux/README.md).
+
 ## 지금 이 레포의 상태
 
 **하네스톤 개인전(2026-09-30)의 공통 출발점입니다.** 모두가 같은 수준에서 시작하도록, 9/5 하네스톤 2회차 참가자가 받은 빈 템플릿([`b946678`](https://github.com/vmc-inner-circle/k-style-ui-ux/tree/b946678))으로 되돌렸습니다. 이번 결과물은 HTML이라 Figma 전제 문구만 최소한으로 고쳤습니다.
