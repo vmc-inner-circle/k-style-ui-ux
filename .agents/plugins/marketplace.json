@@ -1,0 +1,20 @@
+{
+  "name": "hyper-design",
+  "interface": {
+    "displayName": "hyper-design"
+  },
+  "plugins": [
+    {
+      "name": "hyper-design",
+      "source": {
+        "source": "local",
+        "path": "./plugins/hyper-design"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Design"
+    }
+  ]
+}

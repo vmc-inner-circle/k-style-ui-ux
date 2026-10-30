@@ -1,6 +1,6 @@
 # hyper-design — PRD 한 장으로 모바일 앱 디자인
 
-Claude Code 플러그인. PRD(기획 문서)를 주면 모바일 앱 HTML 화면들과 한눈에 보는 캔버스를 만든다.
+Claude Code·Codex 플러그인. PRD(기획 문서)를 주면 모바일 앱 HTML 화면들과 한눈에 보는 캔버스를 만든다.
 
 ## 설치
 
@@ -11,7 +11,16 @@ Claude Code에서:
 ```
 로컬에서 바로 써 보려면: `claude --plugin-dir <이 저장소>/plugins/hyper-design`
 
+Codex에서:
+```
+codex plugin marketplace add vmc-inner-circle/hyper-design
+codex plugin add hyper-design@hyper-design
+```
+업데이트: Claude Code `/plugin marketplace update hyper-design`, Codex `codex plugin marketplace upgrade hyper-design`.
+
 ## 명령
+
+Claude Code는 `/hyper-design:go`·`/hyper-design:max`, Codex는 `$hyper-design:go`·`$hyper-design:max`로 부른다(아래 표는 Claude Code 표기).
 
 | 명령 | 하는 일 | 시간 |
 |---|---|---|
@@ -33,9 +42,17 @@ PRD만 붙여넣고 "화면 만들어줘"라고 해도 `go`가 실행된다. PRD
 
 ## 구조
 
+폴더 하나를 Claude Code와 Codex가 함께 설치한다 — 사본·빌드 없음.
+
 ```
 plugins/hyper-design/
-  skills/go/SKILL.md     # 1차
-  skills/max/SKILL.md    # 2차
-  core/                  # 공용 — foundation(토큰·부품·팔레트·시드), scripts(검사·캔버스·이미지 검색), references(원칙·체크리스트·명세·이미지)
+  .claude-plugin/plugin.json   # Claude Code manifest
+  .codex-plugin/plugin.json    # Codex manifest
+  plugin.json                  # Agent Plugins 1.0 manifest(최신 Codex가 먼저 읽는다)
+  skills/go/SKILL.md           # 1차
+  skills/max/SKILL.md          # 2차
+  skills/*/agents/openai.yaml  # Codex 표시 이름·기본 프롬프트(Claude는 무시)
+  core/                        # 공용 — foundation(토큰·부품·팔레트·시드), scripts(검사·캔버스·이미지 검색), references(원칙·체크리스트·명세·이미지)
 ```
+
+마켓 파일: `.claude-plugin/marketplace.json`(Claude) · `.agents/plugins/marketplace.json`(Codex) — 둘 다 이 폴더를 가리킨다. 버전을 올릴 때는 manifest 3개와 `CHANGELOG.md` 맨 위를 함께 바꾼다 — PR마다 CI(`ci/verify.py`)가 어긋남을 잡는다.

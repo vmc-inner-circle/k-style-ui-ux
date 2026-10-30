@@ -5,7 +5,7 @@ description: hyper-design의 끝까지 버전 — 1차(모든 흐름의 처음�
 
 # hyper-design:max — 2차: 상태·예외까지
 
-**경로**: 이 스킬을 불러올 때 표시되는 Base directory의 `../../core`가 공용 폴더다. 맨 처음 `SK=$(cd "<Base directory>/../../core" && pwd)`, 1차 지시문은 `<Base directory>/../go/SKILL.md`.
+**경로**: 이 SKILL.md가 있는 폴더(`<스킬 폴더>` — Claude Code는 Base directory로 보여 준다)의 `../../core`가 공용 폴더다. 맨 처음 `SK=$(cd "<스킬 폴더>/../../core" && pwd -P)`, 1차 지시문은 `<스킬 폴더>/../go/SKILL.md` — 그 맨 위 "에이전트마다 다른 것"(동시에 띄우기·모델 등급)을 여기서도 따른다.
 
 ## 0. 어디서 시작하나
 - `out/screens.json`이 있고 `"stage": "go"`면 → **1차는 끝났다. 바로 2차로.** 첫 줄: "1차 위에 상태 화면을 더할게요. 10분쯤 걸려요."
