@@ -16,7 +16,7 @@
 ```
 
 ## 골격
-- 큰 머리글(홈·목록 첫 화면): `<header class="hero"><p class="eyebrow">…</p><h1 class="title">…</h1><p class="lead">…</p></header>` · 이동 링크는 `<a class="hero-more">…›</a>`
+- 큰 머리글 — "이 화면을 열자마자 알려야 할 지금 상태가 한 문장으로 있는가?"(출발 3일 전·오늘 수업 2개). 없으면 앱바(로고·지역·검색)로 시작하고, 홈 맨 위는 시장 관례(`conventions.json` 홈 `follow`)의 첫 블록(검색·상단 탭·배너·격자)을 따른다. `<header class="hero"><p class="eyebrow">…</p><h1 class="title">…</h1><p class="lead">…</p></header>` · 이동 링크는 `<a class="hero-more">…›</a>`
 - 앱바(들어간 화면): `<header class="appbar"><a class="appbar-btn" href="…" aria-label="뒤로">(선 아이콘)</a><h1 class="appbar-title">…</h1><span></span></header>`
 - 본문: `<main class="page">` 안에 `<section class="block">`(흰 블록) / `<section class="block is-list">`(목록 블록). 블록 제목 `<div class="block-head"><h2 class="h2">…</h2><a class="block-link">…</a></div>`
 - `h1`은 화면당 정확히 1개.
@@ -63,6 +63,8 @@
 - 입력 순서: 뒤 입력의 규칙을 바꾸는 선택(예: 1:1인지, 누구와 함께인지)은 **앞에**.
 - 검색(목록이 30개를 넘을 수 있으면 목록 블록 맨 위): `<label class="search">(돋보기 선 아이콘)<input type="search" placeholder="이름으로 찾기"></label>` + 그 아래 걸러 보는 칩(전체·아직 모임 없음 등). **제목이 "~ 23명"처럼 일부를 약속하면 그 칩이 선택된 모습으로 23명만 보여 준다.**
 세그먼트: `<div class="seg" role="radiogroup"><button class="seg-item is-selected" role="radio" aria-checked="true">…</button>…</div>` · 칩: `<div class="chips"><button class="chip is-selected">…</button></div>`
+- **세그먼트** — "같은 내용을 2~4가지 방식으로 바꿔 보거나(목록/지도·예정/지난), 짧은 값 2~4개 중 하나를 고르는가?"(성별·양력/음력). 5개 이상이면 시트로 고르기·가로 날짜 줄·칩. 세그먼트를 여러 줄 쌓아 격자를 만들지 않는다(12지시처럼 많으면 고르기 시트).
+- **칩** — "이 목록을 사용자가 직접 좁히거나, 짧은 태그를 여러 개 고르는가?"(전체·오전·체험 가능 / 좋았던 점). 라벨은 **10자 이하 낱말**. 문장(추천 질문·제안 문구)은 칩이 아니라 목록 행(`row`)이나 버튼으로. 한 줄에 8개를 넘기면 묶음을 나누거나 필터 시트로. 걸러 보기 칩 사이에 행동("+ 새 무리"·"관리")을 섞지 않는다 — 행동은 `block-link`나 `row is-add`. (selfcheck가 라벨 길이·칸 수·쌓기를 잰다)
 
 ## 기타
 - 부가 정보 한 줄: `<p class="info"><img src="../assets/fluent/weather.svg" alt=""><span>…</span></p>`

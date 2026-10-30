@@ -8,6 +8,7 @@ python3 derive.py --brand "#1B64DA" --tone neutral --shape normal --density comf
   어떤 공용 부품도 이 토큰을 쓰지 않는다 — .accent-text·.accent-dot 두 부품만. 없으면 브랜드 글자색으로 대신한다.
 - 타이포: 폰트별 세트. 제목÷본문 ≥ 1.5, 굵기 차 ≥ 200. 큰 글자 화면(.text-large)은 본문 계열만 한 단계 크게 — 편집하지 않는 사람의 기본값. 역할 이름을 붙이지 않는다.
 - 여백: 4pt 스케일 위 "넉넉한 기본값". 밀도 comfy/normal.
+- 모양: 팔레트에 실측 둥글기(`shape`)가 있으면 그 값, 없으면 --shape. 팔레트를 바꾸면 색과 둥글기가 함께 바뀐다.
 """
 import argparse, colorsys, sys, pathlib
 
@@ -170,6 +171,8 @@ def from_palette(path):
 def derive(brand_hex, tone, shape, density, font, palette=None):
     if palette:
         c, big, notes, P = from_palette(palette)
+        if P.get("shape"):                                # 그 서비스에서 잰 둥글기(palettes/README.md) — 색과 함께 바뀐다
+            shape = (P["shape"]["r_s"], P["shape"]["r_m"], P["shape"]["r_l"])
         return render_css(c, big, notes, f"palette {P['name']}", shape, density, font)
     if tone == "brand":                                   # 브랜드 색상각으로 아주 옅게 물든 바탕(브랜드 정체성) — 시드 팔레트 기본
         import colorsys as _cs
@@ -206,7 +209,8 @@ def render_css(c, big, notes, label, shape, density, font):
     bg, surface, line, text1, text2, text3 = c["bg"], c["surface"], c["line"], c["text1"], c["text2"], c["text3"]
     brand, on_brand, brand_text, brand_tint, brand_tint_text = c["brand"], c["on_brand"], c["brand_text"], c["brand_tint"], c["brand_tint_text"]
     danger, danger_tint = c["danger"], c["danger_tint"]
-    r = SHAPES[shape]; d = DENSITY[density]; f = FONTS[font]
+    r = shape if isinstance(shape, tuple) else SHAPES[shape]; d = DENSITY[density]; f = FONTS[font]
+    shape = f"{r[0]}/{r[1]}/{r[2]}" if isinstance(shape, tuple) else shape
     checks = {
         "text-1/bg": contrast(text1, bg), "text-2/bg": contrast(text2, bg), "text-3/bg": contrast(text3, bg),
         "text-3/surface": contrast(text3, surface), ("on-brand/brand(큰 글씨 ≥3)" if big else "on-brand/brand"): contrast(on_brand, brand),
