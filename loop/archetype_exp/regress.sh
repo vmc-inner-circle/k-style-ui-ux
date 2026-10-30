@@ -12,6 +12,16 @@ done
 for p in family-trip pilates-booking wedding-meetup ai-saju; do
   python3 "$ROOT/loop/evaluate.py" "$B/branch-$p" "$ROOT/loop/results/v21-$p/prd.md" "$B/main-$p" > "$B/eval-$p.log" 2>&1 &
 done; wait
-for p in family-trip pilates-booking wedding-meetup ai-saju; do
-  echo "== $p  main $(grep -o '[0-9.]*분' $B/main-$p/elapsed.txt | head -1) · 브랜치 $(grep -o '[0-9.]*분' $B/branch-$p/elapsed.txt | head -1) · 비교(브랜치 승) $(grep -l 'WINNER' $B/branch-$p/compare-*.txt 2>/dev/null | while read f; do h=$(head -1 $f); w=$(grep -o 'WINNER: [XY]' $f | tail -1 | cut -c9); case "$h$w" in "X=harness Y=vanilla"X|"X=vanilla Y=harness"Y) echo 1;; esac; done | wc -l)/5"
-done
+python3 - "$B" <<'PY'
+import sys, pathlib, re
+B = pathlib.Path(sys.argv[1])
+for p in ("family-trip", "pilates-booking", "wedding-meetup", "ai-saju"):
+    t = {s: (re.findall(r"([0-9.]+)분", (B / f"{s}-{p}/elapsed.txt").read_text()) or ["?"])[0] if (B / f"{s}-{p}/elapsed.txt").exists() else "?" for s in ("main", "branch")}
+    win = n = 0
+    for f in sorted((B / f"branch-{p}").glob("compare-*.txt")):
+        txt = f.read_text(); w = re.findall(r"WINNER: ([XY])", txt)
+        if not w: continue
+        n += 1; harness = "X" if txt.startswith("X=harness") else "Y"   # evaluate.py: harness = 이 브랜치, vanilla = main
+        win += w[-1] == harness
+    print(f"== {p}  main {t['main']}분 · 브랜치 {t['branch']}분 · 블라인드 비교 브랜치 승 {win}/{n}")
+PY
