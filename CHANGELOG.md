@@ -2,6 +2,11 @@
 
 버전은 `plugins/k-style-ui-ux/`의 manifest 3개(`.claude-plugin/plugin.json`·`.codex-plugin/plugin.json`·`plugin.json`)와 이 파일 맨 위 항목이 같아야 한다(`ci/verify.py`가 검사).
 
+## v0.17.1
+
+- `audit.py`에 한국어 줄바꿈 실측: 글자 하나하나의 실제 위치로 줄을 되살려 어절 쪼개짐(`word_split`)·칸 넘침(`box_overflow`)은 실패로, 마지막 줄 한두 글자(`last_line_orphan`)는 보고만. 셈은 hanmariyang/giting-skills의 hangul-wrap(`wrapcheck.mjs`, MIT)에서 옮겼다. v19 4개 앱에서 audit 시간 +4~7초/앱.
+- `.row-date`를 고정 폭(52px) 대신 `min-width`로: `11/16 (월)`·`10월 30일`이 칸을 6~12px 넘겨 옆 제목에 붙던 것(v19 필라테스·사주 9건)이 0건.
+
 ## v0.17.0
 
 - 이름: hyper-design → k-style-ui-ux(플러그인 폴더·마켓·명령어). 지난 결과 기록(`loop/results`, `loop/RESULTS.md`, `demos/`)은 당시 이름 그대로.
