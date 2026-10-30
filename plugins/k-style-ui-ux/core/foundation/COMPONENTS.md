@@ -16,7 +16,7 @@
 ```
 
 ## 골격
-- 큰 머리글 — "이 화면을 열자마자 알려야 할 지금 상태가 한 문장으로 있는가?"(출발 3일 전·오늘 수업 2개). 없으면 앱바(로고·지역·검색)로 시작하고, 홈 맨 위는 시장 관례(`conventions.json` 홈 `follow`)의 첫 블록(검색·상단 탭·배너·격자)을 따른다. `<header class="hero"><p class="eyebrow">…</p><h1 class="title">…</h1><p class="lead">…</p></header>` · 이동 링크는 `<a class="hero-more">…›</a>`
+- 큰 머리글(홈·목록 첫 화면): `<header class="hero"><p class="eyebrow">…</p><h1 class="title">…</h1><p class="lead">…</p></header>` · 이동 링크는 `<a class="hero-more">…›</a>`
 - 앱바(들어간 화면): `<header class="appbar"><a class="appbar-btn" href="…" aria-label="뒤로">(선 아이콘)</a><h1 class="appbar-title">…</h1><span></span></header>`
 - 본문: `<main class="page">` 안에 `<section class="block">`(흰 블록) / `<section class="block is-list">`(목록 블록). 블록 제목 `<div class="block-head"><h2 class="h2">…</h2><a class="block-link">…</a></div>`
 - `h1`은 화면당 정확히 1개.

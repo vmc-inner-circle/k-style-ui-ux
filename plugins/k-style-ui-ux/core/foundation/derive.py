@@ -8,7 +8,7 @@ python3 derive.py --brand "#1B64DA" --tone neutral --shape normal --density comf
   어떤 공용 부품도 이 토큰을 쓰지 않는다 — .accent-text·.accent-dot 두 부품만. 없으면 브랜드 글자색으로 대신한다.
 - 타이포: 폰트별 세트. 제목÷본문 ≥ 1.5, 굵기 차 ≥ 200. 큰 글자 화면(.text-large)은 본문 계열만 한 단계 크게 — 편집하지 않는 사람의 기본값. 역할 이름을 붙이지 않는다.
 - 여백: 4pt 스케일 위 "넉넉한 기본값". 밀도 comfy/normal.
-- 모양: 팔레트에 실측 둥글기(`shape`)가 있으면 그 값, 없으면 --shape. 팔레트를 바꾸면 색과 둥글기가 함께 바뀐다.
+- 모양: 팔레트·시드에 실측 둥글기(`shape`)가 있으면 그 값(시드는 --radius), 없으면 --shape. 팔레트를 바꾸면 색과 둥글기가 함께 바뀐다.
 """
 import argparse, colorsys, sys, pathlib
 
@@ -299,8 +299,10 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--brand"); ap.add_argument("--palette", help="palettes/*.json — 실제 서비스 팔레트에서 역할 색을 고른다"); ap.add_argument("--tone", default="neutral", choices=list(TONES) + ["brand"])
     ap.add_argument("--shape", default="normal", choices=SHAPES); ap.add_argument("--density", default="comfy", choices=DENSITY)
+    ap.add_argument("--radius", help="실측 둥글기 r_s,r_m,r_l(px) — --shape 대신(브랜드 시드)")
     ap.add_argument("--font", default="pretendard", choices=FONTS); ap.add_argument("-o", "--out", required=True)
     a = ap.parse_args()
+    if a.radius: a.shape = tuple(int(x) for x in a.radius.split(","))
     css, checks, notes = derive(a.brand, a.tone, a.shape, a.density, a.font, a.palette)
     pathlib.Path(a.out).parent.mkdir(parents=True, exist_ok=True); pathlib.Path(a.out).write_text(css, encoding="utf-8")
     bad = {k: v for k, v in checks.items() if v < (3 if "큰 글씨" in k or "≥3" in k else 4.5)}
