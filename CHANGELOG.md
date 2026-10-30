@@ -2,6 +2,13 @@
 
 버전은 `plugins/k-style-ui-ux/`의 manifest 3개(`.claude-plugin/plugin.json`·`.codex-plugin/plugin.json`·`plugin.json`)와 이 파일 맨 위 항목이 같아야 한다(`ci/verify.py`가 검사).
 
+## v0.19.0
+
+- 팔레트 도메인 공백 메우기: 시드 후보 실측 추가(토스·카카오뱅크·케이뱅크·치지직·카카오모빌리티·티맵·밴드·멜론·FLO)와 브랜드 가이드 색(Discord·Facebook·Threads·X), 도메인 동의어. 색이 비슷해도 도메인이 다르면 남긴다. 유형 실험 6개 앱 중 5개가 "맞는 도메인 없음"으로 성격 낱말만 보고 골라 택시 앱에 뷰티 앱 청록이 들어가던 것.
+- 밝은 브랜드(카카오 노랑·배민 민트·치지직 초록): 면은 원색, 버튼 글자·선·링크는 먹색(`--c-brand-line` 토큰 추가). 전에는 어둡게 해 올리브색이 되거나 시드에서 빠졌다. 모노 시드(Threads·X)도 받는다.
+- 시드 기본값일 때 대안을 점수 순으로(전에는 늘 당근·마이리얼트립, 이유 없음), 시드 도메인 점수는 맞은 낱말마다 3, 재거르기 때 승인 시드의 손 값 보존.
+- 화면 유형 PR(v0.18.0) 다음에 병합한다.
+
 ## v0.17.1
 
 - `audit.py`에 한국어 줄바꿈 실측: 글자 하나하나의 실제 위치로 줄을 되살려 어절 쪼개짐(`word_split`)·칸 넘침(`box_overflow`)은 실패로, 마지막 줄 한두 글자(`last_line_orphan`)는 보고만. 셈은 hanmariyang/giting-skills의 hangul-wrap(`wrapcheck.mjs`, MIT)에서 옮겼다. v19 4개 앱에서 audit 시간 +4~7초/앱.

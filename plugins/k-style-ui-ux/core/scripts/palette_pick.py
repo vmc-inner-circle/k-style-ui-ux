@@ -66,8 +66,8 @@ def main():
         if sc and sc[0][0] > 0:
             def seed_tokens(sd):
                 slug = "seed-" + sd["slug"]
-                subprocess.run([sys.executable, str(HERE / "derive.py"), "--brand", sd["hex"], "--tone", "brand"] + (["--radius", ",".join(str(sd["shape"][k]) for k in ("r_s", "r_m", "r_l"))] if sd.get("shape") else []) + ["-o", str(out / f"tokens-{slug}.css")], check=True, capture_output=True)
-                pals[slug] = {"name": sd["name"], "scales": {"b": {"s": sd["hex"]}}, "brand": "b", "brand_step": "s", "source": "브랜드 시드(" + sd.get("source", "") + ")"}
+                subprocess.run([sys.executable, str(HERE / "derive.py"), "--brand", sd["hex"], "--tone", "neutral" if sd.get("mono") else "brand"] + (["--radius", ",".join(str(sd["shape"][k]) for k in ("r_s", "r_m", "r_l"))] if sd.get("shape") else []) + ["-o", str(out / f"tokens-{slug}.css")], check=True, capture_output=True)
+                pals[slug] = {"name": sd["name"], "scales": {"b": {"s": sd["hex"]}}, "brand": "b", "brand_step": "s", "source": "브랜드 시드(" + sd.get("source", "") + ")", "mono": bool(sd.get("mono"))}
                 return slug
             v, sd, why = sc[0]; default = seed_tokens(sd)
             scored.insert(0, (v, default, ["라이브러리에 맞는 도메인이 없어 시드로 만듦"] + why))
@@ -76,7 +76,7 @@ def main():
             pool.sort(key=lambda x: (-x[0], -x[1]))
             picks = [default]; mono_used = False
             for s0, is_lib, x, w in pool:
-                hx = hex2rgb(x["hex"]) if not is_lib else (None if pals[x].get("mono") else brand_of(pals[x]))
+                hx = (None if x.get("mono") else hex2rgb(x["hex"])) if not is_lib else (None if pals[x].get("mono") else brand_of(pals[x]))
                 if hx is None:
                     if mono_used: continue
                     mono_used = True

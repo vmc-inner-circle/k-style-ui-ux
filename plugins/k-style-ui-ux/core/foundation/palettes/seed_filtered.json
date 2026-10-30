@@ -72,6 +72,19 @@
   "tone": "neutral"
  },
  {
+  "slug": "baemin",
+  "name": "배달의민족",
+  "hex": "#0CEFD3",
+  "domains": [
+   "음식",
+   "배달"
+  ],
+  "source": "https://www.baemin.com",
+  "confidence": "high",
+  "bright": true,
+  "tone": "cool"
+ },
+ {
   "slug": "yanolja",
   "name": "야놀자",
   "hex": "#4154FF",
@@ -123,6 +136,20 @@
   "source": "https://soomgo.com",
   "confidence": "mid",
   "tone": "cool"
+ },
+ {
+  "slug": "millie",
+  "name": "밀리의서재",
+  "hex": "#FFC004",
+  "domains": [
+   "도서",
+   "독서",
+   "콘텐츠"
+  ],
+  "source": "https://www.millie.co.kr",
+  "confidence": "mid",
+  "bright": true,
+  "tone": "warm"
  },
  {
   "slug": "ridibooks",
@@ -245,6 +272,21 @@
   "source": "https://www.naver.com",
   "confidence": "high",
   "tone": "neutral"
+ },
+ {
+  "slug": "kakao",
+  "name": "카카오",
+  "hex": "#FAE100",
+  "domains": [
+   "메신저",
+   "대화",
+   "소셜",
+   "플랫폼"
+  ],
+  "source": "https://www.kakaocorp.com",
+  "confidence": "mid",
+  "bright": true,
+  "tone": "warm"
  },
  {
   "slug": "coupangeats",
@@ -400,6 +442,47 @@
   "tone": "cool"
  },
  {
+  "slug": "kakaobank",
+  "name": "카카오뱅크",
+  "hex": "#FFE300",
+  "domains": [
+   "금융",
+   "은행"
+  ],
+  "source": "https://www.kakaobank.com",
+  "confidence": "high",
+  "bright": true,
+  "tone": "warm"
+ },
+ {
+  "slug": "chzzk",
+  "name": "치지직",
+  "hex": "#00E693",
+  "domains": [
+   "방송",
+   "영상",
+   "라이브"
+  ],
+  "source": "https://chzzk.naver.com",
+  "confidence": "mid",
+  "bright": true,
+  "tone": "neutral"
+ },
+ {
+  "slug": "band",
+  "name": "밴드",
+  "hex": "#00EC64",
+  "domains": [
+   "커뮤니티",
+   "모임",
+   "메신저"
+  ],
+  "source": "https://band.us",
+  "confidence": "low",
+  "bright": true,
+  "tone": "neutral"
+ },
+ {
   "slug": "flo",
   "name": "FLO",
   "hex": "#3F3FFF",
@@ -535,5 +618,43 @@
   ],
   "source": "Twitch 브랜드 가이드",
   "tone": "cool"
+ },
+ {
+  "slug": "discord",
+  "name": "Discord 블러플",
+  "hex": "#5865F2",
+  "domains": [
+   "메신저",
+   "커뮤니티",
+   "게임",
+   "대화"
+  ],
+  "source": "Discord 브랜드 가이드",
+  "tone": "cool"
+ },
+ {
+  "slug": "facebook",
+  "name": "Facebook 블루",
+  "hex": "#0866FF",
+  "domains": [
+   "SNS",
+   "소셜"
+  ],
+  "source": "Meta 브랜드 가이드(2023)",
+  "tone": "cool"
+ },
+ {
+  "slug": "threads",
+  "name": "Threads",
+  "hex": "#000000",
+  "domains": [
+   "SNS",
+   "소셜",
+   "커뮤니티",
+   "글"
+  ],
+  "source": "Threads 로고·화면(검정)",
+  "mono": true,
+  "tone": "warm"
  }
 ]

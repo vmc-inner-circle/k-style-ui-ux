@@ -4,21 +4,13 @@ python3 seed_sheet.py                 → foundation/palettes/seed-sheet.png + s
 python3 seed_sheet.py --approve "3,7"  → 3·7번을 뺀 나머지를 seeds.json으로(사람 승인)
 
 후보: palettes/seed_candidates.json(실제 서비스 웹에서 측정) + 라이브러리 10곳 브랜드색 + palettes/seed_extra.json(디자이너 결과물 등)
-거르기: 흰 글자 대비 ≥3(또는 3까지 어둡게 해도 원색과 거의 같음) · OKLCH 채도 C ≥ 0.08 · 명도 L 0.35~0.78 · 오류 빨강과 색상각 15° 이내 제외 · 도메인이 겹치는 것끼리 ΔE(OKLab×100) < 8이면 하나만 · 밝은 색은 3:1까지 어둡게 해도 ΔE ≤ 16이면 통과(어둡게 한 값으로)
+거르기: 흰 글자 대비 ≥3(또는 3까지 어둡게 해도 원색과 거의 같음, 아니면 먹색 글자 4.5 이상인 밝은 브랜드 — bright) · OKLCH 채도 C ≥ 0.08 · 명도 L 0.35~0.78 · 오류 빨강과 색상각 15° 이내 제외 · 도메인이 겹치는 것끼리 ΔE(OKLab×100) < 8이면 하나만 · 밝은 색은 3:1까지 어둡게 해도 ΔE ≤ 16이면 통과(어둡게 한 값으로)
 """
 import sys, json, math, pathlib, subprocess, argparse, colorsys
 HERE = pathlib.Path(__file__).resolve().parent.parent / "foundation"
-sys.path.insert(0, str(HERE)); from derive import hex2rgb, rgb2hex, contrast, darken_until   # noqa
+sys.path.insert(0, str(HERE)); from derive import hex2rgb, rgb2hex, contrast, darken_until, oklch, de, bright_ok   # noqa
 P = HERE / "palettes"
 
-def lin(c): return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
-def oklch(rgb):
-    r, g, b = (lin(x) for x in rgb)
-    l = 0.4122214708*r + 0.5363325363*g + 0.0514459929*b; m = 0.2119034982*r + 0.6806995451*g + 0.1073969566*b; s = 0.0883024619*r + 0.2817188376*g + 0.6299787005*b
-    l, m, s = (x ** (1/3) for x in (l, m, s))
-    L = 0.2104542553*l + 0.7936177850*m - 0.0040720468*s; A = 1.9779984951*l - 2.4285922050*m + 0.4505937099*s; B = 0.0259040371*l + 0.7827717662*m - 0.8086757660*s
-    return L, math.hypot(A, B), (math.degrees(math.atan2(B, A)) % 360), (L, A, B)
-def de(a, b): return math.dist(oklch(a)[3], oklch(b)[3]) * 100
 def hue(rgb): return colorsys.rgb_to_hls(*rgb)[0] * 360
 def hgap(a, b): d = abs(hue(a) - hue(b)) % 360; return min(d, 360 - d)
 RED = hex2rgb("#E5484D")
@@ -54,11 +46,12 @@ def filt(c):
         why = None
         if contrast((1, 1, 1), rgb) < 3:
             d = darken_until(rgb, (1, 1, 1), 3)
-            if de(d, rgb) > 16: why = f"흰 글자 대비 {contrast((1,1,1), rgb):.1f}"
-            else: x["hex"] = rgb2hex(d).upper(); rgb = d; L, C, H, _ = oklch(rgb)
-        if not why and C < 0.08: why = f"탁함(C {C:.3f})"
-        if not why and not (0.35 <= L <= 0.78): why = f"명도 L {L:.2f}"
-        if not why and hgap(rgb, RED) < 15: why = "오류 빨강과 겹침"
+            if de(d, rgb) <= 16: x["hex"] = rgb2hex(d).upper(); rgb = d; L, C, H, _ = oklch(rgb)
+            elif bright_ok(rgb): x["bright"] = True        # 노랑처럼 어둡게 하면 다른 색이 되는 밝은 브랜드 — 면은 그대로, 버튼 글자·선은 먹색(derive.py)
+            else: why = f"흰 글자 대비 {contrast((1,1,1), rgb):.1f}"
+        if not why and C < 0.08 and not x.get("mono"): why = f"탁함(C {C:.3f})"
+        if not why and not (0.35 <= L <= 0.78) and not x.get("bright") and not x.get("mono"): why = f"명도 L {L:.2f}"
+        if not why and hgap(rgb, RED) < 15 and not x.get("mono"): why = "오류 빨강과 겹침"
         if not why:
             # 같은 도메인끼리만 하나로 — 색이 비슷해도 도메인이 다르면 남긴다(전에는 쏘카·Spotify·쿠팡이츠가 빠지면서 모빌리티·음악·음식 도메인이 통째로 사라졌다)
             dup = next((k for k in keep if de(hex2rgb(k["hex"]), rgb) < 8 and set(k.get("domains") or []) & set(x.get("domains") or [])), None)
@@ -104,7 +97,7 @@ def main():
     if a.approve is not None:
         keep = json.loads((P / "seed_filtered.json").read_text(encoding="utf-8"))
         drop = {int(x) for x in a.approve.replace(" ", "").split(",") if x}
-        seeds = [{k: v for k, v in x.items() if k in ("slug", "name", "hex", "tone", "tags", "domains", "source", "shape")} for i, x in enumerate(keep, 1) if i not in drop]
+        seeds = [{k: v for k, v in x.items() if k in ("slug", "name", "hex", "tone", "tags", "domains", "source", "shape", "bright", "mono")} for i, x in enumerate(keep, 1) if i not in drop]
         (P / "seeds.json").write_text(json.dumps(seeds, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"seeds.json {len(seeds)}개 (뺀 번호 {sorted(drop)})"); return
     keep, log = filt(collect())
