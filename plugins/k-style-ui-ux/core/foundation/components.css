@@ -137,8 +137,8 @@ body.has-cta .page, body:has(> .cta) .page { padding-bottom: calc(var(--h-btn) +
 .tab[aria-current="page"] { color: var(--c-text-1); }
 
 /* 바텀시트 */
-.dim { position: fixed; inset: 0; background: var(--c-overlay); }
-.sheet { position: fixed; left: 0; right: 0; bottom: 0; background: var(--c-surface); box-shadow: var(--shadow-2); border-radius: var(--r-l) var(--r-l) 0 0; padding: var(--block-pad) var(--page-x) calc(var(--block-pad) + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: var(--stack-m); }
+.dim { position: fixed; inset: 0; z-index: 20; background: var(--c-overlay); }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--c-surface); box-shadow: var(--shadow-2); border-radius: var(--r-l) var(--r-l) 0 0; padding: var(--block-pad) var(--page-x) calc(var(--block-pad) + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: var(--stack-m); }
 
 /* 준비물 체크 행 — 끝낸 항목은 옅게 */
 .row-lead.is-done { background: var(--c-brand-tint); color: var(--c-brand-tint-text); }

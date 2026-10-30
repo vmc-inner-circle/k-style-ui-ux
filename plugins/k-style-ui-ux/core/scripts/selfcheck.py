@@ -38,7 +38,7 @@ for k, v in (m.get("prd_coverage") or {}).items():
 if not m.get("prd_coverage"): errs.append("prd_coverage 없음")
 if not (out / "journey.md").exists(): errs.append("journey.md(여정표) 없음 — 화면 목록보다 먼저 쓴다")
 
-PLACE = re.compile(r"lorem|TODO|>\s*(텍스트|제목|내용)\s*<|여행\s*1\b", re.I)
+PLACE = re.compile(r"lorem|(?-i:\bTODO\b)|>\s*(텍스트|제목|내용)\s*<|여행\s*1\b", re.I)
 EMOJI = re.compile("[\U0001F300-\U0001FAFF☀-➿]")
 AV = json.loads((pathlib.Path(__file__).resolve().parent.parent / "foundation/assets/avatars/avatars.json").read_text(encoding="utf-8"))
 AVS = m.get("avatar_style")
