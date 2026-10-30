@@ -20,7 +20,9 @@
    "r_l": 0,
    "seen": "홈 화면(390px) 실측 — 버튼 8px · 카드 대부분 0px (2026-10-30)"
   },
-  "tone": "cool"
+  "tone": "cool",
+  "gender": "여성",
+  "gender_source": "이용자 여성 96% — 뉴스토마토 2015 https://newstomato.com/ReadNews.aspx?no=582373 · '20·30대 여성 절반 이상 사용' 혁신의숲 기업 소개"
  },
  {
   "slug": "oliveyoung",
@@ -66,7 +68,9 @@
    "r_l": 0,
    "seen": "홈 화면(390px) 실측 — 버튼 미측정px · 카드 대부분 0px (2026-10-30)"
   },
-  "tone": "neutral"
+  "tone": "neutral",
+  "gender": "여성",
+  "gender_source": "앱스토어 설명 '4,000만 여성이 선택한 쇼핑앱' (2026-10 확인)"
  },
  {
   "slug": "baemin",

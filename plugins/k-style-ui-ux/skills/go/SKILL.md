@@ -29,7 +29,7 @@ description: PRD(기획 문서) 한 장으로 모바일 앱 HTML 디자인을 �
 - **맨 먼저(1초)**: `python3 $SK/scripts/save_prd.py out` — 붙여넣은 PRD 원문을 `out/prd.md`로 저장(파일로 받았으면 `--from <파일>`). 실패하면 그때만 직접 쓴다.
 - **이어서 바로(3초)**: PRD의 핵심 기능·갈등에서 키워드 3~4개를 뽑아 `python3 $SK/scripts/market.py out "<키워드>" …` — 같은 문제를 푸는 잘 되는 앱(평점 수 상위 5)의 스토어 화면·설명·리뷰를 `out/market/`에 모은다(`$SK/references/market.md` 1절). 도메인 이름이 아니라 이 PRD의 말로.
 - **먼저 30초**: PRD에서 도메인(예: 여행·생활·커머스·교육·결혼)과 제품 성격 키워드 3개를 정한다 — 키워드는 라이브러리 어휘에서 고른다: 따뜻함·감성·친근·활기·선명·강렬·밝음·산뜻·신뢰·차분·고급·모노·에디토리얼·생활·여행·자연·건강·기록·커뮤니티. 도메인은 구체적으로(예: "뷰티,헤어", "운동,예약") — 라이브러리에 맞는 도메인이 없으면 승인된 브랜드 시드에서 색을 만든다(자동). 그리고 **감정 온도**: 축하·결혼·선물·돌잔치처럼 **설렘 자체가 제품의 핵심**이면 `warm`, 금융·업무·의료처럼 믿음이 핵심이면 `cool`, 여행·생활·가족 일상처럼 둘 다 아니면 비운다(대부분 비운다).
-- **백그라운드로 즉시**: `python3 $SK/scripts/setup_out.py out --domain "<도메인>" --tags "<키워드,…>" [--temp warm|cool]` — 공통 파일 복사 + 팔레트 라이브러리(`$SK/foundation/palettes/`)에서 **기본 1 + 대안 2 자동 결정**. 사용자에게 색을 묻지 않는다.
+- **백그라운드로 즉시**: `python3 $SK/scripts/setup_out.py out --domain "<도메인>" --tags "<키워드,…>" [--temp warm|cool] [--gender 여성|남성]` — `--gender`는 **PRD에 타깃 성별이 적혀 있을 때만**(짐작해서 넣지 않는다) — 공통 파일 복사 + 팔레트 라이브러리(`$SK/foundation/palettes/`)에서 **기본 1 + 대안 2 자동 결정**. 사용자에게 색을 묻지 않는다.
 - **같은 메시지에서 서브에이전트 1개 — 시장 관례**: `$SK/references/market.md` 2절 프롬프트로 `out/market/`에서 `out/conventions.json`을 뽑는다(2개 이상 앱에서 본 것만 관례).
 - **같은 메시지에서 서브에이전트 1개 — 명세 목록**: `$SK/references/spec-mode.md`의 프롬프트로 `out/prd.md`에서 `out/spec_inventory.json`을 뽑는다(화면·단계·부딪히는 규칙 최대 20개, 항목마다 원문 인용).
 - **메인은 그동안** `out/journey.md`를 쓴다:

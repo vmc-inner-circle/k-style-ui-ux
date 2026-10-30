@@ -35,7 +35,7 @@ def collect():
         o = old.get(x["slug"])
         if not o: continue
         x["domains"] = list(dict.fromkeys((o.get("domains") or []) + (x.get("domains") or [])))
-        for k in ("tags", "shape"):
+        for k in ("tags", "shape", "gender", "gender_source"):
             if o.get(k) and not x.get(k): x[k] = o[k]
     return c
 
@@ -97,7 +97,7 @@ def main():
     if a.approve is not None:
         keep = json.loads((P / "seed_filtered.json").read_text(encoding="utf-8"))
         drop = {int(x) for x in a.approve.replace(" ", "").split(",") if x}
-        seeds = [{k: v for k, v in x.items() if k in ("slug", "name", "hex", "tone", "tags", "domains", "source", "shape", "bright", "mono")} for i, x in enumerate(keep, 1) if i not in drop]
+        seeds = [{k: v for k, v in x.items() if k in ("slug", "name", "hex", "tone", "tags", "domains", "source", "shape", "bright", "mono", "gender", "gender_source")} for i, x in enumerate(keep, 1) if i not in drop]
         (P / "seeds.json").write_text(json.dumps(seeds, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"seeds.json {len(seeds)}개 (뺀 번호 {sorted(drop)})"); return
     keep, log = filt(collect())
