@@ -4,10 +4,23 @@
   "name": "화해",
   "hex": "#00A5AA",
   "domains": [
-   "뷰티"
+   "건강",
+   "뷰티",
+   "화장품"
   ],
   "source": "https://www.hwahae.co.kr",
   "confidence": "mid",
+  "tags": [
+   "산뜻",
+   "건강",
+   "신뢰"
+  ],
+  "shape": {
+   "r_s": 4,
+   "r_m": 8,
+   "r_l": 0,
+   "seen": "홈 화면(390px) 실측 — 버튼 8px · 카드 대부분 0px (2026-10-30)"
+  },
   "tone": "cool"
  },
  {
@@ -15,10 +28,24 @@
   "name": "올리브영",
   "hex": "#779F1D",
   "domains": [
-   "뷰티"
+   "기록",
+   "뷰티",
+   "자연",
+   "헤어"
   ],
   "source": "https://www.oliveyoung.co.kr",
   "confidence": "low",
+  "tags": [
+   "자연",
+   "차분",
+   "생활"
+  ],
+  "shape": {
+   "r_s": 2,
+   "r_m": 4,
+   "r_l": 0,
+   "seen": "홈 화면(390px) 실측 — 버튼 미측정px · 카드 대부분 0px (2026-10-30)"
+  },
   "tone": "neutral"
  },
  {
@@ -26,10 +53,22 @@
   "name": "지그재그",
   "hex": "#F947DB",
   "domains": [
+   "쇼핑",
    "패션"
   ],
   "source": "https://zigzag.kr",
   "confidence": "mid",
+  "tags": [
+   "활기",
+   "감성",
+   "강렬"
+  ],
+  "shape": {
+   "r_s": 2,
+   "r_m": 4,
+   "r_l": 0,
+   "seen": "홈 화면(390px) 실측 — 버튼 미측정px · 카드 대부분 0px (2026-10-30)"
+  },
   "tone": "neutral"
  },
  {
@@ -37,10 +76,22 @@
   "name": "야놀자",
   "hex": "#4154FF",
   "domains": [
-   "숙박"
+   "숙박",
+   "여가",
+   "여행"
   ],
   "source": "https://www.yanolja.com",
   "confidence": "high",
+  "tags": [
+   "선명",
+   "활기"
+  ],
+  "shape": {
+   "r_s": 6,
+   "r_m": 12,
+   "r_l": 20,
+   "seen": "홈 화면(390px) 실측 — 버튼 12px · 카드 20px (2026-10-30)"
+  },
   "tone": "cool"
  },
  {
@@ -48,10 +99,16 @@
   "name": "직방",
   "hex": "#FF6111",
   "domains": [
-   "부동산"
+   "부동산",
+   "생활"
   ],
   "source": "https://www.zigbang.com",
   "confidence": "mid",
+  "tags": [
+   "친근",
+   "활기",
+   "따뜻함"
+  ],
   "tone": "warm"
  },
  {
@@ -72,10 +129,21 @@
   "name": "리디",
   "hex": "#0F97FF",
   "domains": [
-   "도서"
+   "도서",
+   "콘텐츠"
   ],
   "source": "https://ridibooks.com",
   "confidence": "high",
+  "tags": [
+   "밝음",
+   "신뢰"
+  ],
+  "shape": {
+   "r_s": 2,
+   "r_m": 4,
+   "r_l": 4,
+   "seen": "홈 화면(390px) 실측 — 버튼 미측정px · 카드 4px (2026-10-30)"
+  },
   "tone": "cool"
  },
  {
@@ -94,10 +162,22 @@
   "name": "굿닥",
   "hex": "#0462D1",
   "domains": [
+   "건강",
+   "병원",
    "의료"
   ],
   "source": "https://www.goodoc.co.kr",
   "confidence": "mid",
+  "tags": [
+   "신뢰",
+   "차분"
+  ],
+  "shape": {
+   "r_s": 3,
+   "r_m": 6,
+   "r_l": 8,
+   "seen": "홈 화면(390px) 실측 — 버튼 6px · 카드 8px (2026-10-30)"
+  },
   "tone": "cool"
  },
  {
@@ -105,10 +185,24 @@
   "name": "프립",
   "hex": "#7A29FA",
   "domains": [
-   "여가"
+   "모임",
+   "여가",
+   "취미",
+   "커뮤니티"
   ],
   "source": "https://www.frip.co.kr",
   "confidence": "mid",
+  "tags": [
+   "활기",
+   "감성",
+   "커뮤니티"
+  ],
+  "shape": {
+   "r_s": 2,
+   "r_m": 5,
+   "r_l": 12,
+   "seen": "홈 화면(390px) 실측 — 버튼 5px · 카드 12px (2026-10-30)"
+  },
   "tone": "cool"
  },
  {
@@ -194,10 +288,16 @@
   "name": "Aesop",
   "hex": "#945C26",
   "domains": [
+   "라이프스타일",
    "뷰티"
   ],
   "source": "https://www.aesop.com",
   "confidence": "low",
+  "tags": [
+   "고급",
+   "차분",
+   "따뜻함"
+  ],
   "tone": "warm"
  },
  {
@@ -241,10 +341,21 @@
   "name": "Lush",
   "hex": "#0B5D45",
   "domains": [
-   "뷰티"
+   "뷰티",
+   "친환경"
   ],
   "source": "https://www.lush.com",
   "confidence": "low",
+  "tags": [
+   "자연",
+   "차분"
+  ],
+  "shape": {
+   "r_s": 2,
+   "r_m": 4,
+   "r_l": 0,
+   "seen": "홈 화면(390px) 실측 — 버튼 미측정px · 카드 대부분 0px (2026-10-30)"
+  },
   "tone": "neutral"
  },
  {
@@ -252,10 +363,25 @@
   "name": "Mindbody",
   "hex": "#008363",
   "domains": [
-   "예약"
+   "예약",
+   "요가",
+   "운동",
+   "웰니스",
+   "필라테스"
   ],
   "source": "https://www.mindbodyonline.com",
   "confidence": "low",
+  "tags": [
+   "건강",
+   "산뜻",
+   "자연"
+  ],
+  "shape": {
+   "r_s": 2,
+   "r_m": 3,
+   "r_l": 0,
+   "seen": "홈 화면(390px) 실측 — 버튼 3px · 카드 대부분 0px (2026-10-30)"
+  },
   "tone": "neutral"
  },
  {
@@ -301,27 +427,12 @@
   "tone": "warm"
  },
  {
-  "slug": "daangn",
-  "name": "당근",
-  "hex": "#FA6400",
-  "domains": [
-   "지역",
-   "생활"
-  ],
-  "source": "라이브러리",
-  "tags": [
-   "따뜻함",
-   "친근"
-  ],
-  "tone": "warm"
- },
- {
   "slug": "kurly",
   "name": "컬리",
   "hex": "#5F0080",
   "domains": [
-   "커머스",
-   "식품"
+   "식품",
+   "커머스"
   ],
   "source": "라이브러리",
   "tags": [
@@ -390,10 +501,15 @@
   "name": "삼성 블루",
   "hex": "#1428A0",
   "domains": [
+   "금융",
    "전자",
    "플랫폼"
   ],
   "source": "Samsung 브랜드 가이드",
+  "tags": [
+   "신뢰",
+   "차분"
+  ],
   "tone": "cool"
  },
  {

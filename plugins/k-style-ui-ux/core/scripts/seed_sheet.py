@@ -37,6 +37,14 @@ def collect():
             c.append({"slug": g.stem, "name": d["name"], "hex": d["scales"][d["brand"]][d["brand_step"]].upper(), "domains": d.get("domain", "").split("·"), "source": "라이브러리", "tags": d.get("tags", [])})
     f = P / "seed_extra.json"
     if f.exists(): c += json.loads(f.read_text(encoding="utf-8"))
+    # 이미 승인된 시드(seeds.json)에 손으로 붙인 성격 낱말·도메인·둥글기는 다시 걸러도 잃지 않는다
+    old = {x["slug"]: x for x in json.loads((P / "seeds.json").read_text(encoding="utf-8"))} if (P / "seeds.json").exists() else {}
+    for x in c:
+        o = old.get(x["slug"])
+        if not o: continue
+        x["domains"] = list(dict.fromkeys((o.get("domains") or []) + (x.get("domains") or [])))
+        for k in ("tags", "shape"):
+            if o.get(k) and not x.get(k): x[k] = o[k]
     return c
 
 def filt(c):
@@ -96,7 +104,7 @@ def main():
     if a.approve is not None:
         keep = json.loads((P / "seed_filtered.json").read_text(encoding="utf-8"))
         drop = {int(x) for x in a.approve.replace(" ", "").split(",") if x}
-        seeds = [{k: v for k, v in x.items() if k in ("slug", "name", "hex", "tone", "tags", "domains", "source")} for i, x in enumerate(keep, 1) if i not in drop]
+        seeds = [{k: v for k, v in x.items() if k in ("slug", "name", "hex", "tone", "tags", "domains", "source", "shape")} for i, x in enumerate(keep, 1) if i not in drop]
         (P / "seeds.json").write_text(json.dumps(seeds, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"seeds.json {len(seeds)}개 (뺀 번호 {sorted(drop)})"); return
     keep, log = filt(collect())
