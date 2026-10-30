@@ -197,7 +197,8 @@ MEASURE_JS = r"""
 """
 
 
-# 한국어 줄바꿈 실측 — hanmariyang/giting-skills hangul-wrap(scripts/wrapcheck.mjs, MIT, © 2026 Giting)의 셈을 옮겼다.
+# 한국어 줄바꿈 실측 — hanmariyang/giting-skills hangul-wrap(scripts/wrapcheck.mjs)의 셈을 옮겼다.
+# Copyright (c) 2026 Giting (hanmariyang), MIT — 전문은 같은 폴더 LICENSE-hangul-wrap.md
 # 글자 하나하나의 실제 위치(Range rect)로 줄을 되살려, 어절이 두 줄로 갈린 곳 · 칸을 뚫은 글자 · 마지막 줄 한두 글자를 센다.
 WRAP_JS = r"""
 () => {
