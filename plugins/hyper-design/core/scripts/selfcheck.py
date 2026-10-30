@@ -195,7 +195,7 @@ from html.parser import HTMLParser
 ACCENT = m.get("accent")
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
 NO_ACCENT_TAG = {"h1", "h2", "h3", "button"}; NO_ACCENT_CLS = {"btn", "cta", "badge", "tabbar", "tab", "appbar-title", "title"}
-ITEM_CLS = {"row", "card", "tile", "item"}
+ITEM_CLS = {"row", "card", "tile", "item", "p-card", "s-card"}
 class AccentScan(HTMLParser):
     def __init__(self):
         super().__init__(); self.stack, self.n, self.hits, self.cur = [], 0, [], None
@@ -234,5 +234,26 @@ for s in S:
         if x["kind"] == "accent-dot" and not x["label"]: errs.append(f"{f.name}: accent-dot에 aria-label 없음(점만으로 뜻을 전하지 않는다)")
     n = len({x["slot"] for x in H})
     if n > 2: errs.append(f"{f.name}: 강조색 {n}곳 > 2(목록 반복은 1곳으로 셈) — 강조가 많으면 아무것도 강조되지 않는다")
+# 시트·탐색·판촉 부품(v19)
+PROMO_CLS = {"banner": "넘기는 배너", "strip": "띠 배너", "coupon": "쿠폰", "countdown": "남은 시간"}
+PROMOS = m.get("promos") or []
+for s in S:
+    f = out / s["file"]
+    if not f.exists(): continue
+    h = f.read_text(encoding="utf-8")
+    classes = {c for v in re.findall(r'class="([^"]*)"', h) for c in v.split()}
+    if s.get("kind") == "sheet":
+        if s.get("over") not in ids: errs.append(f'{s["id"]}: kind sheet인데 over(아래 깔리는 화면 id) {s.get("over")!r}가 화면 목록에 없음')
+        if not {"dim", "sheet"} <= classes: errs.append(f"{f.name}: kind sheet인데 .dim·.sheet 없음 — 아래 화면을 복사하고 끝에 시트를 붙인다")
+        elif not re.search(r'<h1[\s>]', h): pass
+    used = [n for c, n in PROMO_CLS.items() if c in classes]
+    if used and not PROMOS: errs.append(f"{f.name}: 판촉 부품({', '.join(used)})을 썼는데 screens.json promos 미선언 — 이 서비스가 실제로 하는 판촉만, 지어내지 않는다")
+    nf = len(re.findall(r'class="fab[ "]', h))
+    if nf > 1: errs.append(f"{f.name}: 떠 있는 버튼 {nf}개 — 화면당 하나")
+    if nf and "cta" in classes: errs.append(f"{f.name}: 떠 있는 버튼과 하단 고정 버튼(cta)을 함께 씀 — 주 행동은 하나")
+    for tag in re.findall(r'<a [^>]*class="fab[ "][^>]*>.*?</a>', h, re.S):
+        if not re.sub(r"<[^>]+>|\s", "", tag) and "aria-label" not in tag: errs.append(f"{f.name}: 글자 없는 떠 있는 버튼에 aria-label 없음")
+    for tag in re.findall(r'<button [^>]*class="like[ "][^>]*>', h):
+        if "aria-pressed" not in tag: errs.append(f"{f.name}: 찜 버튼에 aria-pressed 없음(누른 상태를 표시)")
 print("\n".join(errs) if errs else "selfcheck OK")
 sys.exit(1 if errs else 0)

@@ -69,7 +69,10 @@
 - 아바타: 인물 일러스트는 mother·father·jieun·minsu·hayun만, 나이·관계가 맞을 때. 그 밖의 사람은 글자 아바타 `<span class="avatar is-text">수</span>`. 사물 일러스트를 사람 자리에 쓰지 않는다.
 - 아바타 여럿: `<span class="avatars"><span class="avatar"><img src="../assets/fluent/mother.svg" alt=""></span>…</span>`
 - 탭바(목적지 3곳 이상일 때만): `<nav class="tabbar"><a class="tab" aria-current="page">(선 아이콘)라벨</a>…</nav>` + body `has-tab`
-- 바텀시트: `<div class="dim"></div><div class="sheet">…</div>`, 빈 상태: `<div class="empty">…</div>`
+- 빈 상태: `<div class="empty">…</div>`
+- 바텀시트 — **"지금 화면을 벗어나지 않고 고르거나 확인하는 일인가?"** 그렇다면 새 화면이 아니라 시트(몇 개 중 하나 고르기·한 번 더 확인·용어/근거 설명·정렬 고르기). 입력 칸이 3개를 넘거나 다시 돌아와 볼 내용이면 화면으로.
+  - 시트 화면은 `screens.json`에 `"kind": "sheet", "over": "<아래 깔리는 화면 id>"`로 적고, 파일은 그 화면을 복사한 뒤 끝에 `<div class="dim"></div><div class="sheet" role="dialog" aria-label="…">…</div>`를 붙인다(selfcheck가 대조). 여는 쪽 화면의 버튼·행은 이 시트 파일로 `<a href>`.
+  - 고르기 시트: `<span class="sheet-grip"></span><div class="sheet-head"><p class="h2">사용할 수강권</p></div>` + `<button class="row" role="radio" aria-checked="true">…<span class="row-trail">(체크 선 아이콘)</span></button>` 행들. 확인 시트: 제목 + lead + `btn primary full` + `btn secondary full`.
 - 완료 표시(`<id>--done` 상태, 링크 복사·초대·공유처럼 밖으로 내보낸 뒤): 같은 화면 맨 위에 `<p class="done">링크를 복사했어요 — 단톡방에 붙여넣으세요</p>`
 - 목록에 추가할 수 있으면 끝에 `row is-add`(**반드시 다른 화면·시트로 가는 `<a href>`** — 자기 화면으로 가면 누른 뒤 모습이 없는 것), 순서를 바꿀 수 있으면 행 오른쪽에 끌기 손잡이(선 아이콘 ≡), 지울 수 있으면 편집 화면에 "지우기"(btn secondary)
 
@@ -91,3 +94,29 @@ beach · calendar · car · clipboard · coffee · eyes · father · hayun · ho
 - 썸네일(목록 행 왼쪽의 작은 사진): `<span class="thumb"><img src="…" alt=""></span>` · 크게 `thumb is-l`(72px).
 - 사진 모음(후기 사진·갤러리 3열): `<div class="photo-grid"><img src="…" alt="">…</div>`
 - **사진 자리(`.photo`·`.thumb`·`.photo-grid`·`.compare`)에는 반드시 `<img>`를 넣는다.** 회색 칸에 "사진 1"·"이미지" 같은 글자만 넣지 않는다. `alt`는 무엇의 사진인지 적는다(꾸밈용이면 `alt=""`).
+
+## 탐색·진열·판촉
+견본은 `specimens.html`의 같은 이름 칸. 부품마다 **판단 질문 하나** — 예면 쓰고, 아니면 쓰지 않는다. 화면을 채우려고 쓰지 않는다.
+
+- **상단 가로 탭** — "같은 화면 안에서 성격이 다른 내용 묶음 3개 이상을 오가는가?"(추천·랭킹·새로 나온 / 전체·내 글). 2개면 세그먼트, 다른 목적지면 탭바.
+  `<nav class="tabs" role="tablist"><a class="tabs-item" role="tab" aria-selected="true" href="…">추천</a>…</nav>` — 앱바 바로 아래. 칸마다 화면은 `screens.json`의 `"tabs"`로 잇는다.
+- **정렬·필터 바** — "목록이 사용자가 기준을 바꿔 가며 훑는 양인가?"(`large_list` 목록·상품·수업 찾기). 개수 + 정렬 + 필터(켜진 수).
+  `<div class="toolbar"><p class="toolbar-count">1,250개</p><a class="toolbar-btn" href="…">추천순(아래 선 아이콘)</a><a class="toolbar-btn" href="…">(필터 선 아이콘)필터 <span class="toolbar-on">2</span></a></div>` — 정렬 고르기는 시트로.
+- **아이콘 격자 메뉴** — "무게가 같은 목적지·분류가 6~10개라 목록보다 한눈에 고르는 게 빠른가?"(카테고리·서비스 바로가기). 5개 이하면 칩, 11개 이상이면 목록.
+  `<nav class="menu-grid"><a class="menu-item" href="…"><span><img src="../assets/fluent/plane.svg" alt=""></span>항공</a>…</nav>` — 4열은 `menu-grid is-4`. 라벨은 4자 안팎. 일러스트가 없으면 쓰지 않는다(선 아이콘 격자 금지).
+- **가로 스크롤 카드 줄** — "한 묶음을 맛보기로 보여 주고 전체는 다른 화면에 있는가?"(추천·최근 본·이번 주 새로 연). 블록 제목에 `block-link`("전체 보기")를 함께 단다.
+  `<div class="scroller"><a class="s-card" href="…"><div class="photo"><img src="…" alt="…"></div><p class="s-title">…</p><p class="s-sub">…</p></a>…</div>` — 넓은 카드 `s-card is-wide`(16:9). 카드 4개 이상(다음 카드가 잘려 보여야 넘길 수 있다는 게 보인다).
+  - 동그란 썸네일 줄 — "사람·주제·분류를 **사진으로** 알아보고 고르는가?": `<a class="s-circle" href="…" aria-current="true"><span><img src="…" alt=""></span>요가</a>`
+- **상품·콘텐츠 카드 격자** — "사진을 보고 고르는 것이 여러 개인가?"(상품·수업·숙소·글). 사진이 핵심이 아니면 목록 행.
+  `<div class="product-grid"><a class="p-card" href="…"><div class="photo"><img src="…" alt="…"><button class="like" aria-pressed="false" aria-label="찜">(하트 svg)</button></div><p class="p-brand">…</p><p class="p-name">…</p><p class="price">…</p><p class="p-meta">(별점) 4.8 · 후기 312</p></a>…</div>` — 촘촘하면 `product-grid is-3`, 세로 사진 `photo is-3x4`.
+- **가격** — 값이 있는 것을 사고·예약할 때: `<p class="price"><span class="price-off">15%</span><span class="price-now">170,000원</span><s class="price-was">200,000원</s></p>`(상세는 `price is-l`). 할인이 없으면 `price-now`만. 할인율을 강조색으로 보이려면 `accent`가 "할인"일 때 `price-off accent-text`.
+- **찜·좋아요** — "사용자가 나중에 다시 보려고 모아 두는 기능이 PRD·여정에 있는가?" 모은 것을 볼 곳(찜 목록 화면)도 함께 만든다. `<button class="like" aria-pressed="true" aria-label="찜 취소">(하트 svg: fill 없이 stroke)129</button>` — 누른 상태 = 브랜드 색 채움.
+- **떠 있는 버튼(FAB)** — "이 화면의 주 행동이 '새로 만들기'(글쓰기·새 일정·판매하기) 하나이고, 목록을 내려도 계속 눌러야 하는가?" 화면당 하나, 하단 고정 버튼(`cta`)과 함께 쓰지 않는다. `<a class="fab" href="…">(+ 선 아이콘)글쓰기</a>` — 글자 없이 쓰면 `aria-label`.
+
+### 판촉 부품 — `screens.json`의 `"promos"`에 선언한 것만
+배너·띠 배너·쿠폰·남은 시간은 **이 서비스가 실제로 하는 판촉·소식**만 보여 준다. PRD·여정에서 근거를 찾아 `"promos": [{"name": "첫 예약 1만원 쿠폰", "until": "11월 30일", "source": "PRD F7"}]`로 선언하고, 화면 글자는 그 이름·기한 그대로. 선언이 없으면 판촉 부품을 쓰지 않는다(selfcheck). 지어낸 이벤트·할인 금지.
+- **넘기는 배너** — "홈 맨 위에서 알릴 판촉·소식이 2개 이상인가?"(1개면 띠 배너나 블록). 정적 시안이라 한 장만 그리고 개수를 적는다.
+  `<a class="banner" href="…"><div class="banner-text"><p class="banner-eyebrow">11월 30일까지</p><p class="banner-title">첫 예약 1만원 할인</p><p class="banner-sub">…</p></div><span class="banner-art"><img src="../assets/fluent/ticket.svg" alt=""></span><span class="banner-count">1/4</span></a>` — 사진이면 `banner-art is-photo`. 개수 대신 점: 배너 아래 `<div class="dots" aria-hidden="true"><span class="is-on"></span><span></span>…</div>`.
+- **띠 배너** — "본문을 밀어내지 않고 한 줄로 알릴 혜택·소식인가?": `<a class="strip" href="…"><img src="../assets/fluent/invite.svg" alt=""><span>친구를 초대하면 둘 다 1회 무료</span>(› 선 아이콘)</a>` — 화면당 하나.
+- **쿠폰** — "사용자가 받거나 고르는 할인이 있는가?": `<div class="coupon"><div class="coupon-main"><p class="coupon-amount">10,000원</p><p class="coupon-cond">5만원 이상 · 11월 30일까지</p></div><button class="coupon-get">(내려받기 선 아이콘)받기</button></div>` — 받은 뒤 `coupon is-done` + `<span class="coupon-get" aria-disabled="true">(체크)받음</span>`.
+- **남은 시간** — "마감 시각이 정해진 판촉·신청이고, 남은 시간이 행동을 바꾸는가?": `<span class="countdown" role="timer" aria-label="남은 시간 3시간 25분">(시계 선 아이콘)03:25:13</span>`. 날짜 단위면 글자("D-3")로.

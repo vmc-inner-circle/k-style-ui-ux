@@ -133,8 +133,8 @@ MEASURE_JS = r"""
     if (!autoCenter) { if (ml) res.spacing.push(ml); if (mr) res.spacing.push(mr); }
     // radius / shadow / box
     const rad = px(cs.borderTopLeftRadius);
-    const radKey = [cs.borderTopLeftRadius, cs.borderTopRightRadius, cs.borderBottomRightRadius, cs.borderBottomLeftRadius].join(' ');
-    if (rad > 0 || px(cs.borderBottomRightRadius) > 0) res.radii.push(radKey);
+    // 모서리 값의 종류를 센다 — 위만 둥근 시트(16 16 0 0)는 16과 같은 종류
+    for (const v of new Set([cs.borderTopLeftRadius, cs.borderTopRightRadius, cs.borderBottomRightRadius, cs.borderBottomLeftRadius])) if (px(v) > 0) res.radii.push(v);
     if (cs.boxShadow && cs.boxShadow !== 'none') res.shadows.push(cs.boxShadow);
     const hasBg = bg && bg[3] > 0, hasBorder = px(cs.borderTopWidth)+px(cs.borderLeftWidth)+px(cs.borderRightWidth)+px(cs.borderBottomWidth) > 0;
     const hasShadow = cs.boxShadow && cs.boxShadow !== 'none';
@@ -168,7 +168,7 @@ MEASURE_JS = r"""
         if (r.width >= 43.5 && r.height >= 43.5) res.touch.ok++;
         else res.touch.fails.push(`${tag.toLowerCase()} "${(el.innerText||el.value||'').trim().slice(0,15)}" ${Math.round(r.width)}x${Math.round(r.height)}`);
       }
-      if (el.matches('button,a,[role=button],input[type=submit],input[type=button]') && !el.matches('[aria-pressed=true],[aria-selected=true],[aria-checked=true],[aria-current],.is-selected,.selected') && bg && isChroma(bg))
+      if (el.matches('button,a,[role=button],input[type=submit],input[type=button]') && !el.matches('[aria-pressed=true],[aria-selected=true],[aria-checked=true],[aria-current],.is-selected,.selected,.banner') && bg && isChroma(bg))
         res.primary.push((el.innerText || el.value || '').trim().slice(0, 20));
       if (el.matches('button,a,[role=button]') && bg && isChroma(bg) && (el.innerText||'').trim()) {
         const fg = parseColor(cs.color); const lum = c => (0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2]) / 255;
