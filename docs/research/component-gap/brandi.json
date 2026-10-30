@@ -1,0 +1,11 @@
+[
+{"file":"브랜디-00.jpg","screen_kind":"기타","components":["photo-hero"],"other":["누끼 모델 사진 콜라주"],"note":"스토어 이미지: 슬로건+로고와 패션 모델 누끼 사진 3장"},
+{"file":"브랜디-01.jpg","screen_kind":"기타","components":["photo-hero"],"other":["누끼 모델 사진 콜라주"],"note":"스토어 이미지: 마케팅 문구와 모델 누끼 사진"},
+{"file":"브랜디-02.jpg","screen_kind":"기타","components":["product-grid","card","photo-thumb"],"other":[],"note":"스토어 이미지: 베이지 배경 위 3열 상품 누끼 카드 격자"},
+{"file":"브랜디-03.jpg","screen_kind":"목록","components":["appbar","search-bar","top-tabs","chip-row","switch","product-grid","price","heart-like","rating","badge","tooltip-coach"],"other":["장바구니 아이콘 숫자 배지"],"note":"트렌드 목록: 상단 탭+칩 아래 2열 상품 격자, 할인율 가격과 찜 수; 스토어 이미지"},
+{"file":"브랜디-04.jpg","screen_kind":"상세","components":["top-tabs","product-grid","h-scroller","price","heart-like","badge","fab","tooltip-coach"],"other":["Sponsored 표기"],"note":"상품 상세 하단 추천 영역: 3열 상품 격자와 가로 추천 줄, 말풍선 라벨; 스토어 이미지"},
+{"file":"브랜디-05.jpg","screen_kind":"기타","components":["appbar","callout","big-number","coupon-ticket","sticky-cta"],"other":["BENEFIT 안내 문구"],"note":"웰컴 쿠폰팩: 티켓형 카드에 300,000 큰 숫자와 주황 CTA; 스토어 이미지"},
+{"file":"브랜디-06.jpg","screen_kind":"목록","components":["appbar","big-number","card","progress","rank-list","list-row","avatar","badge","heart-like","chip-row","callout"],"other":["노란 미션 박스","포인트 잔액 필"],"note":"페이백 브랜드 랭킹: 노란 방문미션 박스(0/900)와 순위 목록; 스토어 이미지"},
+{"file":"브랜디-07.jpg","screen_kind":"목록","components":["appbar","card","h-scroller","icon-grid","big-number","price","badge","photo-thumb"],"other":["포인트 잔액+내역 버튼 카드"],"note":"쿠폰샵: 기프티콘 상품 카드 가로 줄과 브랜드 로고 격자; 스토어 이미지"},
+{"file":"브랜디-08.jpg","screen_kind":"결제","components":["appbar","illust-3d","card","list-row","tooltip-coach","sticky-cta","badge","big-number"],"other":["영수증형 주문완료 카드","포인트 적립 필"],"note":"주문 완료: 영수증형 카드와 노란 하단 CTA '페이백 확인하러 가기', 말풍선; 스토어 이미지"}
+]
