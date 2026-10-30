@@ -10,7 +10,7 @@ python3 derive.py --brand "#1B64DA" --tone neutral --shape normal --density comf
 - 여백: 4pt 스케일 위 "넉넉한 기본값". 밀도 comfy/normal.
 - 모양: 팔레트·시드에 실측 둥글기(`shape`)가 있으면 그 값(시드는 --radius), 없으면 --shape. 팔레트를 바꾸면 색과 둥글기가 함께 바뀐다.
 """
-import argparse, colorsys, sys, pathlib
+import argparse, colorsys, sys, pathlib, math
 
 def hex2rgb(h):
     h = h.lstrip("#"); return tuple(int(h[i:i+2], 16) / 255 for i in (0, 2, 4))
@@ -26,6 +26,19 @@ def darken_until(c, bg, target):
     while contrast(colorsys.hls_to_rgb(h, l, s), bg) < target and l > 0.02: l -= 0.01
     return colorsys.hls_to_rgb(h, l, s)
 def mix(a, b, t): return tuple(x * (1 - t) + y * t for x, y in zip(a, b))
+def _lin(c): return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+def oklch(rgb):
+    r, g, b = (_lin(x) for x in rgb)
+    l = 0.4122214708*r + 0.5363325363*g + 0.0514459929*b; m = 0.2119034982*r + 0.6806995451*g + 0.1073969566*b; s = 0.0883024619*r + 0.2817188376*g + 0.6299787005*b
+    l, m, s = (x ** (1/3) for x in (l, m, s))
+    L = 0.2104542553*l + 0.7936177850*m - 0.0040720468*s; A = 1.9779984951*l - 2.4285922050*m + 0.4505937099*s; B = 0.0259040371*l + 0.7827717662*m - 0.8086757660*s
+    return L, math.hypot(A, B), (math.degrees(math.atan2(B, A)) % 360), (L, A, B)
+def de(a, b): return math.dist(oklch(a)[3], oklch(b)[3]) * 100
+INK = (0.1, 0.1, 0.1)
+def bright_ok(c):
+    """밝은 브랜드(카카오 노랑 같은): 흰 글자는 3:1도 안 되고, 3:1까지 어둡게 하면 다른 색(ΔE>16)이 되며, 먹색 글자는 4.5:1 이상.
+    이때는 브랜드 면(버튼·스위치·틴트)은 원색 그대로, 버튼 글자·선택 테두리·탭 밑줄·링크 글자는 먹색 — 카카오 방식(유형 실험 시안 4개 비교에서 고름)"""
+    return contrast((1, 1, 1), c) < 3 and de(darken_until(c, (1, 1, 1), 3), c) > 16 and contrast(INK, c) >= 4.5
 
 TONES = {  # (hue, 채도) — 무채색에 아주 옅은 온도만 준다
     "warm": (32, 0.14), "neutral": (220, 0.03), "cool": (215, 0.14)}
@@ -156,6 +169,8 @@ def from_palette(path):
     if contrast(white, brand) >= 4.5: c["on_brand"] = white
     elif contrast(white, brand) >= 3:                                   # 채워진 버튼은 흰 글자가 자연스럽다 → 큰 굵은 글자로 AA-large
         c["on_brand"] = white; big = True; notes.append(f"버튼: 흰 글자 대비 {contrast(white, brand):.2f} → 버튼 글자 19px/700(큰 글씨 기준 3:1)")
+    elif bright_ok(brand):
+        c["on_brand"] = c["brand_line"] = c["brand_text"] = c["brand_tint_text"] = c["text1"]; c["brand_tint"] = mix(white, brand, .18); notes.append("밝은 브랜드: 버튼 글자·선·링크는 먹색")
     else:
         c["on_brand"] = white; c["brand"] = first_pass(P["brand"], white, 3); big = True; notes.append("버튼 색을 팔레트 안에서 한 단계 짙게")
     A = P.get("accent")
@@ -190,19 +205,24 @@ def derive(brand_hex, tone, shape, density, font, palette=None):
     if contrast((1, 1, 1), brand) >= 4.5: on_brand = (1, 1, 1)
     elif contrast((1, 1, 1), brand) >= 3:                               # 시드 색 그대로 + 버튼 글자를 크게(큰 글씨 3:1)
         on_brand, big = (1, 1, 1), True
+    elif bright_ok(brand):                                              # 밝은 브랜드: 면은 원색, 글자·선은 먹색
+        on_brand = text1; notes.append(f"밝은 브랜드 {brand_hex}: 버튼 글자·선·링크는 먹색")
     else:                                                               # 탁해지지 않게 3:1까지만 어둡게
         nb = darken_until(brand, (1, 1, 1), 3); notes.append(f"brand {brand_hex}→{rgb2hex(nb)} (흰 글자 큰 글씨 대비 확보)")
         brand, on_brand, big = nb, (1, 1, 1), True
-    brand_text = darken_until(brand, surface, 4.5)                 # 포인트 색을 글자로 쓸 때
-    brand_tint = mix(surface, brand, 0.10)
-    brand_tint_text = darken_until(brand, brand_tint, 4.5)
+    bright = on_brand == text1
+    brand_text = text1 if bright else darken_until(brand, surface, 4.5)                 # 포인트 색을 글자로 쓸 때
+    brand_tint = mix(surface, brand, 0.18 if bright else 0.10)
+    brand_tint_text = text1 if bright else darken_until(brand, brand_tint, 4.5)
     danger = darken_until(hex2rgb("#E5484D"), surface, 4.5)
     danger_tint = mix(surface, hex2rgb("#E5484D"), 0.08)
     c = {"bg": bg, "surface": surface, "line": line, "text1": text1, "text2": text2, "text3": text3,
          "brand": brand, "on_brand": on_brand, "brand_text": brand_text, "brand_tint": brand_tint,
          "brand_tint_text": brand_tint_text, "danger": danger, "danger_tint": danger_tint,
          "accent": brand_text, "accent_text": brand_text}
+    if bright: c["brand_line"] = text1
     extend_roles(c, notes)
+
     return render_css(c, big, notes, f"--brand {brand_hex} --tone {tone}", shape, density, font)
 
 def render_css(c, big, notes, label, shape, density, font):
@@ -236,6 +256,7 @@ def render_css(c, big, notes, label, shape, density, font):
   --c-text-3: {rgb2hex(text3)};
   --c-brand: {rgb2hex(brand)};
   --c-on-brand: {rgb2hex(on_brand)};
+  --c-brand-line: {rgb2hex(c.get("brand_line", brand))};   /* 흰 바탕 위 선·상태 표시(선택 테두리·탭 밑줄·진행·별·하트) — 보통 브랜드와 같고, 밝은 브랜드(노랑·연두)면 먹색 */
   --c-brand-text: {rgb2hex(brand_text)};
   --c-brand-tint: {rgb2hex(brand_tint)};
   --c-brand-tint-text: {rgb2hex(brand_tint_text)};
