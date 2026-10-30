@@ -55,6 +55,19 @@
   "tone": "warm"
  },
  {
+  "slug": "soomgo",
+  "name": "숨고",
+  "hex": "#693BF2",
+  "domains": [
+   "생활서비스",
+   "전문가",
+   "견적"
+  ],
+  "source": "https://soomgo.com",
+  "confidence": "mid",
+  "tone": "cool"
+ },
+ {
   "slug": "ridibooks",
   "name": "리디",
   "hex": "#0F97FF",
@@ -64,6 +77,17 @@
   "source": "https://ridibooks.com",
   "confidence": "high",
   "tone": "cool"
+ },
+ {
+  "slug": "doctornow",
+  "name": "닥터나우",
+  "hex": "#F06E02",
+  "domains": [
+   "의료"
+  ],
+  "source": "https://doctornow.co.kr",
+  "confidence": "high",
+  "tone": "warm"
  },
  {
   "slug": "goodoc",
@@ -88,6 +112,84 @@
   "tone": "cool"
  },
  {
+  "slug": "wadiz",
+  "name": "와디즈",
+  "hex": "#009FC7",
+  "domains": [
+   "펀딩",
+   "크라우드펀딩"
+  ],
+  "source": "https://www.wadiz.kr",
+  "confidence": "mid",
+  "tone": "cool"
+ },
+ {
+  "slug": "socar",
+  "name": "쏘카",
+  "hex": "#0078FF",
+  "domains": [
+   "모빌리티",
+   "이동",
+   "택시",
+   "차량",
+   "카셰어링"
+  ],
+  "source": "https://www.socar.kr",
+  "confidence": "high",
+  "tone": "cool"
+ },
+ {
+  "slug": "naver",
+  "name": "네이버",
+  "hex": "#03A94C",
+  "domains": [
+   "플랫폼",
+   "포털",
+   "검색",
+   "지도"
+  ],
+  "source": "https://www.naver.com",
+  "confidence": "high",
+  "tone": "neutral"
+ },
+ {
+  "slug": "coupangeats",
+  "name": "쿠팡이츠",
+  "hex": "#009AE1",
+  "domains": [
+   "음식",
+   "배달"
+  ],
+  "source": "https://www.coupangeats.com",
+  "confidence": "mid",
+  "tone": "cool"
+ },
+ {
+  "slug": "headspace",
+  "name": "Headspace",
+  "hex": "#F36800",
+  "domains": [
+   "명상",
+   "건강"
+  ],
+  "source": "https://www.headspace.com",
+  "confidence": "mid",
+  "tone": "warm"
+ },
+ {
+  "slug": "duolingo",
+  "name": "Duolingo",
+  "hex": "#099BE0",
+  "domains": [
+   "교육",
+   "학습",
+   "언어"
+  ],
+  "source": "https://www.duolingo.com",
+  "confidence": "low",
+  "tone": "cool"
+ },
+ {
   "slug": "aesop",
   "name": "Aesop",
   "hex": "#945C26",
@@ -96,6 +198,42 @@
   ],
   "source": "https://www.aesop.com",
   "confidence": "low",
+  "tone": "warm"
+ },
+ {
+  "slug": "spotify",
+  "name": "Spotify",
+  "hex": "#18AA4C",
+  "domains": [
+   "음악",
+   "오디오"
+  ],
+  "source": "https://www.spotify.com",
+  "confidence": "high",
+  "tone": "neutral"
+ },
+ {
+  "slug": "classpass",
+  "name": "ClassPass",
+  "hex": "#0055FF",
+  "domains": [
+   "운동",
+   "예약"
+  ],
+  "source": "https://classpass.com",
+  "confidence": "mid",
+  "tone": "cool"
+ },
+ {
+  "slug": "strava",
+  "name": "Strava",
+  "hex": "#FC5200",
+  "domains": [
+   "운동",
+   "기록"
+  ],
+  "source": "https://www.strava.com",
+  "confidence": "high",
   "tone": "warm"
  },
  {
@@ -121,6 +259,63 @@
   "tone": "neutral"
  },
  {
+  "slug": "toss",
+  "name": "토스",
+  "hex": "#3082F6",
+  "domains": [
+   "금융",
+   "송금",
+   "은행",
+   "결제",
+   "자산"
+  ],
+  "source": "https://toss.im",
+  "confidence": "mid",
+  "tone": "cool"
+ },
+ {
+  "slug": "flo",
+  "name": "FLO",
+  "hex": "#3F3FFF",
+  "domains": [
+   "음악",
+   "오디오"
+  ],
+  "source": "https://www.music-flo.com",
+  "confidence": "mid",
+  "tone": "cool"
+ },
+ {
+  "slug": "class101",
+  "name": "클래스101",
+  "hex": "#FF5D00",
+  "domains": [
+   "교육",
+   "취미"
+  ],
+  "source": "라이브러리",
+  "tags": [
+   "활기",
+   "친근"
+  ],
+  "tone": "warm"
+ },
+ {
+  "slug": "daangn",
+  "name": "당근",
+  "hex": "#FA6400",
+  "domains": [
+   "지역",
+   "생활"
+  ],
+  "source": "라이브러리",
+  "tags": [
+   "따뜻함",
+   "친근"
+  ],
+  "tone": "warm"
+ },
+ {
   "slug": "kurly",
   "name": "컬리",
   "hex": "#5F0080",
@@ -136,6 +331,61 @@
   "tone": "neutral"
  },
  {
+  "slug": "myrealtrip",
+  "name": "마이리얼트립",
+  "hex": "#2B96ED",
+  "domains": [
+   "여행"
+  ],
+  "source": "라이브러리",
+  "tags": [
+   "밝음",
+   "여행",
+   "신뢰"
+  ],
+  "tone": "cool"
+ },
+ {
+  "slug": "ohouse",
+  "name": "오늘의집",
+  "hex": "#009BF5",
+  "domains": [
+   "생활",
+   "인테리어"
+  ],
+  "source": "라이브러리",
+  "tags": [
+   "산뜻",
+   "생활"
+  ],
+  "tone": "cool"
+ },
+ {
+  "slug": "triple",
+  "name": "트리플",
+  "hex": "#0BA1AB",
+  "domains": [
+   "여행"
+  ],
+  "source": "라이브러리",
+  "tags": [
+   "산뜻",
+   "여행"
+  ],
+  "tone": "cool"
+ },
+ {
+  "slug": "starbucks-green",
+  "name": "스타벅스 그린",
+  "hex": "#00704A",
+  "domains": [
+   "음식",
+   "카페"
+  ],
+  "source": "Starbucks 브랜드 가이드",
+  "tone": "neutral"
+ },
+ {
   "slug": "samsung-blue",
   "name": "삼성 블루",
   "hex": "#1428A0",
@@ -144,6 +394,30 @@
    "플랫폼"
   ],
   "source": "Samsung 브랜드 가이드",
+  "tone": "cool"
+ },
+ {
+  "slug": "claude-clay",
+  "name": "Claude 클레이",
+  "hex": "#D97757",
+  "domains": [
+   "AI",
+   "도구"
+  ],
+  "source": "Anthropic 브랜드",
+  "tone": "warm"
+ },
+ {
+  "slug": "twitch-purple",
+  "name": "Twitch 퍼플",
+  "hex": "#9146FF",
+  "domains": [
+   "라이브",
+   "방송",
+   "영상",
+   "커뮤니티"
+  ],
+  "source": "Twitch 브랜드 가이드",
   "tone": "cool"
  }
 ]

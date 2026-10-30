@@ -63,22 +63,32 @@ def main():
             sc.append((v, sd, why))
         sc.sort(key=lambda x: -x[0])
         if sc and sc[0][0] > 0:
-            v, sd, why = sc[0]; seed = sd
-            slug = "seed-" + sd["slug"]
-            subprocess.run([sys.executable, str(HERE / "derive.py"), "--brand", sd["hex"], "--tone", "brand"] + (["--radius", ",".join(str(sd["shape"][k]) for k in ("r_s", "r_m", "r_l"))] if sd.get("shape") else []) + ["-o", str(out / f"tokens-{slug}.css")], check=True, capture_output=True)
-            pals[slug] = {"name": sd["name"], "scales": {"b": {"s": sd["hex"]}}, "brand": "b", "brand_step": "s", "source": "브랜드 시드(" + sd.get("source", "") + ")"}
-            scored.insert(0, (v, slug, ["라이브러리에 맞는 도메인이 없어 시드로 만듦"] + why))
-            alts = [p for p in picks if p != default][:1] + [default]
-            picks = [slug] + [p for p in alts if gap(brand_of(pals[p]), hex2rgb(sd["hex"])) >= 40 or pals[p].get("mono")][:2]
-            if len(picks) < 3:
-                picks += [x for _, x, _ in scored if x not in picks and not x.startswith("seed-")][: 3 - len(picks)]
-            default = slug
+            def seed_tokens(sd):
+                slug = "seed-" + sd["slug"]
+                subprocess.run([sys.executable, str(HERE / "derive.py"), "--brand", sd["hex"], "--tone", "brand"] + (["--radius", ",".join(str(sd["shape"][k]) for k in ("r_s", "r_m", "r_l"))] if sd.get("shape") else []) + ["-o", str(out / f"tokens-{slug}.css")], check=True, capture_output=True)
+                pals[slug] = {"name": sd["name"], "scales": {"b": {"s": sd["hex"]}}, "brand": "b", "brand_step": "s", "source": "브랜드 시드(" + sd.get("source", "") + ")"}
+                return slug
+            v, sd, why = sc[0]; default = seed_tokens(sd)
+            scored.insert(0, (v, default, ["라이브러리에 맞는 도메인이 없어 시드로 만듦"] + why))
+            # 대안: 시드·라이브러리를 한 줄로 세워 점수 순(점수가 같으면 라이브러리 먼저) — 기본값과 색상각 40° 이상 다른 것. 전에는 시드 기본값일 때 대안이 늘 라이브러리 상위(당근·마이리얼트립)로 고정됐다
+            pool = [(s0, 1, slug, w) for s0, slug, w in scored[1:]] + [(v2, 0, sd2, w2) for v2, sd2, w2 in sc[1:]]
+            pool.sort(key=lambda x: (-x[0], -x[1]))
+            picks = [default]; mono_used = False
+            for s0, is_lib, x, w in pool:
+                hx = hex2rgb(x["hex"]) if not is_lib else (None if pals[x].get("mono") else brand_of(pals[x]))
+                if hx is None:
+                    if mono_used: continue
+                    mono_used = True
+                elif not all(pals[p].get("mono") or gap(hx, brand_of(pals[p])) >= 40 for p in picks): continue
+                if is_lib: picks.append(x)
+                else: slug2 = seed_tokens(x); scored.append((s0, slug2, w or ["색이 다른 대안"])); picks.append(slug2)
+                if len(picks) == 3: break
     for slug in picks:
         if slug.startswith("seed-"): continue
         subprocess.run([sys.executable, str(HERE / "derive.py"), "--palette", str(HERE / "palettes" / f"{slug}.json"), "-o", str(out / f"tokens-{slug}.css")], check=True, capture_output=True)
     (out / "tokens.css").write_text((out / f"tokens-{default}.css").read_text(encoding="utf-8"), encoding="utf-8")
     info = {"default": default, "options": [{"slug": s, "name": pals[s]["name"], "brand": pals[s]["scales"][pals[s]["brand"]][pals[s]["brand_step"]],
-            "source": pals[s]["source"], "why": next(w for _, x, w in scored if x == s),
+            "source": pals[s]["source"], "why": next(w for _, x, w in scored if x == s) or ["색이 다른 대안"],
             **({"accent": pals[s]["scales"][pals[s]["accent"]["scale"]][pals[s]["accent"]["step"]], "accent_seen": pals[s]["accent"].get("seen", "")} if pals[s].get("accent") else {})} for s in picks]}
     (out / "palettes.json").write_text(json.dumps(info, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(info, ensure_ascii=False))

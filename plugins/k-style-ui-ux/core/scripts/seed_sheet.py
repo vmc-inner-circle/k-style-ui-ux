@@ -4,7 +4,7 @@ python3 seed_sheet.py                 → foundation/palettes/seed-sheet.png + s
 python3 seed_sheet.py --approve "3,7"  → 3·7번을 뺀 나머지를 seeds.json으로(사람 승인)
 
 후보: palettes/seed_candidates.json(실제 서비스 웹에서 측정) + 라이브러리 10곳 브랜드색 + palettes/seed_extra.json(디자이너 결과물 등)
-거르기: 흰 글자 대비 ≥3(또는 3까지 어둡게 해도 원색과 거의 같음) · OKLCH 채도 C ≥ 0.08 · 명도 L 0.35~0.78 · 오류 빨강과 색상각 15° 이내 제외 · 서로 ΔE(OKLab×100) < 8이면 하나만 · 밝은 색은 3:1까지 어둡게 해도 ΔE ≤ 16이면 통과(어둡게 한 값으로)
+거르기: 흰 글자 대비 ≥3(또는 3까지 어둡게 해도 원색과 거의 같음) · OKLCH 채도 C ≥ 0.08 · 명도 L 0.35~0.78 · 오류 빨강과 색상각 15° 이내 제외 · 도메인이 겹치는 것끼리 ΔE(OKLab×100) < 8이면 하나만 · 밝은 색은 3:1까지 어둡게 해도 ΔE ≤ 16이면 통과(어둡게 한 값으로)
 """
 import sys, json, math, pathlib, subprocess, argparse, colorsys
 HERE = pathlib.Path(__file__).resolve().parent.parent / "foundation"
@@ -29,7 +29,7 @@ def collect():
     f = P / "seed_candidates.json"
     if f.exists():
         for x in json.loads(f.read_text(encoding="utf-8")):
-            if x.get("hex"): c.append({"slug": x["slug"], "name": x["name"], "hex": x["hex"].upper(), "domains": [x.get("domain", "")], "source": x.get("url", ""), "confidence": x.get("confidence", "")})
+            if x.get("hex"): c.append({"slug": x["slug"], "name": x["name"], "hex": x["hex"].upper(), "domains": x.get("domains") or [x.get("domain", "")], "source": x.get("url", ""), "confidence": x.get("confidence", "")})
     for g in sorted(P.glob("*.json")):
         try: d = json.loads(g.read_text(encoding="utf-8"))
         except Exception: continue
@@ -52,7 +52,8 @@ def filt(c):
         if not why and not (0.35 <= L <= 0.78): why = f"명도 L {L:.2f}"
         if not why and hgap(rgb, RED) < 15: why = "오류 빨강과 겹침"
         if not why:
-            dup = next((k for k in keep if de(hex2rgb(k["hex"]), rgb) < 8), None)
+            # 같은 도메인끼리만 하나로 — 색이 비슷해도 도메인이 다르면 남긴다(전에는 쏘카·Spotify·쿠팡이츠가 빠지면서 모빌리티·음악·음식 도메인이 통째로 사라졌다)
+            dup = next((k for k in keep if de(hex2rgb(k["hex"]), rgb) < 8 and set(k.get("domains") or []) & set(x.get("domains") or [])), None)
             if dup: why = f"{dup['name']}와 비슷함"
         if why: log.append((x["name"], x["hex"], why)); continue
         x["tone"] = TONE(hue(rgb)); keep.append(x)

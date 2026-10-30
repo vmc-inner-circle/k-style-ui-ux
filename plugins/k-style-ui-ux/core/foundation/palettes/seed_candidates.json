@@ -128,7 +128,11 @@
    "top_colors": [],
    "logo_fill": [],
    "note": "--sem-mint-color-systemMainPrimary + 히어로 픽셀"
-  }
+  },
+  "domains": [
+   "음식",
+   "배달"
+  ]
  },
  {
   "slug": "yanolja",
@@ -210,7 +214,12 @@
     }
    ],
    "logo_fill": []
-  }
+  },
+  "domains": [
+   "생활서비스",
+   "전문가",
+   "견적"
+  ]
  },
  {
   "slug": "kmong",
@@ -492,7 +501,11 @@
     }
    ],
    "logo_fill": []
-  }
+  },
+  "domains": [
+   "펀딩",
+   "크라우드펀딩"
+  ]
  },
  {
   "slug": "socar",
@@ -517,7 +530,14 @@
    "logo_fill": [
     "#0078FF"
    ]
-  }
+  },
+  "domains": [
+   "모빌리티",
+   "이동",
+   "택시",
+   "차량",
+   "카셰어링"
+  ]
  },
  {
   "slug": "naver",
@@ -555,7 +575,13 @@
     "#03C75A"
    ],
    "note": "로고 fill"
-  }
+  },
+  "domains": [
+   "플랫폼",
+   "포털",
+   "검색",
+   "지도"
+  ]
  },
  {
   "slug": "kakao",
@@ -596,7 +622,11 @@
     }
    ],
    "logo_fill": []
-  }
+  },
+  "domains": [
+   "음식",
+   "배달"
+  ]
  },
  {
   "slug": "11st",
@@ -677,7 +707,11 @@
    ],
    "logo_fill": [],
    "note": "로고 픽셀. CTA는 파랑 #0061EF"
-  }
+  },
+  "domains": [
+   "명상",
+   "건강"
+  ]
  },
  {
   "slug": "duolingo",
@@ -703,7 +737,12 @@
     "#1CB0F6"
    ],
    "note": "측정 요소 적음, 실제 로고 초록 #58CC02 가능성"
-  }
+  },
+  "domains": [
+   "교육",
+   "학습",
+   "언어"
+  ]
  },
  {
   "slug": "glossier",
@@ -794,7 +833,11 @@
     }
    ],
    "logo_fill": []
-  }
+  },
+  "domains": [
+   "음악",
+   "오디오"
+  ]
  },
  {
   "slug": "classpass",
@@ -817,7 +860,11 @@
     }
    ],
    "logo_fill": []
-  }
+  },
+  "domains": [
+   "운동",
+   "예약"
+  ]
  },
  {
   "slug": "strava",
@@ -842,7 +889,11 @@
    "logo_fill": [
     "#FC5200"
    ]
-  }
+  },
+  "domains": [
+   "운동",
+   "기록"
+  ]
  },
  {
   "slug": "noom",
@@ -979,5 +1030,147 @@
    ],
    "note": "배너 올리브 #809028와 혼재"
   }
+ },
+ {
+  "slug": "toss",
+  "name": "토스",
+  "url": "https://toss.im",
+  "domain": "금융",
+  "hex": "#3082F6",
+  "confidence": "mid",
+  "evidence": {
+   "note": "화면 요소 실사용 색(버튼·링크) 2026-10-30"
+  },
+  "domains": [
+   "금융",
+   "송금",
+   "은행",
+   "결제",
+   "자산"
+  ]
+ },
+ {
+  "slug": "kakaobank",
+  "name": "카카오뱅크",
+  "url": "https://www.kakaobank.com",
+  "domain": "금융",
+  "hex": "#FFE300",
+  "confidence": "high",
+  "evidence": {
+   "note": "CSS 변수 --primary"
+  },
+  "domains": [
+   "금융",
+   "은행"
+  ]
+ },
+ {
+  "slug": "kbank",
+  "name": "케이뱅크",
+  "url": "https://www.kbanknow.com",
+  "domain": "금융",
+  "hex": "#4262FF",
+  "confidence": "high",
+  "evidence": {
+   "note": "CSS 변수 selected-primary-accent oklch(0.571 0.235 268.7)"
+  },
+  "domains": [
+   "금융",
+   "은행"
+  ]
+ },
+ {
+  "slug": "chzzk",
+  "name": "치지직",
+  "url": "https://chzzk.naver.com",
+  "domain": "방송",
+  "hex": "#00E693",
+  "confidence": "mid",
+  "evidence": {
+   "note": "화면 요소 실사용 색 + --ref-color-brand 녹색 단계"
+  },
+  "domains": [
+   "방송",
+   "영상",
+   "라이브"
+  ]
+ },
+ {
+  "slug": "kakaomobility",
+  "name": "카카오모빌리티",
+  "url": "https://www.kakaomobility.com",
+  "domain": "모빌리티",
+  "hex": "#2C6EDB",
+  "confidence": "low",
+  "evidence": {
+   "note": "화면 요소 실사용 색"
+  },
+  "domains": [
+   "모빌리티",
+   "이동",
+   "택시"
+  ]
+ },
+ {
+  "slug": "tmap",
+  "name": "티맵",
+  "url": "https://www.tmapmobility.com",
+  "domain": "모빌리티",
+  "hex": "#0064FF",
+  "confidence": "high",
+  "evidence": {
+   "note": "CSS 변수 --brand-blue"
+  },
+  "domains": [
+   "모빌리티",
+   "이동",
+   "내비",
+   "지도"
+  ]
+ },
+ {
+  "slug": "band",
+  "name": "밴드",
+  "url": "https://band.us",
+  "domain": "커뮤니티",
+  "hex": "#00EC64",
+  "confidence": "low",
+  "evidence": {
+   "note": "화면 요소 실사용 색"
+  },
+  "domains": [
+   "커뮤니티",
+   "모임",
+   "메신저"
+  ]
+ },
+ {
+  "slug": "melon",
+  "name": "멜론",
+  "url": "https://www.melon.com",
+  "domain": "음악",
+  "hex": "#00D344",
+  "confidence": "low",
+  "evidence": {
+   "note": "화면 요소 실사용 색"
+  },
+  "domains": [
+   "음악"
+  ]
+ },
+ {
+  "slug": "flo",
+  "name": "FLO",
+  "url": "https://www.music-flo.com",
+  "domain": "음악",
+  "hex": "#3F3FFF",
+  "confidence": "mid",
+  "evidence": {
+   "note": "화면 요소 실사용 색"
+  },
+  "domains": [
+   "음악",
+   "오디오"
+  ]
  }
 ]
