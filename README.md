@@ -24,7 +24,7 @@ harnessthon-2-team-3 판본을 이식해 다듬던 기존 하네스(`apps/harnes
 
 ---
 
-> **이 브랜치(sprint/v8-aesthetics)**: 하네스가 Claude Code 플러그인 `hyper-design`으로 바뀌었습니다 — `/hyper-design:go`(1차), `/hyper-design:max`(2차). 설치·사용법은 [plugins/hyper-design/README.md](./plugins/hyper-design/README.md), 자동 개선 루프 기록은 [loop/RESULTS.md](./loop/RESULTS.md).
+> **이 브랜치**: 하네스는 Claude Code·Codex 플러그인 `hyper-design`입니다 — go(1차), max(2차). 설치·사용법·구조는 [docs/plugin.md](./docs/plugin.md), 자동 개선 루프 기록은 [loop/RESULTS.md](./loop/RESULTS.md).
 
 ## 하네스 템플릿 — oss-design-harness
 

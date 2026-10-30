@@ -521,7 +521,7 @@ def main():
         import subprocess
         here = Path(__file__).resolve().parent
         ct = next((c for c in (here / "canvas_test.py",
-                               here.parent / "plugins/hyper-design/core/scripts/canvas_test.py") if c.exists()), None)
+                               here.parent / "src/core/scripts/canvas_test.py") if c.exists()), None)
         if ct:
             try:
                 r = subprocess.run([sys.executable, str(ct), str(OUT)], capture_output=True, text=True, timeout=180)
