@@ -58,7 +58,8 @@ body.has-cta .page, body:has(> .cta) .page { padding-bottom: calc(var(--h-btn) +
 .row { display: flex; align-items: center; gap: var(--stack-m); min-height: var(--h-row); padding: var(--row-py) 0; }
 .row-lead { flex: none; width: 44px; height: 44px; border-radius: var(--r-pill); background: var(--c-bg); display: grid; place-items: center; color: var(--c-text-2); }
 .row-lead svg { width: var(--icon); height: var(--icon); }
-.row-date { flex: none; width: 52px; white-space: nowrap; font-size: var(--fs-sub); line-height: var(--lh-sub); color: var(--c-text-2); font-weight: 600; }
+/* 폭을 고정하지 않는다(min-width) — 고정 52px에선 "11/16 (월)"이 칸을 12px 넘겨 옆 제목에 붙었다(v19, audit box_overflow) */
+.row-date { flex: none; min-width: 52px; white-space: nowrap; font-size: var(--fs-sub); line-height: var(--lh-sub); color: var(--c-text-2); font-weight: 600; }
 .row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .row-title { font-size: var(--fs-strong); font-weight: var(--fw-strong); line-height: var(--lh-strong); }
 .row-sub { font-size: var(--fs-sub); line-height: var(--lh-sub); color: var(--c-text-2); }

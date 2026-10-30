@@ -197,6 +197,78 @@ MEASURE_JS = r"""
 """
 
 
+# 한국어 줄바꿈 실측 — hanmariyang/giting-skills hangul-wrap(scripts/wrapcheck.mjs)의 셈을 옮겼다.
+# Copyright (c) 2026 Giting (hanmariyang), MIT — 전문은 같은 폴더 LICENSE-hangul-wrap.md
+# 글자 하나하나의 실제 위치(Range rect)로 줄을 되살려, 어절이 두 줄로 갈린 곳 · 칸을 뚫은 글자 · 마지막 줄 한두 글자를 센다.
+WRAP_JS = r"""
+() => {
+  const WORD = /[가-힣ㄱ-ㆎ0-9A-Za-z]/, HANGUL = /[가-힣]/, SPACE = /[\s​ ]/;
+  const isInline = (el) => { const d = getComputedStyle(el).display; return d.startsWith('inline') && !/^inline-(block|flex|grid)$/.test(d); };
+  const blockOf = (node) => { let el = node.parentElement; while (el && el !== document.body && isInline(el)) el = el.parentElement; return el; };
+  const visible = (el) => { const s = getComputedStyle(el); return s.visibility !== 'hidden' && s.display !== 'none' && el.getClientRects().length > 0; };
+  const name = (el) => el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/)[0] : '');
+  const blocks = new Map();
+  const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n; (n = tw.nextNode());) {
+    if (!n.nodeValue.trim()) continue;
+    const p = n.parentElement;
+    if (!p || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE|TEXTAREA|OPTION)$/.test(p.tagName)) continue;
+    const b = blockOf(n);
+    if (!b || !visible(b)) continue;
+    if (!blocks.has(b)) blocks.set(b, []);
+    blocks.get(b).push(n);
+  }
+  const res = { splits: [], overflows: [], orphans: [] };
+  let budget = 40000;
+  for (const [el, nodes] of blocks) {
+    const cs = getComputedStyle(el);
+    // 글자 순서대로 [문자, 줄 top]. 사이에 낀 br·블록은 띄어쓰기로 친다
+    const seq = []; let prev = null;
+    for (const node of nodes) {
+      if (prev) { const r = document.createRange(); r.setStartAfter(prev); r.setEndBefore(node); if (r.cloneContents().querySelector('br,div,p,li,img,svg')) seq.push({ ch: ' ' }); }
+      const s = node.nodeValue;
+      for (let i = 0; i < s.length && budget > 0; i++, budget--) {
+        if (SPACE.test(s[i])) { seq.push({ ch: ' ' }); continue; }
+        const r = document.createRange(); r.setStart(node, i); r.setEnd(node, i + 1);
+        const rect = r.getClientRects()[0];
+        seq.push({ ch: s[i], top: rect && rect.width > 0 ? rect.top : null, h: rect ? rect.height : 0 });
+      }
+      prev = node;
+    }
+    if (!seq.some((c) => c.top != null && HANGUL.test(c.ch))) continue;
+    let line = 0, lastTop = null;
+    for (const c of seq) { if (c.top == null) continue; if (lastTop !== null && Math.abs(c.top - lastTop) > Math.max(4, c.h * 0.5)) line++; c.line = line; lastTop = c.top; }
+    const lines = [];
+    for (const c of seq) { if (c.line === undefined) { if (lines.length) lines[lines.length - 1] += ' '; continue; } lines[c.line] = (lines[c.line] || '') + c.ch; }
+    const text = lines.map((l) => l.replace(/\s+/g, ' ').trim());
+    // 쪼개짐: 서로 다른 줄에 놓인 이웃 글자 사이에 띄어쓰기가 없다
+    let a = null, gap = false;
+    for (let i = 0; i < seq.length; i++) {
+      const c = seq[i];
+      if (c.line === undefined) { if (c.ch === ' ') gap = true; continue; }
+      if (a && !gap && a.line !== c.line && WORD.test(a.ch) && WORD.test(c.ch) && (HANGUL.test(a.ch) || HANGUL.test(c.ch))) {
+        let s = i - 1; while (s > 0 && seq[s - 1].ch !== ' ') s--;
+        let e = i; while (e < seq.length - 1 && seq[e + 1].ch !== ' ') e++;
+        res.splits.push(`${name(el)} 「${seq.slice(s, i).map((x) => x.ch).join('')}/${seq.slice(i, e + 1).map((x) => x.ch).join('')}」`);
+      }
+      a = c; gap = false;
+    }
+    // 외톨이: 마지막 줄에 한두 글자. 좁은 칸은 뺀다
+    const fs = parseFloat(cs.fontSize) || 16;
+    if (text.length >= 2 && el.getBoundingClientRect().width / fs >= 8) {
+      const last = text[text.length - 1].replace(/\s/g, '');
+      if (last.length <= 2 && HANGUL.test(last)) res.orphans.push(`${name(el)} 「${last}」`);
+    }
+    // 칸을 뚫음. 가로 스크롤 상자 안과 말줄임은 일부러 그런 것이라 뺀다
+    const ov = el.scrollWidth - el.clientWidth;
+    let scrolls = false;
+    for (let x = el; x && x !== document.documentElement; x = x.parentElement) { const o = getComputedStyle(x).overflowX; if (o === 'auto' || o === 'scroll') { scrolls = true; break; } }
+    if (el.clientWidth > 0 && ov > 1 && !scrolls && cs.textOverflow !== 'ellipsis') res.overflows.push(`${name(el)} 「${text.join(' ').slice(0, 16)}」 ${ov}px`);
+  }
+  return res;
+}
+"""
+
 def rgb_hsl(c):
     h, l, s = colorsys.rgb_to_hls(c[0] / 255, c[1] / 255, c[2] / 255)
     return h * 360, s, l
@@ -371,6 +443,7 @@ def main():
                 page.goto(f.resolve().as_uri(), wait_until="load", timeout=15000)
                 page.wait_for_timeout(150)
                 r = page.evaluate(MEASURE_JS)
+                r.update(page.evaluate(WRAP_JS))
                 if shots:
                     # 폰처럼 찍는다: 첫 화면 + 스크롤 끝. full_page 한 장은 고정 버튼·탭바를 본문 중간(812px)에 찍어
                     # "버튼이 내용을 가린다"는 착시를 만든다(v8·v9 평가에서 반복된 오탐).
@@ -475,6 +548,13 @@ def main():
     add("가독성", "touch_target", f"{(tok/tt*100 if tt else 100):.1f}%", "100%", tok == tt, "; ".join(tf[:6]))
     ov = [f"{sid}({r.get('scrollWidth')})" for sid, r in per.items() if (r.get("scrollWidth") or 0) > 375]
     add("가독성", "h_overflow", len(ov), "0", not ov, ", ".join(ov))
+    # 한국어 줄바꿈: 어절 쪼개짐·칸 넘침은 실패, 마지막 줄 한두 글자는 보고만
+    wsp = [f"{sid}: {x}" for sid, r in per.items() for x in r.get("splits", [])]
+    add("가독성", "word_split", len(wsp), "0", not wsp, "; ".join(wsp[:6]) + (" — 어절 중간에서 줄이 꺾임(keep-all이 빠진 자리)" if wsp else ""))
+    wov = [f"{sid}: {x}" for sid, r in per.items() for x in r.get("overflows", [])]
+    add("가독성", "box_overflow", len(wov), "0", not wov, "; ".join(wov[:6]) + (" — 글자가 칸을 뚫음(고정 폭·nowrap 자리)" if wov else ""))
+    wor = [f"{sid}: {x}" for sid, r in per.items() for x in r.get("orphans", [])]
+    add("가독성", "last_line_orphan", len(wor), "(보고만)", True, "; ".join(wor[:6]))
     sq = [f"{sid}({r.get('rowSqueeze')})" for sid, r in per.items() if r.get("rowSqueeze")]
     add("가독성", "row_squeeze", len(sq), "0", not sq, ", ".join(sq) + (" — 행 오른쪽 버튼 때문에 제목이 3줄 이상" if sq else ""))
     ins = [f"{sid}{sorted(r.get('insets', []))}" for sid, r in per.items() if set(r.get("insets", [])) - set(r.get("insetOk", []))]
