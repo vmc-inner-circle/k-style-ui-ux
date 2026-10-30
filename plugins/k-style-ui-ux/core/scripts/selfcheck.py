@@ -56,7 +56,7 @@ for s in S:
     if t.get("shares"): exp.add("done")
     if t.get("long_task"): exp.add("progress")
     exp |= RULE_ST.get(s["id"], set())
-    if m.get("stage") == "go": exp &= {"done"}          # 1차는 결과 화면만 — 나머지는 /k-style-ui-ux:max
+    if m.get("stage") == "go": exp &= {"done"}          # 1차는 결과 화면만 — 나머지는 max 스킬
     if "large_list" not in t and s.get("kind") == "list" and "--" not in s["id"]: errs.append(f'{s["id"]}: traits.large_list(30개 넘게 쌓이는 목록인가) 미선언')
     if "--" not in s["id"]:
         decl = set(s.get("states", []) or [])
@@ -159,6 +159,23 @@ try:
         if not it.get("why"): errs.append(f"decisions.json: '{it.get('name')}' 판단 이유 없음")
 except Exception as e:
     errs.append(f"decisions.json 없음/깨짐: {e}")
+# 시장 관례(v18): 잘 되는 앱들이 하는 흐름은 기본값 — 2개 이상 앱에서 본 것만 관례, 모든 관례는 장부에서 따랐는지/벗어났는지 판정
+CONV = out / "conventions.json"
+if CONV.exists():
+    try:
+        C = json.loads(CONV.read_text(encoding="utf-8"))
+        try: DI = {i.get("id"): i for i in json.loads((out / "decisions.json").read_text(encoding="utf-8")).get("items", [])}
+        except Exception: DI = {}
+        for kind in ("follow", "consider"):
+            for c in C.get(kind) or []:
+                if len(set(c.get("seen_in") or [])) < 2: errs.append(f"conventions {c.get('id')}: {kind}인데 본 앱 {len(set(c.get('seen_in') or []))}개 — 2개 이상 앱에서 본 것만(아니면 cases)")
+                d = DI.get(c.get("id"))
+                if not d: errs.append(f"decisions.json: 시장 관례 {c.get('id')} '{(c.get('what') or '')[:30]}' 판정 없음 — 따랐는지/벗어났는지(source: 시장)")
+                elif d.get("source") != "시장": errs.append(f"decisions.json: {c.get('id')}의 source가 '시장'이 아님")
+    except Exception as e:
+        errs.append(f"conventions.json 깨짐: {e}")
+elif not (out / "market/SKIPPED").exists():
+    errs.append("시장 관례 없음 — market.py + 해석 에이전트로 conventions.json(못 하면 out/market/SKIPPED에 이유)")
 # 배지 뜻→색 표: 선언한 표만 쓰고, 한 색에 뜻 하나
 BADGES = m.get("badges") or {}
 if not BADGES: errs.append("badges(뜻→색 표) 없음")
@@ -173,5 +190,70 @@ for s in S:
         mean = next((k for k in BADGES if k in text), None)
         if mean is None: errs.append(f"{f.name}: 표에 없는 배지 '{text}'(시간·순서라면 배지 말고 글자로)")
         elif (BADGES[mean] or "") != cls.strip(): errs.append(f"{f.name}: '{text}' 배지 색 {cls or '회색'} ≠ 표 {BADGES[mean] or '회색'}")
+# 강조색(v17): screens.json accent에 선언한 뜻 하나 · 8자 이하 글자/점 · 화면당 2곳(목록 반복은 1곳) · 제목·버튼·배지 밖
+from html.parser import HTMLParser
+ACCENT = m.get("accent")
+VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+NO_ACCENT_TAG = {"h1", "h2", "h3", "button"}; NO_ACCENT_CLS = {"btn", "cta", "badge", "tabbar", "tab", "appbar-title", "title"}
+ITEM_CLS = {"row", "card", "tile", "item", "p-card", "s-card"}
+class AccentScan(HTMLParser):
+    def __init__(self):
+        super().__init__(); self.stack, self.n, self.hits, self.cur = [], 0, [], None
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs); cls = set((a.get("class") or "").split()); self.n += 1
+        node = (tag, cls, self.n)
+        kind = "accent-text" if "accent-text" in cls else "accent-dot" if "accent-dot" in cls else None
+        if kind:
+            chain = self.stack + [node]
+            bad = next((t if t in NO_ACCENT_TAG else "/".join(c & NO_ACCENT_CLS) for t, c, _ in chain if t in NO_ACCENT_TAG or c & NO_ACCENT_CLS), None)
+            items = [i for i, (t, c, _) in enumerate(self.stack) if t == "li" or c & ITEM_CLS]
+            slot = ("list", self.stack[items[-1] - 1][2]) if items and items[-1] > 0 else ("one", self.n)   # 목록 반복은 그 목록 하나로 센다
+            self.hits.append({"kind": kind, "bad": bad, "slot": slot, "text": "", "label": a.get("aria-label")})
+            if kind == "accent-text": self.cur = (len(self.stack), self.hits[-1])
+        if tag not in VOID: self.stack.append(node)
+    def handle_endtag(self, tag):
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == tag:
+                del self.stack[i:]
+                if self.cur and len(self.stack) <= self.cur[0]: self.cur = None
+                return
+    def handle_data(self, d):
+        if self.cur: self.cur[1]["text"] += d
+for s in S:
+    f = out / s["file"]
+    if not f.exists(): continue
+    h = f.read_text(encoding="utf-8")
+    if any("--c-accent" in st for st in re.findall(r"<style[^>]*>(.*?)</style>", h, re.S)): errs.append(f"{f.name}: <style>에서 --c-accent 직접 사용 — 강조색은 .accent-text·.accent-dot으로만")
+    sc = AccentScan(); sc.feed(h); H = sc.hits
+    if not H: continue
+    if not ACCENT: errs.append(f"{f.name}: 강조 부품 {len(H)}개를 썼는데 screens.json accent(뜻 하나) 미선언"); continue
+    for x in H:
+        if x["bad"]: errs.append(f"{f.name}: {x['kind']}가 {x['bad']} 안에 있음 — 제목·버튼·배지에는 강조색을 쓰지 않는다")
+        t = re.sub(r"\s+", " ", x["text"]).strip()
+        if x["kind"] == "accent-text" and not 0 < len(t) <= 8: errs.append(f"{f.name}: 강조 글자 '{t[:20]}' {len(t)}자 — 8자 이하 한 덩어리만")
+        if x["kind"] == "accent-dot" and not x["label"]: errs.append(f"{f.name}: accent-dot에 aria-label 없음(점만으로 뜻을 전하지 않는다)")
+    n = len({x["slot"] for x in H})
+    if n > 2: errs.append(f"{f.name}: 강조색 {n}곳 > 2(목록 반복은 1곳으로 셈) — 강조가 많으면 아무것도 강조되지 않는다")
+# 시트·탐색·판촉 부품(v19)
+PROMO_CLS = {"banner": "넘기는 배너", "strip": "띠 배너", "coupon": "쿠폰", "countdown": "남은 시간"}
+PROMOS = m.get("promos") or []
+for s in S:
+    f = out / s["file"]
+    if not f.exists(): continue
+    h = f.read_text(encoding="utf-8")
+    classes = {c for v in re.findall(r'class="([^"]*)"', h) for c in v.split()}
+    if s.get("kind") == "sheet":
+        if s.get("over") not in ids: errs.append(f'{s["id"]}: kind sheet인데 over(아래 깔리는 화면 id) {s.get("over")!r}가 화면 목록에 없음')
+        if not {"dim", "sheet"} <= classes: errs.append(f"{f.name}: kind sheet인데 .dim·.sheet 없음 — 아래 화면을 복사하고 끝에 시트를 붙인다")
+        elif not re.search(r'<h1[\s>]', h): pass
+    used = [n for c, n in PROMO_CLS.items() if c in classes]
+    if used and not PROMOS: errs.append(f"{f.name}: 판촉 부품({', '.join(used)})을 썼는데 screens.json promos 미선언 — 이 서비스가 실제로 하는 판촉만, 지어내지 않는다")
+    nf = len(re.findall(r'class="fab[ "]', h))
+    if nf > 1: errs.append(f"{f.name}: 떠 있는 버튼 {nf}개 — 화면당 하나")
+    if nf and "cta" in classes: errs.append(f"{f.name}: 떠 있는 버튼과 하단 고정 버튼(cta)을 함께 씀 — 주 행동은 하나")
+    for tag in re.findall(r'<a [^>]*class="fab[ "][^>]*>.*?</a>', h, re.S):
+        if not re.sub(r"<[^>]+>|\s", "", tag) and "aria-label" not in tag: errs.append(f"{f.name}: 글자 없는 떠 있는 버튼에 aria-label 없음")
+    for tag in re.findall(r'<button [^>]*class="like[ "][^>]*>', h):
+        if "aria-pressed" not in tag: errs.append(f"{f.name}: 찜 버튼에 aria-pressed 없음(누른 상태를 표시)")
 print("\n".join(errs) if errs else "selfcheck OK")
 sys.exit(1 if errs else 0)
