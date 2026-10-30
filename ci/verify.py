@@ -1,42 +1,44 @@
 #!/usr/bin/env python3
-"""저장소가 원본(src/·platform/)과 생성물(claude/·codex/plugin/)이 맞물려 있는지 확인한다.
+"""플러그인 폴더 하나를 Claude Code·Codex가 함께 설치할 수 있는 상태인지 확인한다.
 
 python3 ci/verify.py
-- build/build.sh 를 다시 돌려 커밋된 생성물과 한 바이트도 다르지 않은지(손으로 고친 생성물·빌드 안 한 원본 수정을 잡는다)
-- manifest·마켓 파일이 JSON으로 읽히고, 마켓이 가리키는 폴더에 manifest가 있는지
+- manifest 3개·마켓 파일 2개가 JSON으로 읽히고, 두 마켓이 같은 플러그인 폴더를 가리킨다
+- manifest 3개 버전이 같고 CHANGELOG 맨 위와 같다
+- 스킬마다 Codex용 agents/openai.yaml 이 있다
+- 스킬 frontmatter에 한 에이전트 전용 필드(allowed-tools 등)가 없다 — 있으면 폴더 하나로 못 나눠 쓴다
 """
 from __future__ import annotations
-import json, subprocess, sys
+import json, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-GENERATED = ["claude", "codex/plugin"]
 fails: list[str] = []
 
-for f in ["platform/claude/plugin.json", "platform/codex/plugin.json", "platform/codex/plugin.portable.json",
-          ".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json"]:
-    try: json.loads((ROOT / f).read_text(encoding="utf-8"))
-    except Exception as e: fails.append(f"JSON 읽기 실패: {f}: {e}")
+def load(rel):
+    try: return json.loads((ROOT / rel).read_text(encoding="utf-8"))
+    except Exception as e: fails.append(f"JSON 읽기 실패: {rel}: {e}"); return {}
 
-cm = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
-for p in cm["plugins"]:
-    if not (ROOT / p["source"] / ".claude-plugin/plugin.json").exists():
-        fails.append(f"Claude 마켓이 가리키는 곳에 manifest 없음: {p['source']}")
-xm = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
-for p in xm["plugins"]:
-    d = ROOT / p["source"]["path"]
-    if not (d / "plugin.json").exists() or not (d / ".codex-plugin/plugin.json").exists():
-        fails.append(f"Codex 마켓이 가리키는 곳에 manifest 없음: {p['source']['path']}")
+cm, xm = load(".claude-plugin/marketplace.json"), load(".agents/plugins/marketplace.json")
+c_src = {Path(p["source"]).as_posix().lstrip("./") for p in cm.get("plugins", [])}
+x_src = {Path(p["source"]["path"]).as_posix().lstrip("./") for p in xm.get("plugins", [])}
+if c_src != x_src: fails.append(f"두 마켓이 가리키는 폴더가 다르다: Claude {c_src} / Codex {x_src}")
 
-r = subprocess.run(["bash", str(ROOT / "build/build.sh")], cwd=ROOT, capture_output=True, text=True)
-if r.returncode != 0:
-    fails.append("build.sh 실패:\n" + r.stdout + r.stderr)
-else:
-    git = lambda *a: subprocess.run(["git", *a, "--", *GENERATED], cwd=ROOT, capture_output=True, text=True).stdout
-    st = git("diff", "--name-status") + git("ls-files", "--others", "--exclude-standard")   # 커밋(또는 스테이징)한 것과 비교
-    if st.strip():
-        fails.append("생성물이 원본과 다르다 — src/·platform/ 을 고친 뒤 build/build.sh 를 돌려 커밋할 것:\n" + st)
+for rel in sorted(c_src | x_src):
+    plug = ROOT / rel
+    mans = [f"{rel}/.claude-plugin/plugin.json", f"{rel}/.codex-plugin/plugin.json", f"{rel}/plugin.json"]
+    vers = {m: load(m).get("version") for m in mans}
+    cl = re.search(r"^##\s+v(\S+)", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"), re.M)
+    if len(set(vers.values())) != 1 or None in vers.values() or not cl or cl.group(1) != next(iter(vers.values())):
+        fails.append(f"버전 불일치: {vers} · CHANGELOG 맨 위 {cl.group(1) if cl else '없음'}")
+    for sk in sorted((plug / "skills").glob("*/SKILL.md")):
+        name = sk.parent.name
+        if not (sk.parent / "agents/openai.yaml").exists():
+            fails.append(f"Codex openai.yaml 없음: {rel}/skills/{name}/agents/openai.yaml")
+        fm = re.match(r"\A---\n(.*?)\n---\n", sk.read_text(encoding="utf-8"), re.S)
+        if not fm: fails.append(f"frontmatter 없음: {name}")
+        elif re.search(r"^(allowed-tools|disable-model-invocation|model):", fm.group(1), re.M):
+            fails.append(f"한 에이전트 전용 frontmatter: {name} — 폴더 하나를 같이 쓸 수 없다")
 
 if fails:
     print("\n".join("✗ " + f for f in fails)); sys.exit(1)
-print("✓ verify OK — 생성물이 원본과 같고 manifest·마켓이 맞다")
+print("✓ verify OK — 두 마켓이 같은 폴더를 가리키고 버전·openai.yaml·frontmatter가 맞다")

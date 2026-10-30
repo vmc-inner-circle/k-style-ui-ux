@@ -11,11 +11,9 @@ permissions:
 
 jobs:
   verify:
-    name: Verify package
+    name: Verify plugin
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check shell scripts
-        run: shellcheck build/build.sh
-      - name: Verify build and manifests
+      - name: Verify manifests and skills
         run: python3 ci/verify.py

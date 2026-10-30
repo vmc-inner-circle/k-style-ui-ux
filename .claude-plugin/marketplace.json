@@ -2,6 +2,6 @@
   "name": "hyper-design",
   "owner": {"name": "vmc-inner-circle"},
   "plugins": [
-    {"name": "hyper-design", "source": "./claude", "description": "PRD → 모바일 앱 HTML 디자인 하네스 (/hyper-design:go, /hyper-design:max)"}
+    {"name": "hyper-design", "source": "./plugins/hyper-design", "description": "PRD → 모바일 앱 HTML 디자인 하네스 (/hyper-design:go, /hyper-design:max)"}
   ]
 }

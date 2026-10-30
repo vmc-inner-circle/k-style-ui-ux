@@ -1,13 +1,12 @@
 """하네스 1회 구동: 격리 폴더에서 claude -p 헤드리스 실행, 질문은 가상 사용자가 답한다.
 python3 loop/run.py <prd.md> <run_dir> [--max]
-플러그인(build/build.sh로 src/에서 만든 claude/)을 --plugin-dir로 불러 /hyper-design:go 로 구동. --max면 go가 끝난 뒤 같은 세션에서 /hyper-design:max(1차 결과는 out-go/로 보존)
+플러그인(plugins/hyper-design)을 --plugin-dir로 불러 /hyper-design:go 로 구동. --max면 go가 끝난 뒤 같은 세션에서 /hyper-design:max(1차 결과는 out-go/로 보존)
 산출: run_dir/out(결과), prompt-log.md, elapsed.txt, transcript.jsonl
 """
 import sys, json, re, shutil, subprocess, time, pathlib, datetime
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 prd = pathlib.Path(sys.argv[1]).resolve(); run = pathlib.Path(sys.argv[2]).resolve(); DO_MAX = "--max" in sys.argv
-PLUGIN = ROOT / "claude"
-subprocess.run(["bash", str(ROOT / "build/build.sh")], check=True, capture_output=True)  # src/ 수정을 패키지에 반영
+PLUGIN = ROOT / "plugins/hyper-design"
 MODEL = "claude-opus-5-5"; MAX_TURNS = 4
 if run.exists(): shutil.rmtree(run)
 work = run / "work"; work.mkdir(parents=True)

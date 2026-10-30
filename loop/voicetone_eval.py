@@ -9,7 +9,7 @@ import sys, json, re, random, subprocess, pathlib, hashlib, argparse, statistics
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 D = ROOT / "loop/voicetone"
-VOICES = pathlib.Path(sys.argv[sys.argv.index("--voices") + 1]) if "--voices" in sys.argv else ROOT / "src/core/foundation/voices"
+VOICES = pathlib.Path(sys.argv[sys.argv.index("--voices") + 1]) if "--voices" in sys.argv else ROOT / "plugins/hyper-design/core/foundation/voices"
 REAL = ROOT / "docs/research/ux-writing/real"
 SLUGS = ["toss", "daangn", "ridi"]
 LABEL_SLOTS = {"button", "tab", "badge", "label", "section", "row", "dialog_buttons", "marketing"}
