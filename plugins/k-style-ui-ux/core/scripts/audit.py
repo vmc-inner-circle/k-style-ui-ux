@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """하네스 산출물(OUT) 정량 채점기. docs/success-criteria.md 기준.
 
-usage: python3 loop/score.py OUT [--shots SHOTDIR] [--json out.json]
+usage: python3 audit.py OUT [--shots SHOTDIR] [--json out.json]
 """
 import argparse, colorsys, json, os, re, sys
 from collections import deque
