@@ -48,7 +48,7 @@ body.has-cta .page, body:has(> .cta) .page { padding-bottom: calc(var(--h-btn) +
 .block.is-list { padding-top: var(--stack-m); padding-bottom: var(--stack-s); gap: 0; }
 .block-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--stack-s); padding-bottom: var(--stack-s); }
 .h2 { font-size: var(--fs-h2); font-weight: var(--fw-h2); line-height: var(--lh-h2); }
-.block-link { font-size: var(--fs-sub); color: var(--c-text-2); min-height: 44px; display: inline-flex; align-items: center; }
+.block-link { font-size: var(--fs-sub); color: var(--c-text-2); min-height: 44px; min-width: 44px; justify-content: flex-end; display: inline-flex; align-items: center; }
 
 /* 블록 안 인라인 행동 — 상황에 따라 생기는 할 일은 고정 CTA가 아니라 여기 */
 .block .btn { align-self: stretch; }
@@ -75,6 +75,10 @@ body.has-cta .page, body:has(> .cta) .page { padding-bottom: calc(var(--h-btn) +
 .badge.is-warning { background: var(--c-warning-tint); color: var(--c-warning-tint-text); }   /* 바뀜·마감 임박 */
 .badge.is-info { background: var(--c-info-tint); color: var(--c-info-tint-text); }            /* 안내·요청 */
 .badge.is-success { background: var(--c-success-tint); color: var(--c-success-tint-text); }   /* 완료 */
+
+/* 강조색 — screens.json "accent"에 선언한 뜻 하나에만. 짧은 글자(8자 이하)·점만, 화면당 2곳(목록 반복은 1곳). 버튼·면·제목·배지에 쓰지 않는다 */
+.accent-text { color: var(--c-accent-text); font-weight: 700; }
+.accent-dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: var(--r-pill); background: var(--c-accent); vertical-align: middle; }
 
 /* 버튼 */
 .btn svg, .done svg, .block-note svg { width: 20px; height: 20px; }
@@ -249,3 +253,129 @@ body:not(.plain) .page > div:not([class]) > .hero, body:not(.plain) .page > sect
 .plain .page > .hero { margin-left: 0; margin-right: 0; }
 /* 이미 한 행동의 결과 표시(리뷰 완료·출석 완료) — 누를 수 없지만 읽혀야 한다: 비활성 바탕 + 보조 글자색 */
 .btn.is-done { background: var(--c-disabled-bg); color: var(--c-text-2); pointer-events: none; }
+
+/* ── 탐색·진열·판촉 부품(v19) ─────────────────────────────
+   사용 조건은 COMPONENTS.md "탐색·진열·판촉" 절. 선택 상태는 다른 부품과 같은 브랜드 계열 하나. */
+
+/* 상단 가로 탭 — 같은 화면 안에서 내용 묶음을 바꾼다(앱바 아래). 선택 = 진한 글자 + 브랜드 밑줄 */
+.tabs { position: sticky; top: var(--h-appbar); z-index: 4; display: flex; gap: var(--stack-l); overflow-x: auto; scrollbar-width: none; padding: 0 var(--page-x); background: var(--c-bg); border-bottom: 1px solid var(--c-line); }
+.plain .tabs { background: var(--c-surface); margin-left: calc(var(--page-x) * -1); margin-right: calc(var(--page-x) * -1); }
+body:not(:has(.appbar)) .tabs { top: 0; }
+.tabs-item { flex: none; position: relative; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; font-size: var(--fs-strong); font-weight: 600; color: var(--c-text-3); white-space: nowrap; }
+.tabs-item[aria-selected="true"] { color: var(--c-text-1); }
+.tabs-item[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: var(--r-pill); background: var(--c-brand); }
+
+/* 정렬·필터 바 — 목록 맨 위. 왼쪽 개수, 오른쪽 정렬·필터 버튼 */
+.toolbar { display: flex; align-items: center; gap: var(--stack-s); min-height: 44px; padding: 0 var(--page-x); }
+.block .toolbar { padding: 0; }
+.toolbar-count { flex: 1; font-size: var(--fs-sub); font-weight: 600; color: var(--c-text-2); }
+.toolbar-btn { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-size: var(--fs-sub); font-weight: 600; color: var(--c-text-1); }
+.toolbar-btn svg { width: 18px; height: 18px; color: var(--c-text-2); }
+.toolbar-btn .toolbar-on { min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--r-pill); background: var(--c-brand); color: var(--c-on-brand); font-size: var(--fs-caption); line-height: 20px; text-align: center; }
+
+/* 아이콘 격자 메뉴 — 같은 무게의 목적지 6~10곳을 한눈에. 일러스트 + 짧은 라벨 */
+.menu-grid { display: grid; grid-template-columns: repeat(5, 1fr); row-gap: var(--stack-m); padding: 0 var(--stack-m); }
+.menu-grid.is-4 { grid-template-columns: repeat(4, 1fr); }
+.block .menu-grid { padding: 0; }
+.menu-item { min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: var(--fs-caption); font-weight: 600; line-height: var(--lh-caption); color: var(--c-text-1); text-align: center; }
+.menu-item > span:first-child { width: 48px; height: 48px; border-radius: var(--r-m); background: var(--c-bg); display: grid; place-items: center; }
+.block .menu-item > span:first-child { background: var(--c-bg); }
+.menu-item img { width: 30px; height: 30px; }
+
+/* 가로 스크롤 카드 줄 — 더 있다는 것을 다음 카드 일부로 보여 준다 */
+.scroller { display: flex; gap: var(--stack-s); overflow-x: auto; scrollbar-width: none; padding: 0 var(--page-x); scroll-padding-inline: var(--page-x); scroll-snap-type: x mandatory; }
+.scroller:has(.s-circle) { padding-top: 4px; padding-bottom: 4px; }
+.block .scroller { margin: 0 calc(var(--block-pad) * -1); padding-left: var(--block-pad); padding-right: var(--block-pad); scroll-padding-inline: var(--block-pad); }
+.scroller > * { flex: none; scroll-snap-align: start; }
+.s-card { width: 136px; display: flex; flex-direction: column; gap: 6px; }
+.s-card.is-wide { width: 248px; }
+.s-card .photo { aspect-ratio: 1 / 1; }
+.s-card.is-wide .photo { aspect-ratio: 16 / 9; }
+.s-title { font-size: var(--fs-sub); font-weight: 600; line-height: var(--lh-sub); color: var(--c-text-1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.s-sub { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--c-text-2); }
+/* 동그란 썸네일 줄 — 사람·주제·카테고리를 사진으로 고를 때 */
+.s-circle { width: 68px; min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: var(--fs-caption); font-weight: 600; line-height: var(--lh-caption); color: var(--c-text-1); text-align: center; }
+.s-circle > span:first-child { width: 60px; height: 60px; border-radius: var(--r-pill); overflow: hidden; background: var(--c-bg); display: grid; place-items: center; }
+.s-circle > span:first-child img { width: 100%; height: 100%; object-fit: cover; }
+.s-circle[aria-current="true"] > span:first-child { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-brand); }
+
+/* 상품·콘텐츠 카드 격자 — 사진이 먼저인 진열. 2열 기본, 촘촘하면 is-3 */
+.product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--stack-l) var(--stack-s); padding: 0 var(--page-x); }
+.product-grid.is-3 { grid-template-columns: repeat(3, 1fr); }
+.block .product-grid { padding: 0; }
+.p-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.p-card .photo { aspect-ratio: 1 / 1; margin-bottom: 4px; }
+.p-card .photo.is-3x4 { aspect-ratio: 3 / 4; }
+.p-brand { font-size: var(--fs-caption); font-weight: 700; line-height: var(--lh-caption); color: var(--c-text-1); }
+.p-name { font-size: var(--fs-sub); line-height: var(--lh-sub); color: var(--c-text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.p-meta { display: flex; align-items: center; gap: 4px; font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--c-text-3); }
+.p-meta .rating svg { width: 14px; height: 14px; }
+
+/* 가격 — 할인율(있으면) + 지금 가격 + 원래 가격(취소선) */
+.price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; font-variant-numeric: tabular-nums; }
+.price-off { font-size: var(--fs-strong); font-weight: 700; color: var(--c-brand-text); }
+.price-now { font-size: var(--fs-strong); font-weight: 700; color: var(--c-text-1); }
+.price-was { font-size: var(--fs-caption); color: var(--c-text-3); text-decoration: line-through; }
+.price.is-l .price-off, .price.is-l .price-now { font-size: var(--fs-h2); }
+
+/* 찜·좋아요 — 선 하트, 누르면 채운 하트(브랜드 색). 사진 위에 둘 때는 오른쪽 아래 */
+.like { flex: none; min-width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 2px; font-size: var(--fs-caption); font-weight: 600; color: var(--c-text-2); }
+.like svg { width: 22px; height: 22px; fill: none; }
+.like[aria-pressed="true"] { color: var(--c-brand); }
+.like[aria-pressed="true"] svg { fill: currentColor; }
+.photo > .like { position: absolute; right: 0; bottom: 0; color: var(--c-surface); filter: drop-shadow(0 1px 2px var(--c-overlay)); }
+.photo > .like[aria-pressed="true"] { color: var(--c-brand); }
+
+/* 떠 있는 버튼 — 화면의 주 행동이 "새로 만들기"일 때 하나. 탭바 위·오른쪽 아래 */
+.fab { position: fixed; right: var(--page-x); bottom: calc(var(--stack-l) + env(safe-area-inset-bottom)); z-index: 6; height: 52px; min-width: 52px; padding: 0 var(--stack-m); border-radius: var(--r-pill); background: var(--c-brand); color: var(--c-on-brand); box-shadow: var(--shadow-2); display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: var(--fs-strong); font-weight: 700; }
+.fab svg { width: 24px; height: 24px; }
+.fab:active { background: var(--c-brand-pressed); }
+body.has-tab .fab { bottom: calc(var(--h-tab) + var(--stack-m) + env(safe-area-inset-bottom)); }
+
+/* 넘기는 배너 — 판촉·소식 한 장씩. 바탕은 브랜드 틴트, 오른쪽에 일러스트 또는 사진, 오른쪽 아래 "1/5" */
+.banner { position: relative; margin: 0 var(--stack-m); min-height: 128px; border-radius: var(--r-l); overflow: hidden; background: var(--c-brand-tint); display: flex; align-items: center; gap: var(--stack-m); padding: var(--block-pad); }
+.block .banner { margin: 0; }
+.banner-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.banner-eyebrow { font-size: var(--fs-caption); font-weight: 600; line-height: var(--lh-caption); color: var(--c-brand-tint-text); }
+.banner-title { font-size: var(--fs-h2); font-weight: var(--fw-h2); line-height: var(--lh-h2); color: var(--c-text-1); }
+.banner-sub { font-size: var(--fs-sub); line-height: var(--lh-sub); color: var(--c-text-2); }
+.banner-art { flex: none; width: 88px; height: 88px; display: grid; place-items: center; }
+.banner-art img { width: 80px; height: 80px; object-fit: contain; }
+.banner-art.is-photo { border-radius: var(--r-m); overflow: hidden; }
+.banner-art.is-photo img { width: 100%; height: 100%; object-fit: cover; }
+.banner-count { position: absolute; right: var(--stack-m); bottom: var(--stack-s); height: 22px; padding: 0 8px; border-radius: var(--r-pill); background: var(--c-text-1); color: var(--c-surface); font-size: var(--fs-caption); font-weight: 600; line-height: 22px; font-variant-numeric: tabular-nums; }
+.dots { display: flex; justify-content: center; gap: 6px; }
+.dots > span { width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--c-line-strong); }
+.dots > span.is-on { width: 16px; background: var(--c-text-1); }
+
+/* 얇은 띠 배너 — 한 줄 소식·혜택. 누르면 그 내용으로 */
+.strip { margin: 0 var(--stack-m); min-height: 48px; padding: 0 var(--stack-m); border-radius: var(--r-m); background: var(--c-surface); border: 1px solid var(--c-line); display: flex; align-items: center; gap: var(--stack-s); font-size: var(--fs-sub); font-weight: 600; color: var(--c-text-1); }
+.block .strip { margin: 0; background: var(--c-bg); border-color: transparent; }
+.strip > span { flex: 1; min-width: 0; }
+.strip img { flex: none; width: 24px; height: 24px; }
+.strip svg { width: 18px; height: 18px; color: var(--c-text-3); }
+
+/* 쿠폰 — 금액 + 조건 + 받기. 양옆 홈으로 티켓 모양 */
+.coupon { position: relative; display: flex; align-items: stretch; border-radius: var(--r-m); background: var(--c-brand-tint);
+  -webkit-mask: radial-gradient(circle 8px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 8px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 8px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 8px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat; }
+.coupon-main { flex: 1; min-width: 0; padding: var(--stack-m) var(--block-pad); display: flex; flex-direction: column; gap: 2px; }
+.coupon-amount { font-size: var(--fs-title); font-weight: 700; line-height: var(--lh-title); color: var(--c-brand-tint-text); font-variant-numeric: tabular-nums; }
+.coupon-cond { font-size: var(--fs-caption); line-height: var(--lh-caption); color: var(--c-text-2); }
+.coupon-get { flex: none; width: 76px; border-left: 1.5px dashed var(--c-line-strong); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: var(--fs-sub); font-weight: 700; color: var(--c-brand-tint-text); }
+.coupon-get svg { width: 20px; height: 20px; }
+.coupon.is-done { background: var(--c-disabled-bg); }
+.coupon.is-done .coupon-amount, .coupon.is-done .coupon-get { color: var(--c-text-3); pointer-events: none; }
+
+/* 남은 시간 — 마감이 실제로 정해진 판촉·신청에만. 숫자는 고정폭 */
+.countdown { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border-radius: var(--r-pill); background: var(--c-text-1); color: var(--c-surface); font-size: var(--fs-sub); font-weight: 700; font-variant-numeric: tabular-nums; }
+.countdown svg { width: 16px; height: 16px; }
+
+/* 시트 안 고르기 목록 — 고른 칸은 오른쪽 체크(선 아이콘) */
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: var(--stack-s); }
+.sheet-grip { align-self: center; width: 36px; height: 4px; border-radius: var(--r-pill); background: var(--c-line-strong); margin-top: calc(var(--stack-s) * -1); }
+button.row { width: 100%; text-align: left; }
+.sheet .row[aria-checked="true"] .row-title { color: var(--c-brand-text); }
+.sheet .row[aria-checked="true"] .row-trail svg { color: var(--c-brand); }
+.plain .page > :is(.scroller, .product-grid, .toolbar, .menu-grid) { margin-left: calc(var(--page-x) * -1); margin-right: calc(var(--page-x) * -1); }
+.plain .page > :is(.banner, .strip) { margin-left: 0; margin-right: 0; }
