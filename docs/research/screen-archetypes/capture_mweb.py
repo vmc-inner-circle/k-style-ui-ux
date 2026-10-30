@@ -9,7 +9,7 @@ import sys, json, re, pathlib, argparse
 from concurrent.futures import ThreadPoolExecutor
 from playwright.sync_api import sync_playwright
 
-# (id, 도메인, 홈, 검색 결과 URL — 없으면 None)
+# (id, 도메인, 홈, 검색 결과 URL — 없으면 None. 홈이 None이면 목록·상세만(당근처럼 한 앱 안의 서비스별 목록))
 SITES = [
  ("29cm", "패션 쇼핑", "https://www.29cm.co.kr", "https://www.29cm.co.kr/search?keyword=니트"),
  ("musinsa", "패션 쇼핑", "https://www.musinsa.com/main/musinsa/recommend", "https://www.musinsa.com/search/goods?keyword=니트"),
@@ -51,6 +51,24 @@ SITES = [
  ("wanted", "채용", "https://www.wanted.co.kr", None),
  ("saramin", "채용", "https://m.saramin.co.kr", None),
  ("10000recipe", "레시피", "https://m.10000recipe.com", "https://m.10000recipe.com/recipe/list.html?q=김치찌개"),
+ # 2차 — 이름으로 정한 대표 서비스, 당근은 서비스별
+ ("daangn-main", "동네 생활", "https://www.daangn.com/kr/", "https://www.daangn.com/kr/search/buy-sell/"),
+ ("daangn-community", "동네 생활", None, "https://www.daangn.com/kr/search/community/"),
+ ("daangn-group", "모임", None, "https://www.daangn.com/kr/search/group/"),
+ ("daangn-local", "동네 가게", None, "https://www.daangn.com/kr/search/local-profile/?q=맛집"),
+ ("daangn-cars", "중고차", None, "https://www.daangn.com/kr/search/cars/"),
+ ("daangn-jobs", "알바", None, "https://www.daangn.com/kr/jobs/"),
+ ("daangn-realty", "부동산", None, "https://www.daangn.com/kr/realty/"),
+ ("chzzk", "라이브 방송", "https://chzzk.naver.com", None),
+ ("soop", "라이브 방송", "https://www.sooplive.co.kr", None),
+ ("naver", "포털", "https://m.naver.com", None),
+ ("navermap", "지도", "https://m.map.naver.com", None),
+ ("oliveyoung", "뷰티 쇼핑", "https://m.oliveyoung.co.kr", "https://m.oliveyoung.co.kr/m/mtn/search/result?query=선크림"),
+ ("daiso", "생활 쇼핑", "https://www.daisomall.co.kr", None),
+ ("cgv", "영화 예매", "https://m.cgv.co.kr", None),
+ ("albamon", "알바", "https://m.albamon.com", None),
+ ("kmong", "전문가 찾기", "https://kmong.com", "https://kmong.com/search?keyword=로고"),
+ ("coupang", "종합 쇼핑", "https://m.coupang.com", "https://m.coupang.com/nm/search?q=사과"),
 ]
 DETAIL = re.compile(r"/(products?|goods|item|catalog|detail|p|recipe|course|courses|books?|v2/title|content|watch|articles?|room|rooms|place|places|offers|activity|activities|tna|classes|stays?|deals?|jobs?|wd|read|post|accommodations?|socialing|v|@[^/]+/[^/]+)(/|\?|$|\d)|\?id=\d+", re.I)
 SKIP = re.compile(r"login|signin|join|event|cart|order|mypage|notice|help|policy|terms|app|download", re.I)
@@ -73,10 +91,13 @@ def shot(pg, url, path):
 
 def detail_link(pg, host):
     base = pg.url.split("?")[0].rstrip("/")
-    hrefs = pg.evaluate("""() => [...document.querySelectorAll('a[href]')].filter(a => a.querySelector('img') && a.getBoundingClientRect().width > 60).map(a => a.href)""")
-    for h in hrefs:
-        if host.split(".")[-2] not in h or SKIP.search(h): continue
-        if DETAIL.search(h) or (h.startswith(base + "/") and len(h) > len(base) + 8): return h  # 목록 주소 아래 한 단계(당근 /buy-sell/<글>)
+    svc = re.search(r"/search/([^/?]+)", base)  # 당근: /search/community/ 결과 → 상세는 /community/<글>/
+    under = [base] + ([base.split("/search/")[0] + "/" + svc.group(1)] if svc else [])
+    # 사진이 든 링크 먼저, 없으면 글자만 있는 행(알바·동네생활)
+    for sel in ("a.querySelector('img') && a.getBoundingClientRect().width > 60", "a.getBoundingClientRect().width > 200"):
+        for h in pg.evaluate("() => [...document.querySelectorAll('a[href]')].filter(a => %s).map(a => a.href)" % sel):
+            if host.split(".")[-2] not in h or SKIP.search(h) or "/search/" in h: continue
+            if DETAIL.search(h) or any(h.startswith(u + "/") and len(h) > len(u) + 8 for u in under): return h  # 목록 주소 아래 한 단계(당근 /buy-sell/<글>)
 
 def click_card(pg):
     """링크 없이 스크립트로 여는 카드 — 첫 화면 아래쪽의 가장 큰 사진을 눌러 주소가 바뀌면 그 주소"""
@@ -95,7 +116,7 @@ def run(site, out):
         b = p.chromium.launch()
         ctx = b.new_context(**p.devices["iPhone 13"], locale="ko-KR")
         pg = ctx.new_page()
-        host = re.sub(r"^https?://([^/]+).*", r"\1", home)
+        host = re.sub(r"^https?://([^/]+).*", r"\1", home or search)
         for kind, url in (("home", home), ("list", search)):
             if not url: continue
             try: rec["pages"][kind] = shot(pg, url, out / f"{sid}-{kind}.png")
