@@ -8,7 +8,7 @@ run, prd, base = (pathlib.Path(a).resolve() for a in args[1:4])
 designer = pathlib.Path(args[4]).resolve() if len(args) > 4 else None
 SFX = "" if OUTN == "out" else "-" + OUTN.replace("out-", "")
 shots = run / f"shots{SFX}"; shots.mkdir(exist_ok=True)
-subprocess.run(["python3", str(ROOT / "loop/score.py"), str(run / OUTN), "--shots", str(shots), "--json", str(run / f"score{SFX}.json")],
+subprocess.run(["python3", str(ROOT / "plugins/k-style-ui-ux/core/scripts/audit.py"), str(run / OUTN), "--shots", str(shots), "--json", str(run / f"score{SFX}.json")],
                stdout=open(run / f"score{SFX}.txt", "w"), stderr=subprocess.STDOUT)
 # 바닐라 스크린샷
 bshots = base / "shots"
