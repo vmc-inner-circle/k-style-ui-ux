@@ -29,16 +29,17 @@ description: PRD(기획 문서) 한 장으로 모바일 앱 HTML 디자인을 �
 - **맨 먼저(1초)**: `python3 $SK/scripts/save_prd.py out` — 붙여넣은 PRD 원문을 `out/prd.md`로 저장(파일로 받았으면 `--from <파일>`). 실패하면 그때만 직접 쓴다.
 - **이어서 바로(3초)**: PRD의 핵심 기능·갈등에서 키워드 3~4개를 뽑아 `python3 $SK/scripts/market.py out "<키워드>" …` — 같은 문제를 푸는 잘 되는 앱(평점 수 상위 5)의 스토어 화면·설명·리뷰를 `out/market/`에 모은다(`$SK/references/market.md` 1절). 도메인 이름이 아니라 이 PRD의 말로.
 - **먼저 30초**: PRD에서 도메인(예: 여행·생활·커머스·교육·결혼)과 제품 성격 키워드 3개를 정한다 — 키워드는 라이브러리 어휘에서 고른다: 따뜻함·감성·친근·활기·선명·강렬·밝음·산뜻·신뢰·차분·고급·모노·에디토리얼·생활·여행·자연·건강·기록·커뮤니티. 도메인은 구체적으로(예: "뷰티,헤어", "운동,예약") — 라이브러리에 맞는 도메인이 없으면 승인된 브랜드 시드에서 색을 만든다(자동). 그리고 **감정 온도**: 축하·결혼·선물·돌잔치처럼 **설렘 자체가 제품의 핵심**이면 `warm`, 금융·업무·의료처럼 믿음이 핵심이면 `cool`, 여행·생활·가족 일상처럼 둘 다 아니면 비운다(대부분 비운다).
-- **백그라운드로 즉시**: `python3 $SK/scripts/setup_out.py out --domain "<도메인>" --tags "<키워드,…>" [--temp warm|cool]` — 공통 파일 복사 + 팔레트 라이브러리(`$SK/foundation/palettes/`)에서 **기본 1 + 대안 2 자동 결정**. 사용자에게 색을 묻지 않는다.
+- **백그라운드로 즉시**: `python3 $SK/scripts/setup_out.py out --domain "<도메인>" --tags "<키워드,…>" [--temp warm|cool] [--gender 여성|남성]` — `--gender`는 **PRD에 타깃 성별이 적혀 있을 때만**(짐작해서 넣지 않는다) — 공통 파일 복사 + 팔레트 라이브러리(`$SK/foundation/palettes/`)에서 **기본 1 + 대안 2 자동 결정**. 사용자에게 색을 묻지 않는다.
 - **같은 메시지에서 서브에이전트 1개 — 시장 관례**: `$SK/references/market.md` 2절 프롬프트로 `out/market/`에서 `out/conventions.json`을 뽑는다(2개 이상 앱에서 본 것만 관례).
 - **같은 메시지에서 서브에이전트 1개 — 명세 목록**: `$SK/references/spec-mode.md`의 프롬프트로 `out/prd.md`에서 `out/spec_inventory.json`을 뽑는다(화면·단계·부딪히는 규칙 최대 20개, 항목마다 원문 인용).
 - **메인은 그동안** `out/journey.md`를 쓴다:
   - **사람 카드(맨 먼저 — 이 앱이 누구를 위한 것인가)**: PRD에 사용자 구분(유형·단계·페르소나)이 있으면 **그 구분과 이름을 그대로** 가져온다. 없으면 여정에서 서로 가장 다른 사람 2~3명. 사람마다 {누구(상황 한 줄 — 나이·국적·성별처럼 사진에 영향을 주는 특성 포함), **처음 오는 이유**, 그때 마음(불안·막막함·호기심·자부심…), **알고 싶은 것 3~5개**(그 사람이 앱을 열 때 머릿속에 있는 질문 — 기능 이름이 아니라 질문, 그리고 그 답이 보일 화면 id), **이 앱에서 성공한 순간**, 주로 쓰는 화면 id}. 같은 앱이라도 목적이 다르면 알고 싶은 것이 다르다 — 예: 기록하러 온 사람은 "내 기록이 어떻게 쌓였나, 내가 어떻게 변했나", 남이 궁금해서 온 사람은 "나와 비슷한 사람은 누구고 어떻게 됐나, 나와 같은 시기를 지난 사람은 어땠나, 그 사람들은 무엇을 쓰나". 이 카드를 `screens.json`의 `people`에도 옮긴다. **핵심 사람**(이 앱이 가장 먼저 붙잡아야 하는 사람) 하나를 정하고 이유를 가정 로그에.
   - **여정표**: 시기(사용 전·중·후) × 사람 카드의 사람(**모두** — 주인공 한 명만 따라가지 않는다) × {할 일, 궁금해지는 것, **막히는 순간**}. 궁금한 것은 "물어보기 미안한 사소한 것"까지. 막히는 순간(아무도 답이 없음·마감이 지남·전부 안 됨·거절)은 그 순간을 푸는 화면이나 상태로 이어져야 한다.
   - **범위**: 커버한다 / 커버하지 않는다(이유) / 경계(추천 결정). 사람 나누는 방식(권한).
-  - **시나리오 데이터 표 + 사실 표**: 등장인물·주요 항목 3~5개, 그리고 화면에 나올 **모든 사실**(날짜·시간·인원 수·누가 어디에 속하는지·무엇이 무엇과 겹치는지·각 대상의 상태 이름)을 한 표에. 모든 화면이 이 표만 인용한다(원칙 19). 숫자를 쓰는 제목("23명")은 표에서 센 값.
+  - **시나리오 데이터 표 + 사실 표**: 등장인물·주요 항목 3~5개, 그리고 화면에 나올 **모든 사실**(날짜·시간·인원 수·누가 어디에 속하는지·무엇이 무엇과 겹치는지·각 대상의 상태 이름)을 한 표에. 모든 화면이 이 표만 인용한다(원칙 19). 숫자를 쓰는 제목("23명")은 표에서 센 값. **사람마다 아바타 파일**도 이 표에 적는다 — 먼저 앱 전체 아바타 스타일 하나를 정하고(`$SK/foundation/assets/avatars/avatars.json`의 `styles`: 실명이 신뢰의 핵심이면 `photo`, 익명 서비스면 `animals`, 아니면 성격에 맞춰 `people`·`line`·`soft`), 그 스타일의 `files`에서 성별·나이가 맞는 파일을 사람마다 하나씩(겹치지 않게). 고른 스타일과 이유는 가정 로그에.
   - **가정 로그**: 하네스가 대신 정한 것과 이유(팔레트 선택 이유 포함 — `out/palettes.json`의 why).
 - 명세 목록이 오면 **병합**: 같은 화면의 탭·섹션으로 쪼개진 screen은 feature로 합친다. screen+step ≥ 15면 `mode: "spec"` — screen·step은 **전부 화면**이 된다(빼려면 1.5단계 결정 + 확인). 아니면 `brief` — 지금처럼 여정에서 화면을 끌어낸다. **흐름 고리(`objects`)를 먼저 채운다** — 대상마다 create(처음 만드는 시작점)·view·edit(고치기·지우기·취소)·after(끝: **그 행동의 결과 화면** — 완료 확인·바뀐 결과가 보이는 화면. 목록·상세로 대신하지 않는다)에 화면 id. after에는 결과 화면(`kind: "result"` 또는 `<id>--done`)이 하나 이상 있어야 한다(selfcheck). 빈 칸이 있으면 그 화면을 화면 목록에 추가한다(시작과 끝이 빠지는 것은 치명적이다). n/a는 edit에만, 이유와 함께. 이어서 각 항목의 `covered_by`(화면 id) 또는 `decision`을 채운다(요소 단위는 목록에 없다 — 빌드 에이전트가 PRD의 그 화면 절을 읽는다). rule은 `target`(화면 id)·`state`(error|confirm|done) 또는 `policy`(정책 문구로만 반영할 화면 id).
+- **화면 유형**(screens.json 전에): `$SK/references/screen-kinds.md`를 읽고 `home`·`detail`·`list` 기본 화면마다 `archetype`을 정한다 — 기본값은 `conventions.json`의 `archetypes.<종류>.majority`, 없으면 그 문서의 판단 질문. majority와 다르게 고르면 그 화면에 `archetype_why`(이 앱의 core 때문인 이유).
 - **시장 관례 합치기**(conventions.json이 오면, screens.json 전에): 탭 구성·온보딩 순서·홈 첫 블록·결제 흐름은 `follow`가 기본값 — 벗어나려면 이 앱의 core 때문이어야 하고 이유는 decisions.json에. `consider`(후킹 장치)는 1.5단계 후보로, `avoid`(리뷰 불만)는 해당 화면 정책으로. 리서치가 3분 안에 안 오면 기다리지 않는다(`market.md` 3절).
 - 이어서 `out/screens.json`:
 
@@ -49,9 +50,11 @@ description: PRD(기획 문서) 한 장으로 모바일 앱 HTML 디자인을 �
  "screens": [{"id": "home", "file": "screens/home.html", "title": "홈 · 출발 50일 전", "group": "…",
    "purpose": "한 줄", "role": "everyone|editor", "policies": ["화면 정책 1~3줄: 규칙·경계·엣지 케이스"],
    "branches": [{"to": "home-edit", "label": "갈래 조건"}],
-   "traits": {"list_first_use": false, "form": false, "shares": false, "large_list": false, "long_task": false}, "kind": "home|list|detail|form|result|sheet", "over": "sheet일 때만: 아래 깔리는 화면 id"}],
+   "traits": {"list_first_use": false, "form": false, "shares": false, "large_list": false, "long_task": false}, "kind": "home|list|detail|form|result|sheet", "over": "sheet일 때만: 아래 깔리는 화면 id",
+   "archetype": "home·detail·list일 때: screen-kinds.md의 유형 이름(예: 찾기형·대상형·행 목록)"}],
  "promos": [{"name": "첫 예약 1만원 쿠폰", "until": "11월 30일", "source": "PRD F7"}],
  "photo_centric": false,
+ "avatar_style": "people|line|soft|animals|photo — 사람 아바타를 쓰면 필수(assets/avatars/avatars.json)",
  "badges": {"확정": "is-brand", "바뀜": "is-warning", "요청": "is-info", "완료": "is-success", "후보": ""},
  "accent": "할인",
  "people": [{"name": "Observer — 자연곱슬 입문 전", "who": "상황 한 줄", "why": "처음 오는 이유", "feels": "그때 마음",
@@ -105,6 +108,7 @@ description: PRD(기획 문서) 한 장으로 모바일 앱 HTML 디자인을 �
 - **같은 메시지에** 이미지 탐색 에이전트(가벼운 모델, 자리 4개당 1개, 최대 6)도 함께 띄운다(`$SK/references/images.md` 2절). 탐색이 돌아오면 선택 에이전트 1개(중간 모델, 3절)를 띄운다 — 빌드와 겹쳐 진행, 3단계 전에 끝난다.
 - 빌드 서브에이전트 **ceil(전체 화면 수 / 4)개(최대 10)를 한 메시지에** 띄워 나눠 맡긴다(같은 흐름끼리, 상태 화면은 기본 화면과 같은 에이전트). 각자 자기 파일만 쓴다.
 - **부품은 COMPONENTS.md의 판단 질문으로 고른다** — 화면마다 "탐색·진열·판촉" 절의 질문에 답해 예인 부품을 쓴다. 목록 행·흰 블록만으로 모든 화면을 짜지 않는다(질문이 예인데 행으로 대신하면 실패). 화면을 채우려고 쓰지도 않는다.
+- **화면 유형대로 짠다**: 맡은 화면에 `archetype`이 있으면 `$SK/references/screen-kinds.md`의 그 유형 행(첫 화면 주인공·부품·아래로)을 붙인다 — 스크롤 전 첫 화면에서 가장 큰 면적은 그 주인공이 차지하고, 주인공 요소에 `data-anchor`를 단다(audit가 잰다). 사람 카드의 알고 싶은 것은 그 주인공 자리에 담는다. 원칙 1의 핵심 메시지 머리글(지금 상황 한 문장)은 대표 콘텐츠형·피드형이 아니면 주인공 위에 그대로 둔다 — 주인공보다 커지면 안 되는 건 그 사이에 끼는 아바타 줄·안내 띠다.
 - 각 에이전트에게 붙이는 것: 위 **원칙 전문**, `$SK/foundation/COMPONENTS.md` 전문, `out/journey.md`의 시나리오 데이터 표, 맡은 화면의 screens.json 항목, 모범 답안 경로 `$SK/foundation/examples/*.html`(구조만 참고).
 - **상태 화면은 기본 화면 파일을 복사해 바뀐 부분만 고친다** — 같은 화면의 두 모습이 구조(제목 위치·블록 묶음·사진 크기)가 달라지면 안 된다. 상태 화면에 기본 화면과 같은 목적의 버튼을 하나 더 붙이지 않는다(해결 행동이 주 버튼).
 - 각 에이전트에게 맡은 화면 영역의 **시장 관례**(`follow` 중 keep한 것 + 근거 시트 경로 `out/market/<n>-<앱>.jpg`, 관련 `avoid`)도 붙인다 — "구조만 참고, 문구·그림·색은 베끼지 말 것".

@@ -200,6 +200,29 @@ MEASURE_JS = r"""
 # 한국어 줄바꿈 실측 — hanmariyang/giting-skills hangul-wrap(scripts/wrapcheck.mjs)의 셈을 옮겼다.
 # Copyright (c) 2026 Giting (hanmariyang), MIT — 전문은 같은 폴더 LICENSE-hangul-wrap.md
 # 글자 하나하나의 실제 위치(Range rect)로 줄을 되살려, 어절이 두 줄로 갈린 곳 · 칸을 뚫은 글자 · 마지막 줄 한두 글자를 센다.
+ANCHOR_JS = r"""
+() => {
+  // 첫 화면 주인공(data-anchor)이 스크롤 전 첫 화면에서 다른 덩어리보다 큰가 — screen-kinds.md
+  const anchors = [...document.querySelectorAll('[data-anchor]')];
+  if (!anchors.length) return {anchor: null};
+  const tab = document.querySelector('.tabbar, .cta');
+  const bottom = tab ? Math.min(innerHeight, tab.getBoundingClientRect().top) : innerHeight;
+  const vis = el => { const r = el.getBoundingClientRect();
+    return Math.max(0, Math.min(r.right, innerWidth) - Math.max(r.left, 0)) * Math.max(0, Math.min(r.bottom, bottom) - Math.max(r.top, 0)); };
+  const main = document.querySelector('main') || document.body;
+  const SKIP = '.appbar, .tabs, .search, .chips, .toolbar, .tabbar, .cta, .seg';   // 고르기·이동 도구는 덩어리로 세지 않는다
+  let other = 0, name = '';
+  for (const u of main.children) {
+    if (u.matches(SKIP) || anchors.some(a => u.contains(a) || a.contains(u))) continue;
+    const v = vis(u); if (v > other) { other = v; name = (u.className || u.tagName).toString().split(' ')[0]; }
+  }
+  const top = Math.min(...anchors.map(a => a.getBoundingClientRect().top));
+  const box = anchors[0].getBoundingClientRect();
+  return {anchor: Math.round(anchors.reduce((s, a) => s + vis(a), 0)), other: Math.round(other), other_name: name,
+          top: Math.round(top), width: Math.round(box.width), height: Math.round(box.height), bottom: Math.round(bottom)};
+}
+"""
+
 WRAP_JS = r"""
 () => {
   const WORD = /[가-힣ㄱ-ㆎ0-9A-Za-z]/, HANGUL = /[가-힣]/, SPACE = /[\s​ ]/;
@@ -444,6 +467,7 @@ def main():
                 page.wait_for_timeout(150)
                 r = page.evaluate(MEASURE_JS)
                 r.update(page.evaluate(WRAP_JS))
+                r["anchor_m"] = page.evaluate(ANCHOR_JS)
                 if shots:
                     # 폰처럼 찍는다: 첫 화면 + 스크롤 끝. full_page 한 장은 고정 버튼·탭바를 본문 중간(812px)에 찍어
                     # "버튼이 내용을 가린다"는 착시를 만든다(v8·v9 평가에서 반복된 오탐).
@@ -571,6 +595,20 @@ def main():
     cl = [f"{sid}: {t}" for sid, r in per.items() for t in r.get("fixedCta", []) if re.search(r"(보기|가기|열기|이동)$", t)]
     add("위계", "cta_label_verb", len(cl), "0", not cl, "; ".join(cl[:6]))
     hi = [f"{sid}: {x}" for sid, r in per.items() for x in r.get("help", [])]
+    # 첫 화면 주인공: archetype이 있는 기본 화면은 data-anchor 요소가 첫 화면 위쪽 절반에서 시작하고 다른 덩어리보다 크다
+    # 대표 콘텐츠형은 맨 위(첫 화면 1/4 안)·화면 폭 전체(90% 이상)·첫 화면 1/4 이상 높이까지
+    an = []
+    for sid, ms in mscreens.items():
+        if not ms.get("archetype") or "--" in sid or sid not in per: continue
+        m = per[sid].get("anchor_m") or {}
+        if m.get("anchor") is None: an.append(f"{sid}: data-anchor 없음"); continue
+        why = []
+        if m["top"] > m["bottom"] / 2: why.append(f"주인공이 {m['top']}px에서 시작(위쪽 절반 밖)")
+        if m["other"] > m["anchor"]: why.append(f"{m['other_name']}({m['other']}) > 주인공({m['anchor']})")
+        if ms["archetype"] == "대표 콘텐츠형" and (m["top"] > m["bottom"] / 4 or m["width"] < 0.9 * 375 or m["height"] < m["bottom"] / 4):
+            why.append(f"대표 콘텐츠가 맨 위·화면 폭 전체가 아님(top {m['top']}, {m['width']}×{m['height']})")
+        if why: an.append(f"{sid}[{ms['archetype']}]: " + ", ".join(why))
+    add("위계", "archetype_anchor", len(an), "0화면", not an, "; ".join(an[:6]))
     add("위계", "help_icons", len(hi), "0", not hi, "; ".join(hi[:6]))
     # 수동적 호칭(역할로 사람을 낮추는 말) — design-criteria §12
     PASSIVE = re.compile(r"보기만|읽기 전용|게스트|확인만 하")

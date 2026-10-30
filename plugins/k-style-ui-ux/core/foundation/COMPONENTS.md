@@ -16,7 +16,8 @@
 ```
 
 ## 골격
-- 큰 머리글(홈·목록 첫 화면): `<header class="hero"><p class="eyebrow">…</p><h1 class="title">…</h1><p class="lead">…</p></header>` · 이동 링크는 `<a class="hero-more">…›</a>`
+- **첫 화면 주인공 표시**: `archetype`이 있는 화면은 `references/screen-kinds.md`의 그 유형 주인공 요소에 `data-anchor`를 단다(여러 덩어리면 각각). audit가 렌더링해서 그 요소가 스크롤 전 첫 화면에서 다른 덩어리보다 큰지 잰다.
+- 큰 머리글(홈·목록 첫 화면 — **대표 콘텐츠형·피드형 홈은 쓰지 않는다**, 주인공이 맨 위. 그 홈의 `h1`은 앱바 가운데 서비스 이름 `<header class="appbar"><span></span><h1 class="appbar-title">서비스 이름</h1><span></span></header>`): `<header class="hero"><p class="eyebrow">…</p><h1 class="title">…</h1><p class="lead">…</p></header>` · 이동 링크는 `<a class="hero-more">…›</a>`
 - 앱바(들어간 화면): `<header class="appbar"><a class="appbar-btn" href="…" aria-label="뒤로">(선 아이콘)</a><h1 class="appbar-title">…</h1><span></span></header>`
 - 본문: `<main class="page">` 안에 `<section class="block">`(흰 블록) / `<section class="block is-list">`(목록 블록). 블록 제목 `<div class="block-head"><h2 class="h2">…</h2><a class="block-link">…</a></div>`
 - `h1`은 화면당 정확히 1개.
@@ -35,7 +36,7 @@
 - 켜기/끄기: 오른쪽에 `<button class="switch" role="switch" aria-checked="…">`
 
 ## 선택 상태 — 하나의 규칙
-칩·세그먼트·체크·스위치의 "선택됨"은 전부 브랜드 색(자동). 선택을 검정·다른 색으로 따로 칠하지 않는다.
+선택 표시는 부품마다 하나로 정해져 있고 자동이다 — 손으로 칠하지 않는다. **체크·스위치**(켜고 끄는 값) = 브랜드 색. **칩**(걸러 보기) = 먹색 채움 + 흰 글자. **세그먼트**(보기 전환) = 회색 판 위에 뜬 흰 칸 + 먹색 글자. 칩·세그먼트에 브랜드 색을 쓰지 않는다 — 브랜드 색은 버튼·켜짐처럼 "행동·값"에 남겨 둔다.
 
 ## 배지 — 뜻마다 다른 색, 앱 전체에서 하나의 표
 `is-brand`(확정·핵심) · `is-warning`(바뀜·마감 임박) · `is-info`(요청·안내) · `is-success`(완료) · `is-danger`(실패) · 클래스 없음(회색: 후보·정하는 중)
@@ -68,8 +69,10 @@
 
 ## 기타
 - 부가 정보 한 줄: `<p class="info"><img src="../assets/fluent/weather.svg" alt=""><span>…</span></p>`
-- 아바타: 인물 일러스트는 mother·father·jieun·minsu·hayun만, 나이·관계가 맞을 때. 그 밖의 사람은 글자 아바타 `<span class="avatar is-text">수</span>`. 사물 일러스트를 사람 자리에 쓰지 않는다.
-- 아바타 여럿: `<span class="avatars"><span class="avatar"><img src="../assets/fluent/mother.svg" alt=""></span>…</span>`
+- **아바타 — 미리 준비한 그림만**: `<span class="avatar"><img src="../assets/avatars/<스타일>/NN.svg" alt=""></span>` · 여럿: `<span class="avatars"><span class="avatar"><img …></span>…</span>`. 이름 한 글자(`avatar is-text`)·사물 일러스트를 사람 자리에 쓰지 않는다(selfcheck).
+  - 스타일은 앱 전체에 하나 — `screens.json`의 `"avatar_style"`(`assets/avatars/avatars.json`의 `styles`): `people` 컬러 사람 일러스트(친근·가족·생활·교육) · `line` 선 드로잉(업무·에디토리얼·신뢰) · `soft` 부드러운 선(감성·뷰티·커뮤니티) · `animals` 동물 얼굴(익명 서비스) · `photo` 실제 사진(실명이 신뢰의 핵심 — 후기·전문가·매칭, `assets/photos/`에 사람 사진을 찾아 쓴다).
+  - 사람마다 파일 하나 — `journey.md` 사실 표의 사람(이름·성별·나이)에 맞춰 `avatars.json`의 `files.<스타일>`에서 고르고(성별·나이가 맞는 것), 모든 화면이 같은 사람에게 같은 파일을 쓴다. 같은 파일을 두 사람에게 주지 않는다.
+  - 그룹·채팅방·채널처럼 사람이 아닌 자리는 구성원 아바타 겹침(`avatars`)이나 주제 일러스트(`row-art`).
 - 탭바(목적지 3곳 이상일 때만): `<nav class="tabbar"><a class="tab" aria-current="page">(선 아이콘)라벨</a>…</nav>` + body `has-tab`
 - 빈 상태: `<div class="empty">…</div>`
 - 바텀시트 — **"지금 화면을 벗어나지 않고 고르거나 확인하는 일인가?"** 그렇다면 새 화면이 아니라 시트(몇 개 중 하나 고르기·한 번 더 확인·용어/근거 설명·정렬 고르기). 입력 칸이 3개를 넘거나 다시 돌아와 볼 내용이면 화면으로.
@@ -92,6 +95,7 @@ beach · calendar · car · clipboard · coffee · eyes · father · hayun · ho
   - **인라인 style 예외는 이것 하나**: `.range`에 CSS 변수 `--from`·`--to`(0~100%)만 설정한다. 다른 속성·다른 요소의 인라인 style은 계속 금지.
 - 타임라인(진행 이력·예약/시술 경과처럼 날짜 순 기록): `<ol class="timeline"><li class="tl-item"><p class="tl-date">3월 2일</p><div class="tl-body"><p>첫 상담</p></div></li><li class="tl-item is-now">…</li></ol>` — 지금 항목만 `is-now`(점이 브랜드 색).
 - 전·후 비교(시술·수리·정리 결과처럼 바뀐 모습을 증명할 때): `<div class="compare"><div class="photo is-3x4"><img src="…" alt="전"><span class="compare-label">전</span></div><div class="photo is-3x4"><img src="…" alt="후"><span class="compare-label">후</span></div></div>`
+- 대표 콘텐츠(대표 콘텐츠형 홈의 주인공 — 지금 볼 것 하나, 페이지 맨 위·화면 폭 전체, 블록에 넣지 않는다): `<a class="feature" href="…" data-anchor><div class="photo"><img src="…" alt="…"></div><div class="feature-text"><span class="badge is-brand">방송 중</span><p class="feature-title">…</p><p class="feature-sub">…</p></div></a>` — 사진 비율은 4:3 기본, 영상이면 `photo is-16x9`. 사람 카드의 답(누가 방송 중인지 등)은 이 아래 줄로.
 - 사진(상품·장소·결과물을 크게 보여줄 때): `<div class="photo is-16x9"><img src="…" alt="…"></div>` — 비율 `is-3x4`·`is-1x1`·`is-16x9`(없으면 4:3).
 - 썸네일(목록 행 왼쪽의 작은 사진): `<span class="thumb"><img src="…" alt=""></span>` · 크게 `thumb is-l`(72px).
 - 사진 모음(후기 사진·갤러리 3열): `<div class="photo-grid"><img src="…" alt="">…</div>`

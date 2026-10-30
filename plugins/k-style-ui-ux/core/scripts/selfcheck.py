@@ -38,9 +38,11 @@ for k, v in (m.get("prd_coverage") or {}).items():
 if not m.get("prd_coverage"): errs.append("prd_coverage 없음")
 if not (out / "journey.md").exists(): errs.append("journey.md(여정표) 없음 — 화면 목록보다 먼저 쓴다")
 
-PLACE = re.compile(r"lorem|TODO|>\s*(텍스트|제목|내용)\s*<|여행\s*1\b", re.I)
+PLACE = re.compile(r"lorem|(?-i:\bTODO\b)|>\s*(텍스트|제목|내용)\s*<|여행\s*1\b", re.I)
 EMOJI = re.compile("[\U0001F300-\U0001FAFF☀-➿]")
-PERSON = {"mother", "father", "jieun", "minsu", "hayun"}
+AV = json.loads((pathlib.Path(__file__).resolve().parent.parent / "foundation/assets/avatars/avatars.json").read_text(encoding="utf-8"))
+AVS = m.get("avatar_style")
+if AVS is not None and AVS not in AV["styles"]: errs.append(f"avatar_style {AVS!r} — {sorted(AV['styles'])} 중 하나(assets/avatars/avatars.json)")
 PASSIVE = re.compile(r"보기만|읽기 전용|게스트|확인만 하")
 for s in S:
     for key in ("title", "group", "purpose", "file"):
@@ -89,9 +91,12 @@ for s in S:
             errs.append(f"{f.name}: '+ 추가' 행이 다른 화면·시트로 이어지지 않음(누른 뒤 모습 없음)")
     if t.get("large_list") and 'type="search"' not in h:
         errs.append(f"{f.name}: 수십 개 목록(large_list)인데 검색 칸 없음")
-    for img in re.findall(r'class="avatar[^"]*">\s*<img src="[^"]*/([a-z]+)\.svg"', h):
-        if img not in PERSON: errs.append(f"{f.name}: 사람 자리(avatar)에 사물 일러스트 {img} — 글자 아바타(avatar is-text)로")
-    for href in re.findall(r'(?:href|src)="([^"#:]+\.(?:html|svg|css|js))"', h):
+    # 아바타: 미리 준비한 그림만 — 앱 전체에 하나의 스타일(avatar_style), 이름 한 글자 금지
+    if re.search(r'class="avatar is-text', h): errs.append(f"{f.name}: 이름 한 글자 아바타(avatar is-text) — assets/avatars/{AVS or '<스타일>'}/의 그림으로")
+    for src in re.findall(r'class="avatar[^"]*">\s*<img src="([^"]+)"', h):
+        ok = f"/avatars/{AVS}/" in src if AVS in AV["styles"] and AVS != "photo" else ("/photos/" in src if AVS == "photo" else False)
+        if not ok: errs.append(f"{f.name}: 아바타 {src.split('/')[-2:]} — avatar_style({AVS})의 그림이 아님(사물 일러스트·다른 스타일 금지)")
+    for href in re.findall(r'(?:href|src)="([^"#:]+\.(?:html|svg|png|css|js))"', h):
         if not (f.parent / href).exists(): errs.append(f"{f.name}: 깨진 참조 {href}")
 # 흐름 고리(v14): 사용자가 만들거나 신청하는 대상마다 시작·끝이 있어야 한다
 OBJ = INV.get("objects")
@@ -176,6 +181,26 @@ if CONV.exists():
         errs.append(f"conventions.json 깨짐: {e}")
 elif not (out / "market/SKIPPED").exists():
     errs.append("시장 관례 없음 — market.py + 해석 에이전트로 conventions.json(못 하면 out/market/SKIPPED에 이유)")
+# 화면 유형: home·detail·list 기본 화면은 references/screen-kinds.md 표의 유형 하나 — 시장 다수와 다르면 이유
+def kinds_table():
+    md = (pathlib.Path(__file__).resolve().parent.parent / "references/screen-kinds.md").read_text(encoding="utf-8")
+    T = {}
+    for kind, head in (("home", "## 홈"), ("detail", "## 상세"), ("list", "## 목록")):
+        sec = md.split(head, 1)[1].split("\n## ", 1)[0]
+        rows = [[c.strip() for c in l.strip().strip("|").split("|")] for l in sec.splitlines() if l.startswith("|")]
+        col = rows[0].index("유형")
+        T[kind] = {r[col] for r in rows[2:]}
+    return T
+KT = kinds_table()
+try: MAJ = {k: (v or {}).get("majority") for k, v in (json.loads(CONV.read_text(encoding="utf-8")).get("archetypes") or {}).items()}
+except Exception: MAJ = {}
+for s in S:
+    k = s.get("kind")
+    if k not in KT or "--" in s["id"]: continue
+    a = s.get("archetype")
+    if a not in KT[k]: errs.append(f'{s["id"]}: archetype {a!r} — {k}는 screen-kinds.md의 {sorted(KT[k])} 중 하나')
+    elif (out / s.get("file", "")).is_file() and "data-anchor" not in (out / s["file"]).read_text(encoding="utf-8"): errs.append(f'{s["id"]}: archetype {a}의 첫 화면 주인공 요소에 data-anchor 없음(COMPONENTS.md)')
+    if a in KT[k] and MAJ.get(k) and a != MAJ[k] and not s.get("archetype_why"): errs.append(f'{s["id"]}: archetype {a}가 시장 다수({MAJ[k]})와 다름 — archetype_why(이 앱의 core 때문인 이유)')
 # 배지 뜻→색 표: 선언한 표만 쓰고, 한 색에 뜻 하나
 BADGES = m.get("badges") or {}
 if not BADGES: errs.append("badges(뜻→색 표) 없음")
