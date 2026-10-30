@@ -40,7 +40,9 @@ if not (out / "journey.md").exists(): errs.append("journey.md(여정표) 없음 
 
 PLACE = re.compile(r"lorem|TODO|>\s*(텍스트|제목|내용)\s*<|여행\s*1\b", re.I)
 EMOJI = re.compile("[\U0001F300-\U0001FAFF☀-➿]")
-PERSON = {"mother", "father", "jieun", "minsu", "hayun"}
+AV = json.loads((pathlib.Path(__file__).resolve().parent.parent / "foundation/assets/avatars/avatars.json").read_text(encoding="utf-8"))
+AVS = m.get("avatar_style")
+if AVS is not None and AVS not in AV["styles"]: errs.append(f"avatar_style {AVS!r} — {sorted(AV['styles'])} 중 하나(assets/avatars/avatars.json)")
 PASSIVE = re.compile(r"보기만|읽기 전용|게스트|확인만 하")
 for s in S:
     for key in ("title", "group", "purpose", "file"):
@@ -89,9 +91,12 @@ for s in S:
             errs.append(f"{f.name}: '+ 추가' 행이 다른 화면·시트로 이어지지 않음(누른 뒤 모습 없음)")
     if t.get("large_list") and 'type="search"' not in h:
         errs.append(f"{f.name}: 수십 개 목록(large_list)인데 검색 칸 없음")
-    for img in re.findall(r'class="avatar[^"]*">\s*<img src="[^"]*/([a-z]+)\.svg"', h):
-        if img not in PERSON: errs.append(f"{f.name}: 사람 자리(avatar)에 사물 일러스트 {img} — 글자 아바타(avatar is-text)로")
-    for href in re.findall(r'(?:href|src)="([^"#:]+\.(?:html|svg|css|js))"', h):
+    # 아바타: 미리 준비한 그림만 — 앱 전체에 하나의 스타일(avatar_style), 이름 한 글자 금지
+    if re.search(r'class="avatar is-text', h): errs.append(f"{f.name}: 이름 한 글자 아바타(avatar is-text) — assets/avatars/{AVS or '<스타일>'}/의 그림으로")
+    for src in re.findall(r'class="avatar[^"]*">\s*<img src="([^"]+)"', h):
+        ok = f"/avatars/{AVS}/" in src if AVS in AV["styles"] and AVS != "photo" else ("/photos/" in src if AVS == "photo" else False)
+        if not ok: errs.append(f"{f.name}: 아바타 {src.split('/')[-2:]} — avatar_style({AVS})의 그림이 아님(사물 일러스트·다른 스타일 금지)")
+    for href in re.findall(r'(?:href|src)="([^"#:]+\.(?:html|svg|png|css|js))"', h):
         if not (f.parent / href).exists(): errs.append(f"{f.name}: 깨진 참조 {href}")
 # 흐름 고리(v14): 사용자가 만들거나 신청하는 대상마다 시작·끝이 있어야 한다
 OBJ = INV.get("objects")

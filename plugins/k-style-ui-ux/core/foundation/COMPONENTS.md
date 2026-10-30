@@ -69,8 +69,10 @@
 
 ## 기타
 - 부가 정보 한 줄: `<p class="info"><img src="../assets/fluent/weather.svg" alt=""><span>…</span></p>`
-- 아바타: 인물 일러스트는 mother·father·jieun·minsu·hayun만, 나이·관계가 맞을 때. 그 밖의 사람은 글자 아바타 `<span class="avatar is-text">수</span>`. 사물 일러스트를 사람 자리에 쓰지 않는다.
-- 아바타 여럿: `<span class="avatars"><span class="avatar"><img src="../assets/fluent/mother.svg" alt=""></span>…</span>`
+- **아바타 — 미리 준비한 그림만**: `<span class="avatar"><img src="../assets/avatars/<스타일>/NN.svg" alt=""></span>` · 여럿: `<span class="avatars"><span class="avatar"><img …></span>…</span>`. 이름 한 글자(`avatar is-text`)·사물 일러스트를 사람 자리에 쓰지 않는다(selfcheck).
+  - 스타일은 앱 전체에 하나 — `screens.json`의 `"avatar_style"`(`assets/avatars/avatars.json`의 `styles`): `people` 컬러 사람 일러스트(친근·가족·생활·교육) · `line` 선 드로잉(업무·에디토리얼·신뢰) · `soft` 부드러운 선(감성·뷰티·커뮤니티) · `animals` 동물 얼굴(익명 서비스) · `photo` 실제 사진(실명이 신뢰의 핵심 — 후기·전문가·매칭, `assets/photos/`에 사람 사진을 찾아 쓴다).
+  - 사람마다 파일 하나 — `journey.md` 사실 표의 사람(이름·성별·나이)에 맞춰 `avatars.json`의 `files.<스타일>`에서 고르고(성별·나이가 맞는 것), 모든 화면이 같은 사람에게 같은 파일을 쓴다. 같은 파일을 두 사람에게 주지 않는다.
+  - 그룹·채팅방·채널처럼 사람이 아닌 자리는 구성원 아바타 겹침(`avatars`)이나 주제 일러스트(`row-art`).
 - 탭바(목적지 3곳 이상일 때만): `<nav class="tabbar"><a class="tab" aria-current="page">(선 아이콘)라벨</a>…</nav>` + body `has-tab`
 - 빈 상태: `<div class="empty">…</div>`
 - 바텀시트 — **"지금 화면을 벗어나지 않고 고르거나 확인하는 일인가?"** 그렇다면 새 화면이 아니라 시트(몇 개 중 하나 고르기·한 번 더 확인·용어/근거 설명·정렬 고르기). 입력 칸이 3개를 넘거나 다시 돌아와 볼 내용이면 화면으로.
