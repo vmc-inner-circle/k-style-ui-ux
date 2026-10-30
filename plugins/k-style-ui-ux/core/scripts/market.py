@@ -1,15 +1,16 @@
 """시장 리서치 재료 모으기 — 이 PRD와 같은 문제를 푸는 앱들 중 잘 되는 것(평점 수 상위)의 스토어 화면·설명·리뷰.
 
-python3 market.py out "<키워드1>" "<키워드2>" … [--country kr] [--n 5] [--min-ratings 300]
+python3 market.py out "<키워드1>" "<키워드2>" … [--country kr] [--n 5] [--min-ratings 300] [--exclude "앱 이름 일부,…"]
 - 키워드는 도메인 이름이 아니라 PRD의 핵심 기능·갈등에서 뽑는다(예: "AI 사주 상담", "궁합", "만세력")
 - App Store 검색 API·리뷰 RSS(키 없음)만 쓴다 — 전부 병렬, 보통 10~20초
 - 저장 위치(매번 새로, 캐시하지 않는다):
     out/market/apps.json           앱별 이름·평점 수·평점·장르·설명 앞부분·시트 경로·리뷰 수
     out/market/<n>-<앱>.jpg        스토어 스크린샷 한 장 시트(번호 붙임)
     out/market/reviews.md          앱별 낮은 별점(1~3) / 높은 별점(4~5) 리뷰 — 해석 에이전트가 읽는다
+- --exclude(또는 환경 변수 MARKET_EXCLUDE): 이름에 그 말이 든 앱을 뺀다 — 실험에서 PRD의 원본 앱이 정답을 알려 주지 않게(loop/archetype_exp)
 - 해석은 하지 않는다 — references/market.md의 해석 에이전트가 conventions.json을 쓴다
 """
-import sys, json, re, io, pathlib, argparse, urllib.request, urllib.parse, time
+import sys, os, json, re, io, pathlib, argparse, urllib.request, urllib.parse, time
 from concurrent.futures import ThreadPoolExecutor
 from PIL import Image, ImageDraw, ImageFont
 
@@ -70,6 +71,7 @@ def slug(s): return re.sub(r"[^0-9A-Za-z가-힣]+", "", s)[:12] or "app"
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("keywords", nargs="+")
     ap.add_argument("--country", default="kr"); ap.add_argument("--n", type=int, default=5); ap.add_argument("--min-ratings", type=int, default=300)
+    ap.add_argument("--exclude", default=os.environ.get("MARKET_EXCLUDE", ""))
     a = ap.parse_args(); t0 = time.time()
     M = pathlib.Path(a.out) / "market"; M.mkdir(parents=True, exist_ok=True)
     for f in M.glob("*"): f.unlink()
@@ -84,7 +86,9 @@ def main():
         txt = (r.get("trackName", "") + " " + r.get("description", "")).lower()
         return sum(1 for t in toks if t.lower() in txt)
     dropped = [r["trackName"] for r in found.values() if toks and rel(r) == 0 and r.get("userRatingCount", 0) >= a.min_ratings]
-    apps = sorted((r for r in found.values() if not toks or rel(r) > 0), key=lambda r: r.get("userRatingCount", 0), reverse=True)
+    excl = [x.strip().lower() for x in a.exclude.split(",") if x.strip()]
+    excluded = [r["trackName"] for r in found.values() if any(x in r["trackName"].lower() for x in excl)]
+    apps = sorted((r for r in found.values() if (not toks or rel(r) > 0) and r["trackName"] not in excluded), key=lambda r: r.get("userRatingCount", 0), reverse=True)
     top = [r for r in apps if r.get("userRatingCount", 0) >= a.min_ratings][:a.n] or apps[:a.n]
     def one(ir):
         i, r = ir
@@ -107,6 +111,7 @@ def main():
     (M / "apps.json").write_text(json.dumps({"keywords": a.keywords, "country": a.country, "apps": rows}, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"market: 앱 {len(rows)}개 · 시트 {sum(1 for x in rows if x['sheet'])}장 · 리뷰 {sum(x['reviews'] for x in rows)}개 · {time.time() - t0:.1f}초")
     for x in rows: print(f"  {x['no']}. {x['name']} — {x['ratings']:,}명 {x['rating']}")
+    if excluded: print("  (제외 지정으로 뺌: " + ", ".join(d[:20] for d in excluded[:5]) + ")")
     if dropped: print("  (관련 낱말 없어 뺌: " + ", ".join(d[:20] for d in dropped[:5]) + ")")
     POOL.shutdown(wait=False)
 

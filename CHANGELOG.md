@@ -2,6 +2,12 @@
 
 버전은 `plugins/k-style-ui-ux/`의 manifest 3개(`.claude-plugin/plugin.json`·`.codex-plugin/plugin.json`·`plugin.json`)와 이 파일 맨 위 항목이 같아야 한다(`ci/verify.py`가 검사).
 
+## v0.18.0
+
+- 화면 유형: 홈·상세·목록 기본 화면은 `core/references/screen-kinds.md`의 유형 하나로 짠다(`screens.json`의 `archetype`, selfcheck). 유형 = 첫 화면에서 가장 큰 면적을 차지하는 것 — 국내 서비스 화면 296장(앱 37개 + 모바일 웹 57곳)에서 묶었다(`docs/research/screen-archetypes/`). 홈 7(찾기·진열·현황·목록·피드·대표 콘텐츠·일정), 상세 6, 목록 6.
+- 고르는 법: 시장 해석 에이전트가 상위 앱의 홈·상세·목록을 유형으로 분류해 `conventions.json`의 `archetypes`에 적고, 2개 이상 앱이 같으면 그것이 기본값(벗어나면 `archetype_why`). 없으면 판단 질문.
+- `market.py --exclude`(또는 `MARKET_EXCLUDE`): 이름에 그 말이 든 앱을 뺀다 — 실험에서 원본 앱이 정답을 알려 주지 않게.
+
 ## v0.17.1
 
 - `audit.py`에 한국어 줄바꿈 실측: 글자 하나하나의 실제 위치로 줄을 되살려 어절 쪼개짐(`word_split`)·칸 넘침(`box_overflow`)은 실패로, 마지막 줄 한두 글자(`last_line_orphan`)는 보고만. 셈은 hanmariyang/giting-skills의 hangul-wrap(`wrapcheck.mjs`, MIT)에서 옮겼다. v19 4개 앱에서 audit 시간 +4~7초/앱.

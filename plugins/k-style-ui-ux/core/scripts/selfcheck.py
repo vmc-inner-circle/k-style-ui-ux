@@ -176,6 +176,25 @@ if CONV.exists():
         errs.append(f"conventions.json 깨짐: {e}")
 elif not (out / "market/SKIPPED").exists():
     errs.append("시장 관례 없음 — market.py + 해석 에이전트로 conventions.json(못 하면 out/market/SKIPPED에 이유)")
+# 화면 유형: home·detail·list 기본 화면은 references/screen-kinds.md 표의 유형 하나 — 시장 다수와 다르면 이유
+def kinds_table():
+    md = (pathlib.Path(__file__).resolve().parent.parent / "references/screen-kinds.md").read_text(encoding="utf-8")
+    T = {}
+    for kind, head in (("home", "## 홈"), ("detail", "## 상세"), ("list", "## 목록")):
+        sec = md.split(head, 1)[1].split("\n## ", 1)[0]
+        rows = [[c.strip() for c in l.strip().strip("|").split("|")] for l in sec.splitlines() if l.startswith("|")]
+        col = rows[0].index("유형")
+        T[kind] = {r[col] for r in rows[2:]}
+    return T
+KT = kinds_table()
+try: MAJ = {k: (v or {}).get("majority") for k, v in (json.loads(CONV.read_text(encoding="utf-8")).get("archetypes") or {}).items()}
+except Exception: MAJ = {}
+for s in S:
+    k = s.get("kind")
+    if k not in KT or "--" in s["id"]: continue
+    a = s.get("archetype")
+    if a not in KT[k]: errs.append(f'{s["id"]}: archetype {a!r} — {k}는 screen-kinds.md의 {sorted(KT[k])} 중 하나')
+    elif MAJ.get(k) and a != MAJ[k] and not s.get("archetype_why"): errs.append(f'{s["id"]}: archetype {a}가 시장 다수({MAJ[k]})와 다름 — archetype_why(이 앱의 core 때문인 이유)')
 # 배지 뜻→색 표: 선언한 표만 쓰고, 한 색에 뜻 하나
 BADGES = m.get("badges") or {}
 if not BADGES: errs.append("badges(뜻→색 표) 없음")
