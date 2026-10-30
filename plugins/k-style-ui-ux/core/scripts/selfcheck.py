@@ -194,7 +194,8 @@ for s in S:
     if k not in KT or "--" in s["id"]: continue
     a = s.get("archetype")
     if a not in KT[k]: errs.append(f'{s["id"]}: archetype {a!r} — {k}는 screen-kinds.md의 {sorted(KT[k])} 중 하나')
-    elif MAJ.get(k) and a != MAJ[k] and not s.get("archetype_why"): errs.append(f'{s["id"]}: archetype {a}가 시장 다수({MAJ[k]})와 다름 — archetype_why(이 앱의 core 때문인 이유)')
+    elif (out / s.get("file", "")).is_file() and "data-anchor" not in (out / s["file"]).read_text(encoding="utf-8"): errs.append(f'{s["id"]}: archetype {a}의 첫 화면 주인공 요소에 data-anchor 없음(COMPONENTS.md)')
+    if a in KT[k] and MAJ.get(k) and a != MAJ[k] and not s.get("archetype_why"): errs.append(f'{s["id"]}: archetype {a}가 시장 다수({MAJ[k]})와 다름 — archetype_why(이 앱의 core 때문인 이유)')
 # 배지 뜻→색 표: 선언한 표만 쓰고, 한 색에 뜻 하나
 BADGES = m.get("badges") or {}
 if not BADGES: errs.append("badges(뜻→색 표) 없음")

@@ -16,7 +16,8 @@
 ```
 
 ## 골격
-- 큰 머리글(홈·목록 첫 화면): `<header class="hero"><p class="eyebrow">…</p><h1 class="title">…</h1><p class="lead">…</p></header>` · 이동 링크는 `<a class="hero-more">…›</a>`
+- **첫 화면 주인공 표시**: `archetype`이 있는 화면은 `references/screen-kinds.md`의 그 유형 주인공 요소에 `data-anchor`를 단다(여러 덩어리면 각각). audit가 렌더링해서 그 요소가 스크롤 전 첫 화면에서 다른 덩어리보다 큰지 잰다.
+- 큰 머리글(홈·목록 첫 화면 — **대표 콘텐츠형·피드형 홈은 쓰지 않는다**, 주인공이 맨 위. 그 홈의 `h1`은 앱바 가운데 서비스 이름 `<header class="appbar"><span></span><h1 class="appbar-title">서비스 이름</h1><span></span></header>`): `<header class="hero"><p class="eyebrow">…</p><h1 class="title">…</h1><p class="lead">…</p></header>` · 이동 링크는 `<a class="hero-more">…›</a>`
 - 앱바(들어간 화면): `<header class="appbar"><a class="appbar-btn" href="…" aria-label="뒤로">(선 아이콘)</a><h1 class="appbar-title">…</h1><span></span></header>`
 - 본문: `<main class="page">` 안에 `<section class="block">`(흰 블록) / `<section class="block is-list">`(목록 블록). 블록 제목 `<div class="block-head"><h2 class="h2">…</h2><a class="block-link">…</a></div>`
 - `h1`은 화면당 정확히 1개.
@@ -92,6 +93,7 @@ beach · calendar · car · clipboard · coffee · eyes · father · hayun · ho
   - **인라인 style 예외는 이것 하나**: `.range`에 CSS 변수 `--from`·`--to`(0~100%)만 설정한다. 다른 속성·다른 요소의 인라인 style은 계속 금지.
 - 타임라인(진행 이력·예약/시술 경과처럼 날짜 순 기록): `<ol class="timeline"><li class="tl-item"><p class="tl-date">3월 2일</p><div class="tl-body"><p>첫 상담</p></div></li><li class="tl-item is-now">…</li></ol>` — 지금 항목만 `is-now`(점이 브랜드 색).
 - 전·후 비교(시술·수리·정리 결과처럼 바뀐 모습을 증명할 때): `<div class="compare"><div class="photo is-3x4"><img src="…" alt="전"><span class="compare-label">전</span></div><div class="photo is-3x4"><img src="…" alt="후"><span class="compare-label">후</span></div></div>`
+- 대표 콘텐츠(대표 콘텐츠형 홈의 주인공 — 지금 볼 것 하나, 페이지 맨 위·화면 폭 전체, 블록에 넣지 않는다): `<a class="feature" href="…" data-anchor><div class="photo"><img src="…" alt="…"></div><div class="feature-text"><span class="badge is-brand">방송 중</span><p class="feature-title">…</p><p class="feature-sub">…</p></div></a>` — 사진 비율은 4:3 기본, 영상이면 `photo is-16x9`. 사람 카드의 답(누가 방송 중인지 등)은 이 아래 줄로.
 - 사진(상품·장소·결과물을 크게 보여줄 때): `<div class="photo is-16x9"><img src="…" alt="…"></div>` — 비율 `is-3x4`·`is-1x1`·`is-16x9`(없으면 4:3).
 - 썸네일(목록 행 왼쪽의 작은 사진): `<span class="thumb"><img src="…" alt=""></span>` · 크게 `thumb is-l`(72px).
 - 사진 모음(후기 사진·갤러리 3열): `<div class="photo-grid"><img src="…" alt="">…</div>`

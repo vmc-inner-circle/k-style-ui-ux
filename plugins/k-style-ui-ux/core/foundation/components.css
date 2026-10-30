@@ -381,3 +381,11 @@ button.row { width: 100%; text-align: left; }
 .sheet .row[aria-checked="true"] .row-trail svg { color: var(--c-brand); }
 .plain .page > :is(.scroller, .product-grid, .toolbar, .menu-grid) { margin-left: calc(var(--page-x) * -1); margin-right: calc(var(--page-x) * -1); }
 .plain .page > :is(.banner, .strip) { margin-left: 0; margin-right: 0; }
+
+/* 대표 콘텐츠 — 대표 콘텐츠형 홈의 첫 화면 주인공(지금 볼 것 하나). 페이지 맨 위, 화면 폭 전체 */
+.feature { display: flex; flex-direction: column; gap: var(--stack-s); margin-top: calc(var(--stack-s) * -1); }
+.feature .photo { border-radius: 0; aspect-ratio: 4 / 3; }
+.feature .photo.is-16x9 { aspect-ratio: 16 / 9; }
+.feature-text { display: flex; flex-direction: column; gap: 4px; padding: 0 var(--page-x); }
+.feature-title { font-size: var(--fs-h2); font-weight: var(--fw-h2); line-height: var(--lh-h2); color: var(--c-text-1); }
+.feature-sub { font-size: var(--fs-sub); line-height: var(--lh-sub); color: var(--c-text-2); }
