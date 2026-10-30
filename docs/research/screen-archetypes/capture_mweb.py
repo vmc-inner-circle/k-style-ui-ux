@@ -69,6 +69,13 @@ SITES = [
  ("albamon", "알바", "https://m.albamon.com", None),
  ("kmong", "전문가 찾기", "https://kmong.com", "https://kmong.com/search?keyword=로고"),
  ("coupang", "종합 쇼핑", "https://m.coupang.com", "https://m.coupang.com/nm/search?q=사과"),
+ # 실험(loop/archetype_exp) 정답 보강 — 스토어 화면만으로 홈이 불분명했던 앱
+ ("ssg", "종합 쇼핑", "https://m.ssg.com", None),
+ ("finda", "금융", "https://www.finda.co.kr", None),
+ ("everytime", "대학 커뮤니티", "https://everytime.kr", None),
+ ("pinterest", "아이디어", "https://www.pinterest.co.kr", None),
+ ("gcar", "카셰어링", "https://www.greencar.co.kr", None),
+ ("wavve", "영상", "https://www.wavve.com", None),
 ]
 DETAIL = re.compile(r"/(products?|goods|item|catalog|detail|p|recipe|course|courses|books?|v2/title|content|watch|articles?|room|rooms|place|places|offers|activity|activities|tna|classes|stays?|deals?|jobs?|wd|read|post|accommodations?|socialing|v|@[^/]+/[^/]+)(/|\?|$|\d)|\?id=\d+", re.I)
 SKIP = re.compile(r"login|signin|join|event|cart|order|mypage|notice|help|policy|terms|app|download", re.I)

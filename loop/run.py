@@ -1,12 +1,13 @@
 """하네스 1회 구동: 격리 폴더에서 claude -p 헤드리스 실행, 질문은 가상 사용자가 답한다.
-python3 loop/run.py <prd.md> <run_dir> [--max]
+python3 loop/run.py <prd.md> <run_dir> [--max] [--until-screens] [--plugin <플러그인 폴더>]
 플러그인(plugins/k-style-ui-ux)을 --plugin-dir로 불러 /k-style-ui-ux:go 로 구동. --max면 go가 끝난 뒤 같은 세션에서 /k-style-ui-ux:max(1차 결과는 out-go/로 보존)
 산출: run_dir/out(결과), prompt-log.md, elapsed.txt, transcript.jsonl
 """
 import sys, json, re, shutil, subprocess, time, pathlib, datetime
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 prd = pathlib.Path(sys.argv[1]).resolve(); run = pathlib.Path(sys.argv[2]).resolve(); DO_MAX = "--max" in sys.argv
-PLUGIN = ROOT / "plugins/k-style-ui-ux"
+UNTIL_SCREENS = "--until-screens" in sys.argv   # 실험(loop/archetype_exp): 화면 목록(screens.json)까지만 — 유형 선택만 본다
+PLUGIN = pathlib.Path(sys.argv[sys.argv.index("--plugin") + 1]).resolve() if "--plugin" in sys.argv else ROOT / "plugins/k-style-ui-ux"
 MODEL = "claude-opus-5-5"; MAX_TURNS = 4
 if run.exists(): shutil.rmtree(run)
 work = run / "work"; work.mkdir(parents=True)
@@ -32,6 +33,7 @@ SIM = (ROOT / "loop/sim_user.md").read_text(encoding="utf-8")
 log = [f"# prompt-log\n\n- 하네스: solo/greatSumini `.claude/skills/oss-design-harness`\n- 모델: Claude Code headless / {MODEL}\n- 답변자: 가상 사용자 에이전트(비개발자 페르소나, loop/sim_user.md)\n"]
 trans = open(run / "transcript.jsonl", "w")
 harness_sec, sid, msg = 0.0, None, "/k-style-ui-ux:go\n\n" + prd.read_text(encoding="utf-8")
+if UNTIL_SCREENS: msg += "\n\n---\n(실험 모드: 1단계에서 out/screens.json을 쓰면 거기서 멈춘다. 1.5단계 이후·빌드는 하지 않고, 질문도 하지 않는다. 마지막 줄 [[DONE out/screens.json]])"
 start = datetime.datetime.now(); turns = 0; status = "max_turns"
 while turns < MAX_TURNS:
     turns += 1
