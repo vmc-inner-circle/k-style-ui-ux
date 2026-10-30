@@ -255,5 +255,20 @@ for s in S:
         if not re.sub(r"<[^>]+>|\s", "", tag) and "aria-label" not in tag: errs.append(f"{f.name}: 글자 없는 떠 있는 버튼에 aria-label 없음")
     for tag in re.findall(r'<button [^>]*class="like[ "][^>]*>', h):
         if "aria-pressed" not in tag: errs.append(f"{f.name}: 찜 버튼에 aria-pressed 없음(누른 상태를 표시)")
+# 칩·세그먼트(v20): 칩은 좁히기·태그(10자 이하 낱말, 한 줄 8개 이하), 세그먼트는 2~4칸 — 쌓아서 격자를 만들지 않는다
+TAGTXT = lambda x: re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", x)).strip()
+for s in S:
+    f = out / s["file"]
+    if not f.exists(): continue
+    h = re.sub(r"<svg.*?</svg>", "", f.read_text(encoding="utf-8"), flags=re.S)
+    for grp in re.findall(r'<div class="chips[ "][^>]*>(.*?)</div>', h, re.S):
+        items = [TAGTXT(x) for x in re.findall(r'<(?:button|a|span) [^>]*class="chip[ "][^>]*>(.*?)</(?:button|a|span)>', grp, re.S)]
+        long = [x for x in items if len(re.sub(r"\s*[\d,]+$", "", x)) > 10]   # 끝의 개수("아직 모임 없음 22")는 빼고 잰다
+        if long: errs.append(f"{f.name}: 칩 라벨 '{long[0][:24]}' {len(long[0])}자 — 칩은 10자 이하 낱말, 문장은 목록 행·버튼으로")
+        if len(items) > 8: errs.append(f"{f.name}: 칩 {len(items)}개 > 8 — 묶음을 나누거나 필터 시트로")
+    for grp in re.findall(r'<div class="seg[ "][^>]*>(.*?)</div>', h, re.S):
+        n = len(re.findall(r'class="seg-item[ "]', grp))
+        if not 2 <= n <= 4: errs.append(f"{f.name}: 세그먼트 {n}칸 — 2~4칸만(많으면 고르기 시트·가로 날짜 줄·칩)")
+    if re.search(r'<div class="seg[ "](?:(?!</div>).)*</div>\s*<div class="seg[ "]', h, re.S): errs.append(f"{f.name}: 세그먼트를 쌓아 격자로 씀 — 고르기 시트로")
 print("\n".join(errs) if errs else "selfcheck OK")
 sys.exit(1 if errs else 0)
