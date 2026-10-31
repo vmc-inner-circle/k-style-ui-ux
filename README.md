@@ -1,6 +1,6 @@
 # k-style-ui-ux
 
-PRD(기획 문서) 한 장을 넣으면 **한국 앱 스타일의 모바일 화면 초안**을 15분 안팎에 HTML로 뽑아 주는 Claude Code·Codex 플러그인입니다. [VIBE MAFIA CLUB 이너서클](https://www.vibemafiaclub.com/inner-circle)이 함께 만드는 오픈소스입니다.
+PRD(기획 문서) 한 장을 넣으면 **한국 앱 스타일의 모바일 화면 초안**을 15분 안팎에 HTML로 뽑아 주는 Claude Code·Codex·Cursor 플러그인입니다. [VIBE MAFIA CLUB 이너서클](https://www.vibemafiaclub.com/inner-circle)이 함께 만드는 오픈소스입니다.
 
 ![가족여행 PRD로 만든 화면](./docs/images/family-trip.jpg)
 
@@ -50,6 +50,8 @@ codex plugin marketplace add vmc-inner-circle/k-style-ui-ux
 codex plugin add k-style-ui-ux@k-style-ui-ux
 ```
 
+Cursor에서: **Customize → Plugins**에서 GitHub 저장소로 가져오기에 `https://github.com/vmc-inner-circle/k-style-ui-ux`를 넣고 `k-style-ui-ux`를 설치합니다.
+
 ## 사용법
 
 ```
@@ -57,7 +59,7 @@ codex plugin add k-style-ui-ux@k-style-ui-ux
 /k-style-ui-ux:max                  # 2차 — 오류·확인창·빈 화면 같은 상태 화면 추가, 약 10분
 ```
 
-Codex에서는 `$k-style-ui-ux:go`·`$k-style-ui-ux:max`로 부릅니다.
+Codex에서는 `$k-style-ui-ux:go`·`$k-style-ui-ux:max`로, Cursor에서는 채팅에 `/`를 치고 `go`·`max`를 골라 부릅니다.
 
 PRD만 붙여넣고 "화면 만들어줘"라고 해도 됩니다. 결과는 실행한 폴더의 `out/index.html`입니다. 결과물 구성과 구조는 [plugins/k-style-ui-ux/README.md](./plugins/k-style-ui-ux/README.md)에 있습니다.
 
