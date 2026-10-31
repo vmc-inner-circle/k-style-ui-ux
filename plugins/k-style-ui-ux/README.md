@@ -1,6 +1,6 @@
 # k-style-ui-ux — PRD 한 장으로 모바일 앱 디자인
 
-Claude Code·Codex 플러그인. PRD(기획 문서)를 주면 모바일 앱 HTML 화면들과 한눈에 보는 캔버스를 만든다.
+Claude Code·Codex·Cursor 플러그인. PRD(기획 문서)를 주면 모바일 앱 HTML 화면들과 한눈에 보는 캔버스를 만든다.
 
 ## 설치
 
@@ -16,11 +16,14 @@ Codex에서:
 codex plugin marketplace add vmc-inner-circle/k-style-ui-ux
 codex plugin add k-style-ui-ux@k-style-ui-ux
 ```
+
+Cursor에서: **Customize → Plugins**에서 GitHub 저장소로 가져오기(From GitHub Repository)에 `https://github.com/vmc-inner-circle/k-style-ui-ux`를 넣고 `k-style-ui-ux`를 설치한다(저장소 루트의 `.cursor-plugin/marketplace.json`을 읽는다).
+로컬에서 바로 써 보려면 `plugins/k-style-ui-ux` 폴더를 `~/.cursor/plugins/local/k-style-ui-ux`로 복사하고 창을 다시 불러온다(심볼릭 링크는 읽지 않는다).
 업데이트: Claude Code `/plugin marketplace update k-style-ui-ux`, Codex `codex plugin marketplace upgrade k-style-ui-ux`.
 
 ## 명령
 
-Claude Code는 `/k-style-ui-ux:go`·`/k-style-ui-ux:max`, Codex는 `$k-style-ui-ux:go`·`$k-style-ui-ux:max`로 부른다(아래 표는 Claude Code 표기).
+Claude Code는 `/k-style-ui-ux:go`·`/k-style-ui-ux:max`, Codex는 `$k-style-ui-ux:go`·`$k-style-ui-ux:max`, Cursor는 채팅에 `/`를 치고 `go`·`max`로 부른다(아래 표는 Claude Code 표기).
 
 | 명령 | 하는 일 | 시간 |
 |---|---|---|
@@ -42,12 +45,13 @@ PRD만 붙여넣고 "화면 만들어줘"라고 해도 `go`가 실행된다. PRD
 
 ## 구조
 
-폴더 하나를 Claude Code와 Codex가 함께 설치한다 — 사본·빌드 없음.
+폴더 하나를 Claude Code·Codex·Cursor가 함께 설치한다 — 사본·빌드 없음.
 
 ```
 plugins/k-style-ui-ux/
   .claude-plugin/plugin.json   # Claude Code manifest
   .codex-plugin/plugin.json    # Codex manifest
+  .cursor-plugin/plugin.json   # Cursor manifest
   plugin.json                  # Agent Plugins 1.0 manifest(최신 Codex가 먼저 읽는다)
   skills/go/SKILL.md           # 1차
   skills/max/SKILL.md          # 2차
@@ -55,4 +59,4 @@ plugins/k-style-ui-ux/
   core/                        # 공용 — foundation(토큰·부품·팔레트·시드), scripts(검사·캔버스·이미지 검색), references(원칙·체크리스트·명세·이미지)
 ```
 
-마켓 파일: `.claude-plugin/marketplace.json`(Claude) · `.agents/plugins/marketplace.json`(Codex) — 둘 다 이 폴더를 가리킨다. 버전을 올릴 때는 manifest 3개와 `CHANGELOG.md` 맨 위를 함께 바꾼다 — PR마다 CI(`ci/verify.py`)가 어긋남을 잡는다.
+마켓 파일: `.claude-plugin/marketplace.json`(Claude) · `.agents/plugins/marketplace.json`(Codex) · `.cursor-plugin/marketplace.json`(Cursor) — 모두 이 폴더를 가리킨다. 버전을 올릴 때는 manifest 4개와 `CHANGELOG.md` 맨 위를 함께 바꾼다 — PR마다 CI(`ci/verify.py`)가 어긋남을 잡는다.

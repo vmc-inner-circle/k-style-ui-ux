@@ -1,6 +1,12 @@
 # Changelog
 
-버전은 `plugins/k-style-ui-ux/`의 manifest 3개(`.claude-plugin/plugin.json`·`.codex-plugin/plugin.json`·`plugin.json`)와 이 파일 맨 위 항목이 같아야 한다(`ci/verify.py`가 검사).
+버전은 `plugins/k-style-ui-ux/`의 manifest 4개(`.claude-plugin/plugin.json`·`.codex-plugin/plugin.json`·`.cursor-plugin/plugin.json`·`plugin.json`)와 이 파일 맨 위 항목이 같아야 한다(`ci/verify.py`가 검사).
+
+## v0.18.1
+
+- Cursor 지원: 저장소 루트 `.cursor-plugin/marketplace.json`과 플러그인 `.cursor-plugin/plugin.json`을 더해 Cursor에서 GitHub 저장소로 가져와 설치한다(같은 폴더, 사본 없음). 스킬 부르기는 `/` → `go`·`max`.
+- `save_prd.py`가 Cursor 대화 기록(`~/.cursor/projects/<폴더>/agent-transcripts/`)에서도 붙여넣은 PRD를 꺼낸다.
+- `ci/verify.py`가 Cursor 마켓·manifest까지 같은 폴더·같은 버전인지 본다.
 
 ## v0.18.0
 

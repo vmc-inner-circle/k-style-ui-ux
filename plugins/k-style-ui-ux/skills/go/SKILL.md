@@ -11,10 +11,10 @@ description: PRD(기획 문서) 한 장으로 모바일 앱 HTML 디자인을 �
 
 **경로**: 이 SKILL.md가 있는 폴더(`<스킬 폴더>` — Claude Code는 Base directory로 보여 준다)의 `../../core`가 공용 폴더다. 맨 처음 한 번 `SK=$(cd "<스킬 폴더>/../../core" && pwd -P)`로 절대경로를 정하고, 모든 명령·서브에이전트 프롬프트에 그 절대경로를 쓴다. 산출물은 `out/`.
 
-**에이전트마다 다른 것** (이 하네스는 Claude Code·Codex 둘 다에서 돈다 — 차이는 여기에만 적는다):
-- **"같은 메시지에서/한 메시지에" 띄운다** = 서브에이전트를 동시에 띄우고 모두 돌아올 때까지 같은 턴에서 기다린다는 뜻이다. Claude Code는 Agent 도구 여러 개를 한 응답에, Codex는 서브에이전트(multi-agent)를 연달아 띄운 뒤 결과를 기다린다. 서브에이전트를 쓸 수 없는 환경이면 같은 묶음을 메인이 순서대로 처리한다(시간은 늘어난다).
+**에이전트마다 다른 것** (이 하네스는 Claude Code·Codex·Cursor에서 돈다 — 차이는 여기에만 적는다):
+- **"같은 메시지에서/한 메시지에" 띄운다** = 서브에이전트를 동시에 띄우고 모두 돌아올 때까지 같은 턴에서 기다린다는 뜻이다. Claude Code는 Agent 도구, Cursor는 Task 도구(서브에이전트) 여러 개를 한 응답에, Codex는 서브에이전트(multi-agent)를 연달아 띄운 뒤 결과를 기다린다. 서브에이전트를 쓸 수 없는 환경이면 같은 묶음을 메인이 순서대로 처리한다(시간은 늘어난다).
 - **모델 등급**: "가벼운 모델" = Claude Code `haiku`, "중간 모델" = Claude Code `sonnet`. 모델을 고를 수 없으면 기본 모델로 띄운다.
-- **스킬 부르기**: Claude Code는 `/k-style-ui-ux:go`·`/k-style-ui-ux:max`, Codex는 `$k-style-ui-ux:go`·`$k-style-ui-ux:max`(또는 "k-style-ui-ux max로 …").
+- **스킬 부르기**: Claude Code는 `/k-style-ui-ux:go`·`/k-style-ui-ux:max`, Codex는 `$k-style-ui-ux:go`·`$k-style-ui-ux:max`, Cursor는 채팅에 `/`를 치고 `go`·`max`(또는 "k-style-ui-ux max로 …").
 
 ## 원칙
 
